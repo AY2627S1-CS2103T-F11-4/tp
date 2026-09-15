@@ -18,6 +18,8 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.person.Person;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
@@ -101,6 +103,20 @@ public class JsonAddressBookStorageTest {
         } catch (IOException ioe) {
             throw new AssertionError("There should not be an error writing to the file.", ioe);
         }
+    }
+
+    @Test
+    public void readAndSaveAddressBook_remarkPersistsAndClears() throws Exception {
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(testFolder.resolve("remarks.json"));
+        AddressBook book = new AddressBook();
+        Person person = new PersonBuilder(ALICE).withRemark("Call next week").build();
+        book.addPerson(person);
+        storage.saveAddressBook(book);
+        assertEquals(book, new AddressBook(storage.readAddressBook().orElseThrow()));
+
+        book.setPerson(person, new PersonBuilder(person).withRemark("").build());
+        storage.saveAddressBook(book);
+        assertEquals(book, new AddressBook(storage.readAddressBook().orElseThrow()));
     }
 
     @Test
