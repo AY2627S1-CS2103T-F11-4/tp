@@ -2,7 +2,6 @@ package seedu.address.model.person;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_ADDRESS_BOB;
 import static seedu.address.logic.commands.CommandTestUtil.VALID_EMAIL_BOB;
@@ -89,29 +88,12 @@ public class PersonTest {
         // different tags -> returns false
         editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
         assertFalse(ALICE.equals(editedAlice));
-
-        // different remark -> returns false
-        editedAlice = new PersonBuilder(ALICE).withRemark("Some remark").build();
-        assertFalse(ALICE.equals(editedAlice));
-    }
-
-    @Test
-    public void hashCodeMethod() {
-        // same values -> same hash code
-        assertEquals(ALICE.hashCode(), new PersonBuilder(ALICE).build().hashCode());
-
-        // different values -> different hash code
-        assertNotEquals(ALICE.hashCode(), BOB.hashCode());
-
-        // different remark -> different hash code
-        assertNotEquals(ALICE.hashCode(), new PersonBuilder(ALICE).withRemark("Some remark").build().hashCode());
     }
 
     @Test
     public void toStringMethod() {
         String expected = Person.class.getCanonicalName() + "{name=" + ALICE.getName() + ", phone=" + ALICE.getPhone()
-                + ", email=" + ALICE.getEmail() + ", remark=" + ALICE.getRemark()
-                + ", address=" + ALICE.getAddress() + ", tags=" + ALICE.getTags() + "}";
+                + ", email=" + ALICE.getEmail() + ", address=" + ALICE.getAddress() + ", tags=" + ALICE.getTags() + "}";
         assertEquals(expected, ALICE.toString());
     }
 }
