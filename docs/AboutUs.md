@@ -29,11 +29,11 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Team Lead
 * Responsibilities: UI
 
-### Tristan Lyn
+### Lim Jun Hong
 
-<img src="images/tristan914684.png" width="200px">
+<img src="images/sealfromdowntown.png" width="200px">
 
-[[github](https://github.com/Tristan914684)]
+[[github](http://github.com/sealfromdowntown)]
 
 * Role: Developer
 * Responsibilities: Data
@@ -48,12 +48,11 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Developer
 * Responsibilities: Dev Ops + Threading
 
-### James Doe
+### Tristan Lyn
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/tristan914684.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/Tristan914684)]
 
 * Role: Developer
 * Responsibilities: UI
