@@ -29,31 +29,29 @@ You can reach us at the email `seer[at]comp.nus.edu.sg`
 * Role: Team Lead
 * Responsibilities: UI
 
-### Khaw Zi Xiang Stuart
+### Lim Jun Hong
 
-<img src="images/skhaw2004.png" width="200px">
+<img src="images/sealfromdowntown.png" width="200px">
 
-[[github](http://github.com/skhaw2004)] [[portfolio](team/johndoe.md)]
+[[github](http://github.com/sealfromdowntown)]
 
 * Role: Developer
 * Responsibilities: Data
 
-### Jean Doe
+### Khaw Zi Xiang Stuart
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/skhaw2004.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](http://github.com/skhaw2004)]
 
 * Role: Developer
 * Responsibilities: Dev Ops + Threading
 
-### James Doe
+### Tristan Lyn
 
-<img src="images/johndoe.png" width="200px">
+<img src="images/tristan914684.png" width="200px">
 
-[[github](http://github.com/johndoe)]
-[[portfolio](team/johndoe.md)]
+[[github](https://github.com/Tristan914684)]
 
 * Role: Developer
 * Responsibilities: UI
