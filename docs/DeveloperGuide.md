@@ -270,13 +270,13 @@ _{Explain here how the data archiving feature will be implemented}_
 
 **Target user profile**:
 
-* has a need to manage a significant number of contacts
-* prefers desktop apps over other types of applications
+* requires a platform to manage a significant number of students
+* requires information linked to the student to be clear and easy to update
+* comfortable with CLI apps
 * can type fast
-* prefers typing to mouse interactions
-* is reasonably comfortable using CLI apps
+* appreciates a lightweight, offline program
 
-**Value proposition**: Manage contacts faster than with a typical mouse-driven GUI application.
+**Value proposition**: Manage students and associated information intuitively.
 
 
 ### User stories
