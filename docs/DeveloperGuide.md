@@ -328,6 +328,12 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
 2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
+4.  The graphical user interface should display its core components without truncation or overlap at resolutions of 1920×1080 and above, and all features should remain accessible at resolutions of 1280×720 and above.
+5.  The application should support English characters only in names and lesson notes.
+6.  An invalid command should leave all stored student profiles and lesson notes unchanged and should display an error message stating what went wrong, including the correct command format where the command word is recognised.
+7.  Student profiles and lesson notes should be saved after every successful data-modifying command. If the application terminates unexpectedly, the last successfully saved state should remain readable after restarting the application.
+8.  If the data file is invalid after a manual edit, the application should not crash and should inform the user of the problem.
+9.  Student and parent information should remain on the user’s computer and should not be transmitted to external services.
 
 *{More to be added}*
 
@@ -335,6 +341,17 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * **Mainstream OS**: Windows, Linux, Unix, or macOS
 * **Private contact detail**: A contact detail that is not meant to be shared with others
+* **Tutor**: The user who manages student profiles and lesson records.
+* **Student profile**: A record containing a student’s name, academic level, subjects, and parent or guardian contact details.
+* **Academic level**: The student’s education level, such as `Pri 4`, `Sec 2`, or `JC 1`.
+* **Subject**: An academic topic associated with a student or lesson note, such as Mathematics or Science.
+* **Parent or guardian contact**: The phone number and email address used to contact a student’s parent or guardian.
+* **Lesson note**: A dated record describing the subject and content covered during a lesson.
+* **Lesson history**: The collection of lesson notes associated with a student.
+* **Student index**: The number used to identify a student in the currently displayed list.
+* **Lesson index**: The number used to identify a lesson note within a student’s lesson history.
+* **Displayed list**: The list of students currently shown by the application, possibly after applying a search filter.
+* **Data file**: The local text file used to store student profiles and lesson notes.
 
 --------------------------------------------------------------------------------------------------------------------
 
