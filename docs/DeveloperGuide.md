@@ -279,20 +279,40 @@ _{Explain here how the data archiving feature will be implemented}_
 **Value proposition**: Manage students and associated information intuitively.
 
 
-### User stories
+### User Stories
 
-Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unlikely to have) - `*`
+#### Student Management
 
-| Priority | As a …                                    | I want to …                 | So that I can…                                                        |
-|----------|--------------------------------------------|------------------------------|------------------------------------------------------------------------|
-| `* * *`  | new user                                   | see usage instructions       | refer to instructions when I forget how to use the App                 |
-| `* * *`  | user                                       | add a new person             |                                                                        |
-| `* * *`  | user                                       | delete a person              | remove entries that I no longer need                                   |
-| `* * *`  | user                                       | find a person by name        | locate details of persons without having to go through the entire list |
-| `* *`    | user                                       | hide private contact details | minimize chance of someone else seeing them by accident                |
-| `*`      | user with many persons in the address book | sort persons by name         | locate a person easily                                                 |
+* **As a tutor, I want to add a student profile, so that I can keep the student's academic and contact information in one place.**
+    * Priority: Must have
 
-*{More to be added}*
+* **As a tutor, I want to view a student's profile, so that I can quickly retrieve the information needed before a lesson.**
+    * Priority: Must have
+
+* **As a tutor, I want to delete a student profile, so that I can remove outdated or incorrect records.**
+    * Priority: Must have
+
+#### Lesson Records
+
+* **As a tutor, I want to add a dated lesson note for a student, so that I can keep track of what was taught during each lesson.**
+    * Priority: Must have
+
+* **As a tutor, I want to view a student's lesson history, so that I can review the student's learning progress over time.**
+    * Priority: Must have
+
+* **As a tutor, I want to delete an incorrect lesson note, so that the student's records remain accurate.**
+    * Priority: Must have
+
+#### Organisation and Retrieval
+
+* **As a tutor, I want to search for a student, so that I can find the correct profile quickly.**
+    * Priority: Should have
+
+* **As a tutor, I want to organise students by relevant information, so that I can manage a large number of student profiles more efficiently.**
+    * Priority: Should have
+
+* **As a tutor, I want to protect student information, so that private contact and academic details are not exposed unnecessarily.**
+    * Priority: Could have
 
 ### Use cases
 
