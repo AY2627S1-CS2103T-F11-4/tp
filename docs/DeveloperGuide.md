@@ -298,7 +298,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 (For all use cases below, the **System** is the `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise)
 
-**Use case: UC01- Add a student**
+**Use case: UC01 - Add a student**
 
 **Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name.
 
@@ -317,7 +317,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
     Steps 1a1-1a2 are repeated until the details provided are valid.
 
-    Use case ends.
+    Use case resumes from step 2.
 
 * 1b. TutorBroPro detects that a student with the same name already exists.
 
@@ -368,7 +368,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 **Extensions**
 
-* * 2a. The list is empty.
+* 2a. The list is empty.
 
     * 2a1. TutorBroPro informs the tutor that there are no students.
 
