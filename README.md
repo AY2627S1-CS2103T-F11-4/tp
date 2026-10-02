@@ -3,16 +3,12 @@
 
 ![Ui](docs/images/Ui.png)
 
-* This is **a sample project for Software Engineering (SE) students**.<br>
-  Example usages:
-  * as a starting point of a course project (as opposed to writing everything from scratch)
-  * as a case study
-* The project simulates an ongoing software project for a desktop application (called _AddressBook_) used for managing contact details.
-  * It is **written in an object-oriented programming (OOP) style** and provides a **reasonably well-written** codebase of about 6 KLoC. It is **larger** than what students typically write in beginner-level software-engineering modules, without being overwhelming.
-  * It comes with a **reasonable level of user and developer documentation**.
-* It is named `AddressBook Level 3` (`AB3` for short) because it was initially created as a part of a series of `AddressBook` projects (`Level 1`, `Level 2`, `Level 3` ...).
-* For the detailed documentation of this project, see the **[Address Book Product Website](https://se-education.org/addressbook-level3)**.
-* This project is a **part of the se-education.org** initiative. If you would like to contribute code to this project, see [se-education.org](https://se-education.org/#contributing-to-se-edu) for more info.
+**TutorBroPro is a desktop app for freelance private tutors to manage their students and lesson records.** It is optimised for use via a Command Line Interface (CLI) while still having the benefits of a Graphical User Interface (GUI).
+
+* **Purpose**: TutorBroPro keeps each student's profile and lesson history in one place, so a tutor can look up a student and review past lessons before the next one.
+* **Target users**: Freelance private tutors who teach many students across different academic levels and subjects, can type fast, and prefer a lightweight, offline app.
+* **Problem solved**: Tutors often keep student details, parent contacts and lesson notes scattered across chat messages, notebooks and memory, which makes it hard to recall what was covered with each student or to reach a parent quickly.
+* **Value proposition**: TutorBroPro lets tutors manage students and their associated information faster and more intuitively than with scattered notes or a typical mouse-driven app.
 
 ## **Key Features**
 
