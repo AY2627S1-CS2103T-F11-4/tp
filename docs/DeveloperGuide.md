@@ -296,16 +296,43 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is the `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: UC01- Add a student**
+
+**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name.
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  Tutor requests to add a student, providing the student's details.
+2.  TutorBroPro adds the student and shows the updated list of students.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that a required detail is missing or invalid.
+  * 1a1. TutorBroPro informs the tutor of the problem and requests for the correct details.
+  * 1a2. Tutor provides new details.
+
+    Steps 1a1-1a2 are repeated until the details provided are valid.
+
+    Use case ends.
+
+* 1b. TutorBroPro detects that a student with the same name already exists.
+
+    * 1b1. TutorBroPro informs the tutor that the student already exists.
+
+      Use case ends.
+
+**Use case: UC02 - View a student's profile**
+
+**MSS**
+
+1.  Tutor requests to find students by name.
+2.  TutorBroPro shows a list of matching students.
+3.  Tutor requests to view the profile of a specific student in the list.
+4.  TutorBroPro shows the student's full profile.
 
     Use case ends.
 
@@ -315,11 +342,14 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
   Use case ends.
 
-* 3a. The given index is invalid.
+* 3a. TutorBroPro detects that the specified student does not exist in the list.
 
-    * 3a1. AddressBook shows an error message.
+    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
+    * 3a2. Tutor specifies another student.
 
-      Use case resumes at step 2.
+      Steps 3a1-3a2 are repeated until the student specified is valid.
+
+      Use case resumes from step 4.
 
 *{More to be added}*
 
