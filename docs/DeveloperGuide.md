@@ -296,137 +296,304 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise)
+(For all use cases below, the **System** is `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise.)
+
+The following rules apply to these use cases:
+
+* Each name search or filter starts from all students, replacing the displayed results rather than narrowing a previous search or filter.
+* Student selections refer to indices in the currently displayed student list. Lesson-note selections refer to indices in the target student's current lesson history.
+* When an extension resumes at a request step, the tutor resubmits the request and TutorBroPro validates the entire request again. The system does not retain a partially completed command.
 
 **Use case: UC01 - Add a student**
 
-**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name.
+**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name. An invalid request leaves existing profiles unchanged.
 
 **MSS**
 
-1.  Tutor requests to add a student, providing the student's details.
-2.  TutorBroPro adds the student and shows the updated list of students.
+1. Tutor requests to add a student, providing the student's details.
+2. TutorBroPro adds the student and shows the updated list of students.
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
 * 1a. TutorBroPro detects that a required detail is missing or invalid.
-  * 1a1. TutorBroPro informs the tutor of the problem and requests for the correct details.
-  * 1a2. Tutor provides new details.
 
-    Steps 1a1-1a2 are repeated until the details provided are valid.
+  * 1a1. TutorBroPro informs the tutor of the problem.
 
-    Use case resumes from step 2.
+  Use case resumes from step 1.
 
 * 1b. TutorBroPro detects that a student with the same name already exists.
 
-    * 1b1. TutorBroPro informs the tutor that the student already exists.
+  * 1b1. TutorBroPro informs the tutor that the student already exists.
 
-      Use case ends.
+  Use case ends.
 
 **Use case: UC02 - View a student's profile**
 
 **MSS**
 
-1.  Tutor requests to find students by name.
-2.  TutorBroPro shows a list of matching students.
-3.  Tutor requests to view the profile of a specific student in the list.
-4.  TutorBroPro shows the student's full profile.
+1. Tutor requests to find students by name, providing one or more search keywords.
+2. TutorBroPro shows a list of matching students.
+3. Tutor requests to view the profile of a specific student in the list.
+4. TutorBroPro shows the student's full profile.
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
-* 2a. No student matches the given name.
+* 1a. TutorBroPro detects that no search keywords were provided.
 
-    * 2a1. TutorBroPro informs the tutor that no students were found.
+  * 1a1. TutorBroPro informs the tutor that at least one keyword is required.
 
-      Use case ends.
+  Use case resumes from step 1.
 
-* 3a. TutorBroPro detects that the specified student does not exist in the list.
+* 2a. No students match the keywords.
 
-    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
-    * 3a2. Tutor specifies another student.
+  * 2a1. TutorBroPro displays an empty student list and reports that no students were found.
 
-      Steps 3a1-3a2 are repeated until the student specified is valid.
+  Use case ends.
 
-      Use case resumes from step 4.
+* 3a. TutorBroPro detects that the specified student does not exist in the displayed list.
+
+  * 3a1. TutorBroPro informs the tutor that the student selection is invalid.
+
+  Use case resumes from step 3.
 
 **Use case: UC03 - Add a lesson note**
+
+**Preconditions:** A student list is displayed.
 
 **Guarantees:** A lesson note is added only if all the details are valid. Existing lesson notes are not changed.
 
 **MSS**
 
-1.  Tutor requests to list students.
-2.  TutorBroPro shows a list of students.
-3.  Tutor requests to add a lesson note to a specific student in the list and provides the details of the lesson.
-4.  TutorBroPro adds the lesson note to the student's lesson history and confirms the addition.
+1. Tutor requests to add a lesson note to a specific student in the displayed list and provides the details of the lesson.
+2. TutorBroPro adds the lesson note to the student's lesson history and confirms the addition.
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 1a. TutorBroPro detects that the specified student does not exist in the displayed list.
 
-    * 2a1. TutorBroPro informs the tutor that there are no students.
+  * 1a1. TutorBroPro informs the tutor that the student selection is invalid.
 
-      Use case ends.
+  Use case resumes from step 1.
 
-* 3a. TutorBroPro detects that the specified student does not exist in the list.
+* 1b. TutorBroPro detects that a lesson detail is missing or invalid.
 
-    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
-    * 3a2. Tutor specifies another student.
+  * 1b1. TutorBroPro informs the tutor of the missing or invalid detail.
 
-      Steps 3a1-3a2 are repeated until the student specified is valid.
-
-      Use case resumes from step 4.
-
-* 3b. TutorBroPro detects that a lesson detail is missing or invalid.
-
-    * 3b1. TutorBroPro informs the tutor of the problem and requests for the correct details.
-    * 3b2. Tutor provides new details.
-
-      Steps 3b1-3b2 are repeated until the details provided are valid.
-
-      Use case resumes from step 4.
+  Use case resumes from step 1.
 
 **Use case: UC04 - View a student's lesson history**
 
+**Preconditions:** A student list is displayed.
+
 **MSS**
 
-1.  Tutor requests to list students.
-2.  TutorBroPro shows a list of students.
-3.  Tutor requests to view the lesson history of a specific student in the list.
-4.  TutorBroPro shows the student's lesson notes, starting from the most recent.
+1. Tutor requests to view the lesson history of a specific student in the displayed list.
+2. TutorBroPro shows the student's lesson notes, starting from the most recent.
 
-    Use case ends.
+   Use case ends.
 
 **Extensions**
 
-* 2a. The list is empty.
+* 1a. TutorBroPro detects that the specified student does not exist in the displayed list.
 
-    * 2a1. TutorBroPro informs the tutor that there are no students.
+  * 1a1. TutorBroPro informs the tutor that the student selection is invalid.
 
-      Use case ends.
+  Use case resumes from step 1.
 
-* 3a. TutorBroPro detects that the specified student does not exist in the list.
+* 1b. The student has no lesson notes.
 
-    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
-    * 3a2. Tutor specifies another student.
+  * 1b1. TutorBroPro informs the tutor that no lesson notes have been recorded for the student.
 
-      Steps 3a1-3a2 are repeated until the student specified is valid.
+  Use case ends.
 
-      Use case resumes from step 4.
+**Use case: UC05 - Find students by name**
 
-* 3b. The student has no lesson notes.
+**Guarantees:** Student profiles and lesson notes remain unchanged. An invalid request leaves the displayed student list unchanged.
 
-    * 3b1. TutorBroPro informs the tutor that no lesson notes have been recorded for the student.
+**MSS**
 
-      Use case ends.
+1. Tutor requests to find students, providing one or more search keywords.
+2. TutorBroPro searches the full student list and displays students whose names contain any of the keywords as whole words, ignoring letter case.
 
-*{More to be added}*
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that no search keywords were provided.
+
+  * 1a1. TutorBroPro informs the tutor that at least one keyword is required.
+
+  Use case resumes from step 1.
+
+* 2a. No students match the keywords.
+
+  * 2a1. TutorBroPro displays an empty student list and reports that no students were found.
+
+  Use case ends.
+
+**Use case: UC06 - Filter students by academic level or subject**
+
+**Guarantees:** Student profiles and lesson notes remain unchanged. An invalid request leaves the displayed student list unchanged.
+
+**Filtering rules:** All supplied criteria must match. When multiple subjects are supplied, a student must take every specified subject but may also take other subjects. If an academic level is supplied, the student must also match that level. Subject matching ignores letter case and compares complete subject names.
+
+For example, filtering for Math includes students taking Math and Science. Filtering for Sec 2, Math and Science includes only Sec 2 students taking both subjects, including those taking additional subjects.
+
+**MSS**
+
+1. Tutor requests to filter students, specifying an academic level, one or more subjects, or both.
+2. TutorBroPro searches the full student list and displays students matching all the specified criteria.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that no filtering criteria were provided.
+
+  * 1a1. TutorBroPro informs the tutor that at least one academic-level or subject criterion is required.
+
+  Use case resumes from step 1.
+
+* 1b. TutorBroPro detects an invalid academic level or subject.
+
+  * 1b1. TutorBroPro informs the tutor of the invalid criterion.
+
+  Use case resumes from step 1.
+
+* 2a. No students match the criteria.
+
+  * 2a1. TutorBroPro displays an empty student list and indicates that there are no matching students.
+
+  Use case ends.
+
+**Use case: UC07 - Edit a student's profile**
+
+**Preconditions:** A student list is displayed.
+
+**Guarantees:** An invalid request leaves all student profiles unchanged. A successful edit changes only the specified student's requested profile fields; their lesson notes remain attached and unchanged. The student retains at least one subject.
+
+**Subject-editing rules:** Omitting subjects from an edit leaves the existing subjects unchanged. Supplying subjects replaces the entire subject list, so the tutor must supply all subjects they want to retain. An empty replacement subject list is invalid and leaves the entire profile unchanged.
+
+**MSS**
+
+1. Tutor requests to edit a student in the displayed list, specifying the student and the profile details to change.
+2. TutorBroPro updates the student's profile and displays the updated details.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that the specified student does not exist in the displayed list.
+
+  * 1a1. TutorBroPro informs the tutor that the student selection is invalid.
+
+  Use case resumes from step 1.
+
+* 1b. TutorBroPro detects that no changes were specified.
+
+  * 1b1. TutorBroPro informs the tutor that at least one profile field must be provided for editing.
+
+  Use case resumes from step 1.
+
+* 1c. TutorBroPro detects an invalid profile detail, including a replacement subject list containing no subjects.
+
+  * 1c1. TutorBroPro informs the tutor of the invalid detail and, if the subject list is empty, explains that at least one subject is required.
+
+  Use case resumes from step 1.
+
+* 1d. TutorBroPro detects that the proposed name duplicates another student's name.
+
+  * 1d1. TutorBroPro informs the tutor that another student already has that name.
+
+  Use case resumes from step 1.
+
+**Use case: UC08 - Delete a student**
+
+**Preconditions:** A student list is displayed.
+
+**Guarantees:** A successful deletion removes the specified student and all their associated lesson notes. Other students and their notes remain unchanged. An invalid request deletes nothing.
+
+Deletion is immediate, without a confirmation prompt or an undo operation.
+
+**MSS**
+
+1. Tutor requests to delete a student from the displayed list.
+2. TutorBroPro deletes the student and all their associated lesson notes.
+3. TutorBroPro updates the displayed student list, clears the deleted student's profile if it was being shown, and confirms the deletion, including the number of lesson notes removed.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that the specified student does not exist in the displayed list.
+
+  * 1a1. TutorBroPro informs the tutor that the student selection is invalid.
+
+  Use case resumes from step 1.
+
+**Use case: UC09 - Edit a lesson note**
+
+**Preconditions:** The target student's lesson history is displayed.
+
+**Guarantees:** An invalid request leaves all lesson notes unchanged. A successful edit changes only the specified note's requested fields; other notes and the student's profile remain unchanged.
+
+**MSS**
+
+1. Tutor requests to edit a lesson note, specifying the student, the note, and the lesson details to change.
+2. TutorBroPro updates the note and reorders the student's lesson history if the lesson date changed.
+3. TutorBroPro confirms that the note was updated.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that the specified student or lesson note is invalid.
+
+  * 1a1. TutorBroPro informs the tutor of the invalid selection.
+
+  Use case resumes from step 1.
+
+* 1b. TutorBroPro detects that no changes were specified.
+
+  * 1b1. TutorBroPro informs the tutor that at least one lesson-note field must be provided for editing.
+
+  Use case resumes from step 1.
+
+* 1c. TutorBroPro detects an invalid lesson detail, such as an invalid or future date, an invalid subject, or invalid note text.
+
+  * 1c1. TutorBroPro informs the tutor of the invalid detail.
+
+  Use case resumes from step 1.
+
+**Use case: UC10 - Delete a lesson note**
+
+**Preconditions:** The target student's lesson history is displayed.
+
+**Guarantees:** A successful deletion removes only the specified lesson note. The student's profile and other lesson notes remain unchanged. An invalid request deletes nothing.
+
+Deletion is immediate, without a confirmation prompt or an undo operation.
+
+**MSS**
+
+1. Tutor requests to delete a lesson note, specifying the student and the note.
+2. TutorBroPro deletes the note and updates the lesson history, renumbering the remaining entries.
+3. TutorBroPro confirms that the note was deleted.
+
+   Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that the specified student or lesson note is invalid.
+
+  * 1a1. TutorBroPro informs the tutor of the invalid selection.
+
+  Use case resumes from step 1.
 
 ### Non-Functional Requirements
 
@@ -455,6 +622,7 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 * **Lesson history**: The collection of lesson notes associated with a student.
 * **Student index**: The number used to identify a student in the currently displayed list.
 * **Lesson index**: The number used to identify a lesson note within a student’s lesson history.
+* **Search keyword**: A word supplied by the tutor to search student names. Matching ignores letter case and requires a whole-word match; for example, `Alex` matches `Alex Yeoh`, but `Ale` does not.
 * **Displayed list**: The list of students currently shown by the application, possibly after applying a search filter.
 * **Data file**: The local text file used to store student profiles and lesson notes.
 
