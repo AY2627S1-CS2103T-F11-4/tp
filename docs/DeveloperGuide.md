@@ -296,16 +296,73 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 ### Use cases
 
-(For all use cases below, the **System** is the `AddressBook` and the **Actor** is the `user`, unless specified otherwise)
+(For all use cases below, the **System** is the `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise)
 
-**Use case: Delete a person**
+**Use case: UC01 - Add a student**
+
+**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name.
 
 **MSS**
 
-1.  User requests to list persons
-2.  AddressBook shows a list of persons
-3.  User requests to delete a specific person in the list
-4.  AddressBook deletes the person
+1.  Tutor requests to add a student, providing the student's details.
+2.  TutorBroPro adds the student and shows the updated list of students.
+
+    Use case ends.
+
+**Extensions**
+
+* 1a. TutorBroPro detects that a required detail is missing or invalid.
+  * 1a1. TutorBroPro informs the tutor of the problem and requests for the correct details.
+  * 1a2. Tutor provides new details.
+
+    Steps 1a1-1a2 are repeated until the details provided are valid.
+
+    Use case resumes from step 2.
+
+* 1b. TutorBroPro detects that a student with the same name already exists.
+
+    * 1b1. TutorBroPro informs the tutor that the student already exists.
+
+      Use case ends.
+
+**Use case: UC02 - View a student's profile**
+
+**MSS**
+
+1.  Tutor requests to find students by name.
+2.  TutorBroPro shows a list of matching students.
+3.  Tutor requests to view the profile of a specific student in the list.
+4.  TutorBroPro shows the student's full profile.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. No student matches the given name.
+
+    * 2a1. TutorBroPro informs the tutor that no students were found.
+
+      Use case ends.
+
+* 3a. TutorBroPro detects that the specified student does not exist in the list.
+
+    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
+    * 3a2. Tutor specifies another student.
+
+      Steps 3a1-3a2 are repeated until the student specified is valid.
+
+      Use case resumes from step 4.
+
+**Use case: UC03 - Add a lesson note**
+
+**Guarantees:** A lesson note is added only if all the details are valid. Existing lesson notes are not changed.
+
+**MSS**
+
+1.  Tutor requests to list students.
+2.  TutorBroPro shows a list of students.
+3.  Tutor requests to add a lesson note to a specific student in the list and provides the details of the lesson.
+4.  TutorBroPro adds the lesson note to the student's lesson history and confirms the addition.
 
     Use case ends.
 
@@ -313,13 +370,61 @@ Priorities: High (must have) - `* * *`, Medium (nice to have) - `* *`, Low (unli
 
 * 2a. The list is empty.
 
-  Use case ends.
+    * 2a1. TutorBroPro informs the tutor that there are no students.
 
-* 3a. The given index is invalid.
+      Use case ends.
 
-    * 3a1. AddressBook shows an error message.
+* 3a. TutorBroPro detects that the specified student does not exist in the list.
 
-      Use case resumes at step 2.
+    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
+    * 3a2. Tutor specifies another student.
+
+      Steps 3a1-3a2 are repeated until the student specified is valid.
+
+      Use case resumes from step 4.
+
+* 3b. TutorBroPro detects that a lesson detail is missing or invalid.
+
+    * 3b1. TutorBroPro informs the tutor of the problem and requests for the correct details.
+    * 3b2. Tutor provides new details.
+
+      Steps 3b1-3b2 are repeated until the details provided are valid.
+
+      Use case resumes from step 4.
+
+**Use case: UC04 - View a student's lesson history**
+
+**MSS**
+
+1.  Tutor requests to list students.
+2.  TutorBroPro shows a list of students.
+3.  Tutor requests to view the lesson history of a specific student in the list.
+4.  TutorBroPro shows the student's lesson notes, starting from the most recent.
+
+    Use case ends.
+
+**Extensions**
+
+* 2a. The list is empty.
+
+    * 2a1. TutorBroPro informs the tutor that there are no students.
+
+      Use case ends.
+
+* 3a. TutorBroPro detects that the specified student does not exist in the list.
+
+    * 3a1. TutorBroPro informs the tutor of the problem and requests for a valid student.
+    * 3a2. Tutor specifies another student.
+
+      Steps 3a1-3a2 are repeated until the student specified is valid.
+
+      Use case resumes from step 4.
+
+* 3b. The student has no lesson notes.
+
+    * 3b1. TutorBroPro informs the tutor that no lesson notes have been recorded for the student.
+
+      Use case ends.
 
 *{More to be added}*
 
