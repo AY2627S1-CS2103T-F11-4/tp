@@ -12,16 +12,77 @@ import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 import static seedu.address.testutil.TypicalPersons.BOB;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
+import seedu.address.model.subject.Subject;
 import seedu.address.testutil.PersonBuilder;
 
 public class PersonTest {
+
+    private static final LessonNote EARLIEST_NOTE = new LessonNote(new LessonDate("2024-09-04"),
+            new Subject("Math"), new NoteText("Introduced factorisation"));
+    private static final LessonNote MIDDLE_NOTE = new LessonNote(new LessonDate("2024-09-11"),
+            new Subject("Science"), new NoteText("Recapped photosynthesis"));
+    private static final LessonNote LATEST_NOTE = new LessonNote(new LessonDate("2024-09-18"),
+            new Subject("Math"), new NoteText("Covered quadratic equations"));
 
     @Test
     public void asObservableList_modifyList_throwsUnsupportedOperationException() {
         Person person = new PersonBuilder().build();
         assertThrows(UnsupportedOperationException.class, () -> person.getTags().remove(0));
+    }
+
+    @Test
+    public void constructor_nullLessonNotes_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> new Person(ALICE.getName(), ALICE.getPhone(),
+                ALICE.getEmail(), ALICE.getAddress(), ALICE.getTags(), null));
+    }
+
+    @Test
+    public void constructor_withoutLessonNotes_hasNoLessonNotes() {
+        Person person = new Person(ALICE.getName(), ALICE.getPhone(), ALICE.getEmail(), ALICE.getAddress(),
+                ALICE.getTags());
+        assertTrue(person.getLessonNotes().isEmpty());
+    }
+
+    @Test
+    public void getLessonNotes_notesGivenOutOfOrder_sortedByMostRecentDateFirst() {
+        Person person = new PersonBuilder().withLessonNotes(MIDDLE_NOTE, EARLIEST_NOTE, LATEST_NOTE).build();
+        assertEquals(List.of(LATEST_NOTE, MIDDLE_NOTE, EARLIEST_NOTE), person.getLessonNotes());
+    }
+
+    @Test
+    public void getLessonNotes_notesOnSameDate_keepGivenOrder() {
+        LessonNote firstGiven = new LessonNote(new LessonDate("2024-09-18"), new Subject("Science"),
+                new NoteText("Make-up lesson"));
+        LessonNote secondGiven = LATEST_NOTE;
+
+        Person person = new PersonBuilder().withLessonNotes(EARLIEST_NOTE, firstGiven, secondGiven).build();
+        assertEquals(List.of(firstGiven, secondGiven, EARLIEST_NOTE), person.getLessonNotes());
+    }
+
+    @Test
+    public void getLessonNotes_modifyList_throwsUnsupportedOperationException() {
+        Person person = new PersonBuilder().withLessonNotes(LATEST_NOTE).build();
+        assertThrows(UnsupportedOperationException.class, () -> person.getLessonNotes().add(EARLIEST_NOTE));
+        assertThrows(UnsupportedOperationException.class, () -> person.getLessonNotes().remove(0));
+    }
+
+    @Test
+    public void getLessonNotes_originalListModified_personUnchanged() {
+        List<LessonNote> originalList = new ArrayList<>(List.of(LATEST_NOTE));
+        Person person = new Person(ALICE.getName(), ALICE.getPhone(), ALICE.getEmail(), ALICE.getAddress(),
+                ALICE.getTags(), originalList);
+
+        originalList.add(EARLIEST_NOTE);
+
+        assertEquals(List.of(LATEST_NOTE), person.getLessonNotes());
     }
 
     @Test
@@ -88,6 +149,22 @@ public class PersonTest {
         // different tags -> returns false
         editedAlice = new PersonBuilder(ALICE).withTags(VALID_TAG_HUSBAND).build();
         assertFalse(ALICE.equals(editedAlice));
+
+        // different lesson notes -> returns false
+        editedAlice = new PersonBuilder(ALICE).withLessonNotes(LATEST_NOTE).build();
+        assertFalse(ALICE.equals(editedAlice));
+
+        // same lesson notes given in a different order -> returns true
+        Person aliceWithNotes = new PersonBuilder(ALICE).withLessonNotes(EARLIEST_NOTE, LATEST_NOTE).build();
+        Person aliceWithReorderedNotes = new PersonBuilder(ALICE).withLessonNotes(LATEST_NOTE, EARLIEST_NOTE).build();
+        assertTrue(aliceWithNotes.equals(aliceWithReorderedNotes));
+    }
+
+    @Test
+    public void hashCode_sameValues_sameHashCode() {
+        Person aliceWithNotes = new PersonBuilder(ALICE).withLessonNotes(EARLIEST_NOTE, LATEST_NOTE).build();
+        Person aliceWithNotesCopy = new PersonBuilder(aliceWithNotes).build();
+        assertEquals(aliceWithNotes.hashCode(), aliceWithNotesCopy.hashCode());
     }
 
     @Test
