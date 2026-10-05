@@ -24,7 +24,11 @@ import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.Person;
+import seedu.address.model.subject.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
 
@@ -68,6 +72,29 @@ public class EditCommandTest {
         expectedModel.setPerson(lastPerson, editedPerson);
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_personWithLessonNotes_lessonNotesPreserved() {
+        Person firstPerson = model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased());
+        Person personWithLessonNotes = new PersonBuilder(firstPerson).withLessonNotes(
+                new LessonNote(new LessonDate("2024-09-18"), new Subject("Math"), new NoteText("Covered algebra")),
+                new LessonNote(new LessonDate("2024-09-04"), new Subject("Science"), new NoteText("Covered cells")))
+                .build();
+        model.setPerson(firstPerson, personWithLessonNotes);
+
+        Person editedPerson = new PersonBuilder(personWithLessonNotes).withPhone(VALID_PHONE_BOB).build();
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withPhone(VALID_PHONE_BOB).build();
+        EditCommand editCommand = new EditCommand(INDEX_FIRST_PERSON, descriptor);
+
+        String expectedMessage = String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedPerson));
+
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setPerson(personWithLessonNotes, editedPerson);
+
+        assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+        assertEquals(personWithLessonNotes.getLessonNotes(),
+                model.getFilteredPersonList().get(INDEX_FIRST_PERSON.getZeroBased()).getLessonNotes());
     }
 
     @Test
