@@ -16,30 +16,27 @@ public class SubjectTest {
 
     @Test
     public void constructor_invalidSubjectName_throwsIllegalArgumentException() {
-        String invalidSubjectName = "";
-        assertThrows(IllegalArgumentException.class, () -> new Subject(invalidSubjectName));
+        assertThrows(IllegalArgumentException.class, () -> new Subject(""));
+        assertThrows(IllegalArgumentException.class, () -> new Subject("1"));
     }
 
     @Test
     public void isValidSubjectName() {
-        // null subject name
         assertThrows(NullPointerException.class, () -> Subject.isValidSubjectName(null));
 
-        // invalid subject name
-        assertFalse(Subject.isValidSubjectName("")); // empty string
-        assertFalse(Subject.isValidSubjectName(" ")); // spaces only
-        assertFalse(Subject.isValidSubjectName("M")); // 1 character
-        assertFalse(Subject.isValidSubjectName("a".repeat(31))); // 31 characters
-        assertFalse(Subject.isValidSubjectName("Math2")); // contains a digit
-        assertFalse(Subject.isValidSubjectName("A-Math")); // contains a symbol
-        assertFalse(Subject.isValidSubjectName(" Math")); // leading space
-        assertFalse(Subject.isValidSubjectName("Math ")); // trailing space
+        assertFalse(Subject.isValidSubjectName(""));
+        assertFalse(Subject.isValidSubjectName(" "));
+        assertFalse(Subject.isValidSubjectName("M"));
+        assertFalse(Subject.isValidSubjectName("a".repeat(31)));
+        assertFalse(Subject.isValidSubjectName("Math2"));
+        assertFalse(Subject.isValidSubjectName("A-Math"));
+        assertFalse(Subject.isValidSubjectName(" Math"));
+        assertFalse(Subject.isValidSubjectName("Math "));
 
-        // valid subject name
-        assertTrue(Subject.isValidSubjectName("PE")); // 2 characters
-        assertTrue(Subject.isValidSubjectName("a".repeat(30))); // 30 characters
-        assertTrue(Subject.isValidSubjectName("Math")); // letters only
-        assertTrue(Subject.isValidSubjectName("Additional Mathematics")); // letters and spaces
+        assertTrue(Subject.isValidSubjectName("PE"));
+        assertTrue(Subject.isValidSubjectName("a".repeat(30)));
+        assertTrue(Subject.isValidSubjectName("Math"));
+        assertTrue(Subject.isValidSubjectName("Additional Mathematics"));
     }
 
     @Test
@@ -51,22 +48,12 @@ public class SubjectTest {
     public void equals() {
         Subject subject = new Subject("Math");
 
-        // same values -> returns true
-        assertTrue(subject.equals(new Subject("Math")));
-
-        // same object -> returns true
         assertTrue(subject.equals(subject));
-
-        // same name in a different case -> returns true
+        assertTrue(subject.equals(new Subject("Math")));
         assertTrue(subject.equals(new Subject("math")));
-
-        // null -> returns false
         assertFalse(subject.equals(null));
-
-        // different types -> returns false
         assertFalse(subject.equals(5.0f));
-
-        // different values -> returns false
+        assertFalse(subject.equals("Math"));
         assertFalse(subject.equals(new Subject("Science")));
     }
 

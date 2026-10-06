@@ -9,11 +9,11 @@ import java.util.Set;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
-import seedu.address.model.person.Address;
+import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
 import seedu.address.model.person.Phone;
-import seedu.address.model.tag.Tag;
+import seedu.address.model.subject.Subject;
 
 /**
  * Contains utility methods used for parsing strings in the various *Parser classes.
@@ -50,6 +50,16 @@ public class ParserUtil {
         return new Name(trimmedName);
     }
 
+    /** Parses a string into an {@code AcademicLevel}. */
+    public static AcademicLevel parseAcademicLevel(String level) throws ParseException {
+        requireNonNull(level);
+        try {
+            return new AcademicLevel(level);
+        } catch (IllegalArgumentException exception) {
+            throw new ParseException(AcademicLevel.MESSAGE_CONSTRAINTS, exception);
+        }
+    }
+
     /**
      * Parses a {@code String phone} into a {@code Phone}.
      * Leading and trailing whitespaces will be trimmed.
@@ -63,21 +73,6 @@ public class ParserUtil {
             throw new ParseException(Phone.MESSAGE_CONSTRAINTS);
         }
         return new Phone(trimmedPhone);
-    }
-
-    /**
-     * Parses a {@code String address} into an {@code Address}.
-     * Leading and trailing whitespaces will be trimmed.
-     *
-     * @throws ParseException if the given {@code address} is invalid.
-     */
-    public static Address parseAddress(String address) throws ParseException {
-        requireNonNull(address);
-        String trimmedAddress = address.trim();
-        if (!Address.isValidAddress(trimmedAddress)) {
-            throw new ParseException(Address.MESSAGE_CONSTRAINTS);
-        }
-        return new Address(trimmedAddress);
     }
 
     /**
@@ -95,30 +90,24 @@ public class ParserUtil {
         return new Email(trimmedEmail);
     }
 
-    /**
-     * Parses a {@code String tag} into a {@code Tag}.
-     * Leading and trailing whitespaces will be trimmed.
-     *
-     * @throws ParseException if the given {@code tag} is invalid.
-     */
-    public static Tag parseTag(String tag) throws ParseException {
-        requireNonNull(tag);
-        String trimmedTag = tag.trim();
-        if (!Tag.isValidTagName(trimmedTag)) {
-            throw new ParseException(Tag.MESSAGE_CONSTRAINTS);
+    /** Parses a string into a {@code Subject}. */
+    public static Subject parseSubject(String subject) throws ParseException {
+        requireNonNull(subject);
+        try {
+            return new Subject(subject);
+        } catch (IllegalArgumentException exception) {
+            throw new ParseException(Subject.MESSAGE_CONSTRAINTS, exception);
         }
-        return new Tag(trimmedTag);
     }
 
-    /**
-     * Parses {@code Collection<String> tags} into a {@code Set<Tag>}.
-     */
-    public static Set<Tag> parseTags(Collection<String> tags) throws ParseException {
-        requireNonNull(tags);
-        final Set<Tag> tagSet = new HashSet<>();
-        for (String tagName : tags) {
-            tagSet.add(parseTag(tagName));
+    /** Parses subject values into a set, merging duplicate subjects case-insensitively. */
+    public static Set<Subject> parseSubjects(Collection<String> subjects) throws ParseException {
+        requireNonNull(subjects);
+        final Set<Subject> subjectSet = new HashSet<>();
+        for (String subject : subjects) {
+            subjectSet.add(parseSubject(subject));
         }
-        return tagSet;
+        return subjectSet;
     }
+
 }
