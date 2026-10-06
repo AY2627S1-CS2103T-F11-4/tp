@@ -81,6 +81,22 @@ public class AddressBookTest {
         assertEquals(expected, addressBook.toString());
     }
 
+    @Test
+    public void equals_sameObjectAndDifferentType_behavesCorrectly() {
+        AddressBook otherAddressBook = new AddressBook();
+
+        assertTrue(addressBook.equals(addressBook));
+        assertTrue(addressBook.equals(otherAddressBook));
+        assertFalse(addressBook.equals("not an address book"));
+    }
+
+    @Test
+    public void hashCode_sameContents_returnsSameHashCode() {
+        AddressBook otherAddressBook = new AddressBook();
+
+        assertEquals(addressBook.hashCode(), otherAddressBook.hashCode());
+    }
+
     private static class AddressBookStub implements ReadOnlyAddressBook {
         private final ObservableList<Student> students = FXCollections.observableArrayList();
 

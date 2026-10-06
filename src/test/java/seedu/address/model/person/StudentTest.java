@@ -29,4 +29,14 @@ public class StudentTest {
 
         assertEquals(student.hashCode(), new PersonBuilder(student).build().hashCode());
     }
+
+    @Test
+    public void equals_differentFields_returnsFalse() {
+        Student student = new PersonBuilder().build();
+
+        assertFalse(student.equals(new PersonBuilder(student).withAcademicLevel("Pri 1").build()));
+        assertFalse(student.equals(new PersonBuilder(student).withSubjects("Science").build()));
+        assertFalse(student.equals(new PersonBuilder(student).withPhone("91234567").build()));
+        assertFalse(student.equals(new PersonBuilder(student).withEmail("student@example.com").build()));
+    }
 }

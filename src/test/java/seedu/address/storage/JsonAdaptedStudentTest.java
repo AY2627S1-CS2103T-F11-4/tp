@@ -13,15 +13,27 @@ public class JsonAdaptedStudentTest {
     private static final List<String> VALID_SUBJECTS = List.of("Math");
 
     @Test
+    public void constructor_nullSubjects_createsEmptySubjectList() {
+        assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
+                "Student", "Sec 2", null, "91234567", "student@example.com").toModelType());
+    }
+
+    @Test
     public void toModelType_missingName_throwsIllegalValueException() {
         assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
                 null, "Sec 2", VALID_SUBJECTS, "91234567", "student@example.com").toModelType());
+
+        assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
+                "Invalid!", "Sec 2", VALID_SUBJECTS, "91234567", "student@example.com").toModelType());
     }
 
     @Test
     public void toModelType_invalidAcademicLevel_throwsIllegalValueException() {
         assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
                 "Student", "Secondary 2", VALID_SUBJECTS, "91234567", "student@example.com").toModelType());
+
+        assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
+                "Student", null, VALID_SUBJECTS, "91234567", "student@example.com").toModelType());
     }
 
     @Test
@@ -34,11 +46,17 @@ public class JsonAdaptedStudentTest {
     public void toModelType_invalidPhone_throwsIllegalValueException() {
         assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
                 "Student", "Sec 2", VALID_SUBJECTS, "123", "student@example.com").toModelType());
+
+        assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
+                "Student", "Sec 2", VALID_SUBJECTS, null, "student@example.com").toModelType());
     }
 
     @Test
     public void toModelType_invalidEmail_throwsIllegalValueException() {
         assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
                 "Student", "Sec 2", VALID_SUBJECTS, "91234567", "not-an-email").toModelType());
+
+        assertThrows(IllegalValueException.class, () -> new JsonAdaptedStudent(
+                "Student", "Sec 2", VALID_SUBJECTS, "91234567", null).toModelType());
     }
 }

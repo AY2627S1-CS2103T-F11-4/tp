@@ -82,6 +82,14 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_multipleSubjects_success() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects("Math", "Science").build();
+
+        assertParseSuccess(parser, "1 s/Math s/Science", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_invalidName_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> parser.parse("1 n/!!!"));
     }

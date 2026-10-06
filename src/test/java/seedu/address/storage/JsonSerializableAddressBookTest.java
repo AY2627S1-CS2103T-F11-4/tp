@@ -21,6 +21,13 @@ public class JsonSerializableAddressBookTest {
     }
 
     @Test
+    public void constructor_nullStudents_createsEmptyAddressBook() throws Exception {
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook((List<JsonAdaptedStudent>) null);
+
+        assertEquals(new AddressBook(), data.toModelType());
+    }
+
+    @Test
     public void toModelType_invalidStudent_throwsIllegalValueException() {
         JsonAdaptedStudent invalidStudent = new JsonAdaptedStudent(
                 "Alice", "Sec 2", List.of("M"), "91234567", "alice@example.com");

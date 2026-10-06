@@ -12,6 +12,8 @@ public class AcademicLevelTest {
     @Test
     public void constructor_invalidLevel_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("Secondary 2"));
+        assertFalse(AcademicLevel.isValidAcademicLevel("Secondary 2"));
+        assertFalse(AcademicLevel.isValidAcademicLevel(null));
     }
 
     @Test
