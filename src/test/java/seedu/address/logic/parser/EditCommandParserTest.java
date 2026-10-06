@@ -1,6 +1,7 @@
 package seedu.address.logic.parser;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PARENT_EMAIL_DESC_AMY;
@@ -78,5 +79,25 @@ public class EditCommandParserTest {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSubjects().build();
         assertParseSuccess(parser, "1 s/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
         assertEquals(java.util.Set.of(), descriptor.getSubjects().orElseThrow());
+    }
+
+    @Test
+    public void parse_invalidName_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 n/!!!"));
+    }
+
+    @Test
+    public void parse_invalidAcademicLevel_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 lvl/Secondary 2"));
+    }
+
+    @Test
+    public void parse_invalidPhone_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 pn/123"));
+    }
+
+    @Test
+    public void parse_invalidEmail_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 pe/not-an-email"));
     }
 }
