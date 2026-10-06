@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import seedu.address.commons.exceptions.IllegalValueException;
+import seedu.address.model.lesson.LessonNote;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -26,13 +27,26 @@ class JsonAdaptedStudent {
     private final List<String> subjects = new ArrayList<>();
     private final String parentPhone;
     private final String parentEmail;
+    private final List<JsonAdaptedLessonNote> lessonNotes = new ArrayList<>();
 
+    /**
+     * Constructs a {@code JsonAdaptedStudent} with the given student details and no lesson notes.
+     */
+    public JsonAdaptedStudent(String name, String academicLevel, List<String> subjects,
+            String parentPhone, String parentEmail) {
+        this(name, academicLevel, subjects, parentPhone, parentEmail, null);
+    }
+
+    /**
+     * Constructs a {@code JsonAdaptedStudent} with the given student details.
+     */
     @JsonCreator
     public JsonAdaptedStudent(@JsonProperty("name") String name,
             @JsonProperty("academicLevel") String academicLevel,
             @JsonProperty("subjects") List<String> subjects,
             @JsonProperty("parentPhone") String parentPhone,
-            @JsonProperty("parentEmail") String parentEmail) {
+            @JsonProperty("parentEmail") String parentEmail,
+            @JsonProperty("lessonNotes") List<JsonAdaptedLessonNote> lessonNotes) {
         this.name = name;
         this.academicLevel = academicLevel;
         if (subjects != null) {
@@ -40,6 +54,10 @@ class JsonAdaptedStudent {
         }
         this.parentPhone = parentPhone;
         this.parentEmail = parentEmail;
+        // Data files saved before lesson notes were introduced do not have this field
+        if (lessonNotes != null) {
+            this.lessonNotes.addAll(lessonNotes);
+        }
     }
 
     public JsonAdaptedStudent(Student source) {
@@ -48,6 +66,7 @@ class JsonAdaptedStudent {
         source.getSubjects().forEach(subject -> subjects.add(subject.subjectName));
         parentPhone = source.getParentPhone().value;
         parentEmail = source.getParentEmail().value;
+        source.getLessonNotes().forEach(lessonNote -> lessonNotes.add(new JsonAdaptedLessonNote(lessonNote)));
     }
 
     public Student toModelType() throws IllegalValueException {
@@ -75,7 +94,12 @@ class JsonAdaptedStudent {
             modelSubjects.add(new Subject(subject));
         }
 
+        List<LessonNote> modelLessonNotes = new ArrayList<>();
+        for (JsonAdaptedLessonNote lessonNote : lessonNotes) {
+            modelLessonNotes.add(lessonNote.toModelType());
+        }
+
         return new Student(new Name(name), new AcademicLevel(academicLevel), modelSubjects,
-                new Phone(parentPhone), new Email(parentEmail));
+                new Phone(parentPhone), new Email(parentEmail), modelLessonNotes);
     }
 }
