@@ -2,73 +2,49 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static seedu.address.testutil.Assert.assertThrows;
-import static seedu.address.testutil.TypicalPersons.ALICE;
+import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.exceptions.IllegalValueException;
-import seedu.address.commons.util.JsonUtil;
 import seedu.address.model.AddressBook;
-import seedu.address.model.lesson.LessonDate;
-import seedu.address.model.lesson.LessonNote;
-import seedu.address.model.lesson.NoteText;
-import seedu.address.model.person.Person;
-import seedu.address.model.subject.Subject;
-import seedu.address.testutil.PersonBuilder;
-import seedu.address.testutil.TypicalPersons;
 
 public class JsonSerializableAddressBookTest {
 
-    private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonSerializableAddressBookTest");
-    private static final Path TYPICAL_PERSONS_FILE = TEST_DATA_FOLDER.resolve("typicalPersonsAddressBook.json");
-    private static final Path INVALID_PERSON_FILE = TEST_DATA_FOLDER.resolve("invalidPersonAddressBook.json");
-    private static final Path DUPLICATE_PERSON_FILE = TEST_DATA_FOLDER.resolve("duplicatePersonAddressBook.json");
-    private static final Path PERSON_WITH_LESSON_NOTES_FILE =
-            TEST_DATA_FOLDER.resolve("personWithLessonNotesAddressBook.json");
-
     @Test
-    public void toModelType_typicalPersonsFile_success() throws Exception {
-        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(TYPICAL_PERSONS_FILE,
-                JsonSerializableAddressBook.class).get();
-        AddressBook addressBookFromFile = dataFromFile.toModelType();
-        AddressBook typicalPersonsAddressBook = TypicalPersons.getTypicalAddressBook();
-        assertEquals(addressBookFromFile, typicalPersonsAddressBook);
+    public void toModelType_typicalStudents_success() throws Exception {
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(getTypicalAddressBook());
+        AddressBook addressBook = data.toModelType();
+        assertEquals(getTypicalAddressBook(), addressBook);
     }
 
     @Test
-    public void toModelType_personWithLessonNotesFile_success() throws Exception {
-        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(PERSON_WITH_LESSON_NOTES_FILE,
-                JsonSerializableAddressBook.class).get();
-        AddressBook addressBookFromFile = dataFromFile.toModelType();
+    public void constructor_nullStudents_createsEmptyAddressBook() throws Exception {
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook((List<JsonAdaptedStudent>) null);
 
-        Person aliceWithLessonNotes = new PersonBuilder(ALICE).withLessonNotes(
-                new LessonNote(new LessonDate("2024-09-18"), new Subject("Math"),
-                        new NoteText("Covered quadratic equations")),
-                new LessonNote(new LessonDate("2024-09-04"), new Subject("Science"),
-                        new NoteText("Recapped photosynthesis")))
-                .build();
-        AddressBook expectedAddressBook = new AddressBook();
-        expectedAddressBook.addPerson(aliceWithLessonNotes);
-
-        assertEquals(expectedAddressBook, addressBookFromFile);
+        assertEquals(new AddressBook(), data.toModelType());
     }
 
     @Test
-    public void toModelType_invalidPersonFile_throwsIllegalValueException() throws Exception {
-        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(INVALID_PERSON_FILE,
-                JsonSerializableAddressBook.class).get();
-        assertThrows(IllegalValueException.class, dataFromFile::toModelType);
+    public void toModelType_invalidStudent_throwsIllegalValueException() {
+        JsonAdaptedStudent invalidStudent = new JsonAdaptedStudent(
+                "Alice", "Sec 2", List.of("M"), "91234567", "alice@example.com");
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(invalidStudent));
+
+        assertThrows(IllegalValueException.class, data::toModelType);
     }
 
     @Test
-    public void toModelType_duplicatePersons_throwsIllegalValueException() throws Exception {
-        JsonSerializableAddressBook dataFromFile = JsonUtil.readJsonFile(DUPLICATE_PERSON_FILE,
-                JsonSerializableAddressBook.class).get();
-        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_PERSON,
-                dataFromFile::toModelType);
-    }
+    public void toModelType_duplicateStudents_throwsIllegalValueException() {
+        JsonAdaptedStudent first = new JsonAdaptedStudent(
+                "Alice", "Sec 2", List.of("Math"), "91234567", "alice@example.com");
+        JsonAdaptedStudent second = new JsonAdaptedStudent(
+                "Alice", "Pri 1", List.of("Science"), "92345678", "alice2@example.com");
+        JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(first, second));
 
+        assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_STUDENT,
+                data::toModelType);
+    }
 }
