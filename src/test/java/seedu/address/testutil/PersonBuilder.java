@@ -1,9 +1,12 @@
 package seedu.address.testutil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import seedu.address.model.lesson.LessonNote;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -25,6 +28,7 @@ public class PersonBuilder {
     private Set<Subject> subjects;
     private Phone parentPhone;
     private Email parentEmail;
+    private List<LessonNote> lessonNotes;
 
     /** Creates a builder with valid default student details. */
     public PersonBuilder() {
@@ -33,6 +37,7 @@ public class PersonBuilder {
         subjects = new HashSet<>(Set.of(new Subject(DEFAULT_SUBJECT)));
         parentPhone = new Phone(DEFAULT_PHONE);
         parentEmail = new Email(DEFAULT_EMAIL);
+        lessonNotes = new ArrayList<>();
     }
 
     /** Initializes this builder using an existing student. */
@@ -42,6 +47,7 @@ public class PersonBuilder {
         subjects = new HashSet<>(studentToCopy.getSubjects());
         parentPhone = studentToCopy.getParentPhone();
         parentEmail = studentToCopy.getParentEmail();
+        lessonNotes = new ArrayList<>(studentToCopy.getLessonNotes());
     }
 
     /** Sets the name field. */
@@ -74,7 +80,13 @@ public class PersonBuilder {
         return this;
     }
 
+    /** Sets the lesson notes field. */
+    public PersonBuilder withLessonNotes(LessonNote... lessonNotes) {
+        this.lessonNotes = new ArrayList<>(Arrays.asList(lessonNotes));
+        return this;
+    }
+
     public Student build() {
-        return new Student(name, academicLevel, subjects, parentPhone, parentEmail);
+        return new Student(name, academicLevel, subjects, parentPhone, parentEmail, lessonNotes);
     }
 }

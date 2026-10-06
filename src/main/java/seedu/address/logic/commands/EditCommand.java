@@ -70,13 +70,18 @@ public class EditCommand extends Command {
         return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent)));
     }
 
+    /**
+     * Creates and returns a {@code Student} with the details of {@code studentToEdit}
+     * edited with {@code editStudentDescriptor}.
+     */
     private static Student createEditedStudent(Student studentToEdit, EditPersonDescriptor descriptor) {
         Name updatedName = descriptor.getName().orElse(studentToEdit.getName());
         AcademicLevel updatedLevel = descriptor.getAcademicLevel().orElse(studentToEdit.getAcademicLevel());
         Set<Subject> updatedSubjects = descriptor.getSubjects().orElse(studentToEdit.getSubjects());
         Phone updatedPhone = descriptor.getParentPhone().orElse(studentToEdit.getParentPhone());
         Email updatedEmail = descriptor.getParentEmail().orElse(studentToEdit.getParentEmail());
-        return new Student(updatedName, updatedLevel, updatedSubjects, updatedPhone, updatedEmail);
+        return new Student(updatedName, updatedLevel, updatedSubjects, updatedPhone, updatedEmail,
+                studentToEdit.getLessonNotes());
     }
 
     @Override

@@ -15,6 +15,12 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.commons.exceptions.DataLoadingException;
 import seedu.address.model.AddressBook;
 import seedu.address.model.ReadOnlyAddressBook;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
+import seedu.address.model.person.Student;
+import seedu.address.model.subject.Subject;
+import seedu.address.testutil.PersonBuilder;
 
 public class JsonAddressBookStorageTest {
     private static final Path TEST_DATA_FOLDER = Paths.get("src", "test", "data", "JsonAddressBookStorageTest");
@@ -42,6 +48,23 @@ public class JsonAddressBookStorageTest {
     public void readAndSaveAddressBook_success() throws Exception {
         Path filePath = testFolder.resolve("students.json");
         AddressBook original = getTypicalAddressBook();
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        storage.saveAddressBook(original, filePath);
+        ReadOnlyAddressBook readBack = storage.readAddressBook(filePath).orElseThrow();
+
+        assertEquals(original, new AddressBook(readBack));
+    }
+
+    @Test
+    public void readAndSaveAddressBook_studentWithLessonNotes_success() throws Exception {
+        Path filePath = testFolder.resolve("students.json");
+        Student studentWithLessonNotes = new PersonBuilder().withName("Hoon Meier").withLessonNotes(
+                new LessonNote(new LessonDate("2024-09-18"), new Subject("Math"), new NoteText("Covered algebra")),
+                new LessonNote(new LessonDate("2024-09-04"), new Subject("Science"), new NoteText("Covered cells")))
+                .build();
+        AddressBook original = getTypicalAddressBook();
+        original.addStudent(studentWithLessonNotes);
         JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
 
         storage.saveAddressBook(original, filePath);
