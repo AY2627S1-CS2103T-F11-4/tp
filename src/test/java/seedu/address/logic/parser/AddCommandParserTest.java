@@ -103,6 +103,13 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_invalidLevel_reportsLevelConstraint() {
+        String userInput = " n/Jack lvl/Pri 1 2 s/Physics pn/91234567 pe/test@gmail";
+
+        assertParseFailure(parser, userInput, AcademicLevel.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_duplicateSingleValueField_failure() {
         String validInput = NAME_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC_MATH
                 + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
