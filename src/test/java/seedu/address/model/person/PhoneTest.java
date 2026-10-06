@@ -32,8 +32,14 @@ public class PhoneTest {
         assertFalse(Phone.isValidPhone("phone")); // non-numeric
         assertFalse(Phone.isValidPhone("9011p041")); // alphabets within digits
         assertFalse(Phone.isValidPhone("9312 1534")); // spaces within digits
+        assertFalse(Phone.isValidPhone("+6593121534")); // country code is not accepted
+        assertFalse(Phone.isValidPhone("9312-1534")); // dashes are not accepted
+        assertFalse(Phone.isValidPhone("29312153")); // invalid starting digit
 
         // valid phone numbers
+        assertTrue(Phone.isValidPhone("31234567"));
+        assertTrue(Phone.isValidPhone("61234567"));
+        assertTrue(Phone.isValidPhone("81234567"));
         assertTrue(Phone.isValidPhone("91111111"));
         assertTrue(Phone.isValidPhone("93121534"));
     }

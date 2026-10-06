@@ -11,7 +11,7 @@ public class Phone {
 
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Parent phone numbers should contain 8 digits and start with 3, 6, 8, or 9";
+            "Parent phone numbers should be 8 digits long, starting with 3, 6, 8 or 9.";
     public static final String VALIDATION_REGEX = "[3689]\\d{7}";
     public final String value;
 

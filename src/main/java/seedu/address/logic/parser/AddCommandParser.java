@@ -1,5 +1,6 @@
 package seedu.address.logic.parser;
 
+import static java.util.Objects.requireNonNull;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_EMAIL;
@@ -28,6 +29,7 @@ public class AddCommandParser implements Parser<AddCommand> {
      * @throws ParseException if the user input does not conform to the expected format
      */
     public AddCommand parse(String args) throws ParseException {
+        requireNonNull(args);
         ArgumentMultimap argMultimap =
                 ArgumentTokenizer.tokenize(args, PREFIX_NAME, PREFIX_LEVEL, PREFIX_SUBJECT,
                         PREFIX_PARENT_PHONE, PREFIX_PARENT_EMAIL);
@@ -37,26 +39,20 @@ public class AddCommandParser implements Parser<AddCommand> {
                 && !argMultimap.getAllValues(PREFIX_SUBJECT).isEmpty()
                 && argMultimap.getPreamble().isEmpty();
 
-        boolean hasDuplicateSingleValueField = argMultimap.getAllValues(PREFIX_NAME).size() > 1
-                || argMultimap.getAllValues(PREFIX_LEVEL).size() > 1
-                || argMultimap.getAllValues(PREFIX_PARENT_PHONE).size() > 1
-                || argMultimap.getAllValues(PREFIX_PARENT_EMAIL).size() > 1;
-
-        if (!hasRequiredFields || hasDuplicateSingleValueField) {
+        if (!hasRequiredFields) {
             throw new ParseException(AddCommand.MESSAGE_WRONG_FORMAT);
         }
 
-        try {
-            Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
-            AcademicLevel level = ParserUtil.parseAcademicLevel(argMultimap.getValue(PREFIX_LEVEL).get());
-            Phone parentPhone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PARENT_PHONE).get());
-            Email parentEmail = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_PARENT_EMAIL).get());
-            Set<Subject> subjects = ParserUtil.parseSubjects(argMultimap.getAllValues(PREFIX_SUBJECT));
+        argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_LEVEL,
+                PREFIX_PARENT_PHONE, PREFIX_PARENT_EMAIL);
 
-            return new AddCommand(new Student(name, level, subjects, parentPhone, parentEmail));
-        } catch (ParseException | RuntimeException exception) {
-            throw new ParseException(AddCommand.MESSAGE_WRONG_FORMAT, exception);
-        }
+        Name name = ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get());
+        AcademicLevel level = ParserUtil.parseAcademicLevel(argMultimap.getValue(PREFIX_LEVEL).get());
+        Phone parentPhone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PARENT_PHONE).get());
+        Email parentEmail = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_PARENT_EMAIL).get());
+        Set<Subject> subjects = ParserUtil.parseSubjects(argMultimap.getAllValues(PREFIX_SUBJECT));
+
+        return new AddCommand(new Student(name, level, subjects, parentPhone, parentEmail));
     }
 
     /**
