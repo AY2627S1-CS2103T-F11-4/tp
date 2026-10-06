@@ -12,11 +12,15 @@ public class AcademicLevelTest {
     @Test
     public void constructor_invalidLevel_throwsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("Secondary 2"));
-        assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("sec 2"));
+        assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("Sec2"));
         assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("Sec  2"));
+        assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("JC1"));
+        assertThrows(IllegalArgumentException.class, () -> new AcademicLevel("JC    1"));
         assertFalse(AcademicLevel.isValidAcademicLevel("Secondary 2"));
-        assertFalse(AcademicLevel.isValidAcademicLevel("sec 2"));
+        assertFalse(AcademicLevel.isValidAcademicLevel("Sec2"));
         assertFalse(AcademicLevel.isValidAcademicLevel("Sec  2"));
+        assertFalse(AcademicLevel.isValidAcademicLevel("JC1"));
+        assertFalse(AcademicLevel.isValidAcademicLevel("JC    1"));
         assertFalse(AcademicLevel.isValidAcademicLevel(null));
     }
 
@@ -26,6 +30,14 @@ public class AcademicLevelTest {
             "Sec 1", "Sec 2", "Sec 3", "Sec 4", "Sec 5", "JC 1", "JC 2"}) {
             assertTrue(AcademicLevel.isValidAcademicLevel(level));
         }
+        assertTrue(AcademicLevel.isValidAcademicLevel("sec 2"));
+        assertTrue(AcademicLevel.isValidAcademicLevel("jc 1"));
+    }
+
+    @Test
+    public void constructor_differentCaseAndOuterSpaces_storesCanonicalLevel() {
+        assertEquals("Sec 2", new AcademicLevel("  sec 2  ").value);
+        assertEquals("JC 1", new AcademicLevel("jc 1").value);
     }
 
     @Test

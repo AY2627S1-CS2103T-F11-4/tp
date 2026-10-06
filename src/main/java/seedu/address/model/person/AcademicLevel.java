@@ -3,7 +3,8 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
-import java.util.Set;
+import java.util.Locale;
+import java.util.Map;
 
 /** Represents a student's academic level. */
 public class AcademicLevel {
@@ -11,9 +12,12 @@ public class AcademicLevel {
     public static final String MESSAGE_CONSTRAINTS =
             "Level must be one of: Pri 1-6, Sec 1-5, JC 1-2 (e.g. Sec 2).";
 
-    private static final Set<String> VALID_LEVELS = Set.of(
-            "Pri 1", "Pri 2", "Pri 3", "Pri 4", "Pri 5", "Pri 6",
-            "Sec 1", "Sec 2", "Sec 3", "Sec 4", "Sec 5", "JC 1", "JC 2");
+    private static final Map<String, String> CANONICAL_LEVELS = Map.ofEntries(
+            Map.entry("pri 1", "Pri 1"), Map.entry("pri 2", "Pri 2"), Map.entry("pri 3", "Pri 3"),
+            Map.entry("pri 4", "Pri 4"), Map.entry("pri 5", "Pri 5"), Map.entry("pri 6", "Pri 6"),
+            Map.entry("sec 1", "Sec 1"), Map.entry("sec 2", "Sec 2"), Map.entry("sec 3", "Sec 3"),
+            Map.entry("sec 4", "Sec 4"), Map.entry("sec 5", "Sec 5"), Map.entry("jc 1", "JC 1"),
+            Map.entry("jc 2", "JC 2"));
 
     public final String value;
 
@@ -24,13 +28,13 @@ public class AcademicLevel {
      */
     public AcademicLevel(String level) {
         requireNonNull(level);
-        String trimmedLevel = level.trim();
-        checkArgument(isValidAcademicLevel(trimmedLevel), MESSAGE_CONSTRAINTS);
-        value = trimmedLevel;
+        String normalisedLevel = level.trim().toLowerCase(Locale.ROOT);
+        checkArgument(CANONICAL_LEVELS.containsKey(normalisedLevel), MESSAGE_CONSTRAINTS);
+        value = CANONICAL_LEVELS.get(normalisedLevel);
     }
 
     public static boolean isValidAcademicLevel(String level) {
-        return level != null && VALID_LEVELS.contains(level.trim());
+        return level != null && CANONICAL_LEVELS.containsKey(level.trim().toLowerCase(Locale.ROOT));
     }
 
     @Override
