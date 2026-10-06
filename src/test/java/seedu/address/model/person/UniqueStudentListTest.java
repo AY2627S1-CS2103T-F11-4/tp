@@ -48,7 +48,7 @@ public class UniqueStudentListTest {
     }
 
     @Test
-    public void iterator_equals_hashCode_behavesAsList() {
+    public void iterator_equals_hashCode() {
         UniqueStudentList list = new UniqueStudentList();
         list.setStudents(List.of(ALICE, BENSON));
         UniqueStudentList sameList = new UniqueStudentList();
