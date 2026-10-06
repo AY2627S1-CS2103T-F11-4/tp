@@ -1,6 +1,5 @@
 package seedu.address.logic.parser;
 
-import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_EMAIL;
@@ -55,7 +54,7 @@ public class AddCommandParser implements Parser<AddCommand> {
             Set<Subject> subjects = ParserUtil.parseSubjects(argMultimap.getAllValues(PREFIX_SUBJECT));
 
             return new AddCommand(new Student(name, level, subjects, parentPhone, parentEmail));
-        } catch (RuntimeException exception) {
+        } catch (ParseException | RuntimeException exception) {
             throw new ParseException(AddCommand.MESSAGE_WRONG_FORMAT, exception);
         }
     }

@@ -1,96 +1,80 @@
 package seedu.address.testutil;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import seedu.address.model.person.Address;
+import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
-import seedu.address.model.person.Student;
 import seedu.address.model.person.Phone;
-import seedu.address.model.tag.Tag;
-import seedu.address.model.util.SampleDataUtil;
+import seedu.address.model.person.Student;
+import seedu.address.model.subject.Subject;
 
-/**
- * A utility class to help with building Student objects.
- */
+/** A utility class for building {@link Student} objects in tests. */
 public class PersonBuilder {
 
     public static final String DEFAULT_NAME = "Amy Bee";
+    public static final String DEFAULT_LEVEL = "Sec 2";
     public static final String DEFAULT_PHONE = "85355255";
     public static final String DEFAULT_EMAIL = "amy@gmail.com";
-    public static final String DEFAULT_ADDRESS = "123, Jurong West Ave 6, #08-111";
+    public static final String DEFAULT_SUBJECT = "Math";
 
     private Name name;
-    private Phone phone;
-    private Email email;
-    private Address address;
-    private Set<Tag> tags;
+    private AcademicLevel academicLevel;
+    private Set<Subject> subjects;
+    private Phone parentPhone;
+    private Email parentEmail;
 
-    /**
-     * Creates a {@code PersonBuilder} with the default details.
-     */
+    /** Creates a builder with valid default student details. */
     public PersonBuilder() {
         name = new Name(DEFAULT_NAME);
-        phone = new Phone(DEFAULT_PHONE);
-        email = new Email(DEFAULT_EMAIL);
-        address = new Address(DEFAULT_ADDRESS);
-        tags = new HashSet<>();
+        academicLevel = new AcademicLevel(DEFAULT_LEVEL);
+        subjects = new HashSet<>(Set.of(new Subject(DEFAULT_SUBJECT)));
+        parentPhone = new Phone(DEFAULT_PHONE);
+        parentEmail = new Email(DEFAULT_EMAIL);
     }
 
-    /**
-     * Initializes the PersonBuilder with the data of {@code personToCopy}.
-     */
-    public PersonBuilder(Student personToCopy) {
-        name = personToCopy.getName();
-        phone = personToCopy.getParentPhone();
-        email = personToCopy.getParentEmail();
-        address = personToCopy.getAcademicLevel();
-        tags = new HashSet<>(personToCopy.getSubjects());
+    /** Initializes this builder using an existing student. */
+    public PersonBuilder(Student studentToCopy) {
+        name = studentToCopy.getName();
+        academicLevel = studentToCopy.getAcademicLevel();
+        subjects = new HashSet<>(studentToCopy.getSubjects());
+        parentPhone = studentToCopy.getParentPhone();
+        parentEmail = studentToCopy.getParentEmail();
     }
 
-    /**
-     * Sets the {@code Name} of the {@code Student} that we are building.
-     */
+    /** Sets the name field. */
     public PersonBuilder withName(String name) {
         this.name = new Name(name);
         return this;
     }
 
-    /**
-     * Parses the {@code tags} into a {@code Set<Tag>} and sets it to the {@code Student} that we are building.
-     */
-    public PersonBuilder withTags(String ... tags) {
-        this.tags = SampleDataUtil.getTagSet(tags);
+    /** Sets the academic level field. */
+    public PersonBuilder withAcademicLevel(String academicLevel) {
+        this.academicLevel = new AcademicLevel(academicLevel);
         return this;
     }
 
-    /**
-     * Sets the {@code Address} of the {@code Student} that we are building.
-     */
-    public PersonBuilder withAddress(String address) {
-        this.address = new Address(address);
+    /** Sets the subjects field. */
+    public PersonBuilder withSubjects(String... subjects) {
+        this.subjects = new HashSet<>(Arrays.stream(subjects).map(Subject::new).toList());
         return this;
     }
 
-    /**
-     * Sets the {@code Phone} of the {@code Student} that we are building.
-     */
+    /** Sets the parent phone field. */
     public PersonBuilder withPhone(String phone) {
-        this.phone = new Phone(phone);
+        this.parentPhone = new Phone(phone);
         return this;
     }
 
-    /**
-     * Sets the {@code Email} of the {@code Student} that we are building.
-     */
+    /** Sets the parent email field. */
     public PersonBuilder withEmail(String email) {
-        this.email = new Email(email);
+        this.parentEmail = new Email(email);
         return this;
     }
 
     public Student build() {
-        return new Student(name, phone, email, address, tags);
+        return new Student(name, academicLevel, subjects, parentPhone, parentEmail);
     }
-
 }

@@ -1,6 +1,5 @@
 package seedu.address.model.person;
 
-import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.Collections;
@@ -20,6 +19,9 @@ public class Student {
     private final Phone parentPhone;
     private final Email parentEmail;
 
+    /**
+     * Creates a student with the given name, academic level, subjects, and parent contact details.
+     */
     public Student(Name name, AcademicLevel academicLevel, Set<Subject> subjects,
             Phone parentPhone, Email parentEmail) {
         requireAllNonNull(name, academicLevel, subjects, parentPhone, parentEmail);

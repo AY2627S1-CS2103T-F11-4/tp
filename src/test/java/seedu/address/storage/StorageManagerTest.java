@@ -61,8 +61,8 @@ public class StorageManagerTest {
     }
 
     @Test
-    public void getAcademicLevelBookFilePath() {
-        assertNotNull(storageManager.getAcademicLevelBookFilePath());
+    public void getAddressBookFilePath() {
+        assertNotNull(storageManager.getAddressBookFilePath());
     }
 
 }

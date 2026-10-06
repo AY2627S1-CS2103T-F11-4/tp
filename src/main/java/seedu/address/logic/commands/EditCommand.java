@@ -36,6 +36,12 @@ public class EditCommand extends Command {
     private final Index index;
     private final EditPersonDescriptor editStudentDescriptor;
 
+    /**
+     * Creates an edit command for the student at the given index.
+     *
+     * @param index index of the student to edit.
+     * @param editStudentDescriptor fields to update.
+     */
     public EditCommand(Index index, EditPersonDescriptor editStudentDescriptor) {
         requireNonNull(index);
         requireNonNull(editStudentDescriptor);
@@ -93,7 +99,7 @@ public class EditCommand extends Command {
                 .toString();
     }
 
-    /** Stores the student fields to edit. */
+    /** Stores the fields to be updated for a student. */
     public static class EditPersonDescriptor {
         private Name name;
         private AcademicLevel academicLevel;
@@ -103,6 +109,7 @@ public class EditCommand extends Command {
 
         public EditPersonDescriptor() {}
 
+        /** Copies the fields from an existing descriptor. */
         public EditPersonDescriptor(EditPersonDescriptor toCopy) {
             setName(toCopy.name);
             setAcademicLevel(toCopy.academicLevel);

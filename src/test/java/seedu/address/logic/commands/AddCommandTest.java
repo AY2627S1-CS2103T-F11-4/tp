@@ -113,7 +113,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public ReadOnlyAddressBook getAcademicLevelBook() {
+        public ReadOnlyAddressBook getAddressBook() {
             throw new AssertionError("This method should not be called.");
         }
 
@@ -157,7 +157,7 @@ public class AddCommandTest {
         @Override
         public boolean hasStudent(Student person) {
             requireNonNull(person);
-            return this.person.isSamePerson(person);
+            return this.person.isSameStudent(person);
         }
     }
 
@@ -170,7 +170,7 @@ public class AddCommandTest {
         @Override
         public boolean hasStudent(Student person) {
             requireNonNull(person);
-            return personsAdded.stream().anyMatch(person::isSamePerson);
+            return personsAdded.stream().anyMatch(person::isSameStudent);
         }
 
         @Override
@@ -180,7 +180,7 @@ public class AddCommandTest {
         }
 
         @Override
-        public ReadOnlyAddressBook getAcademicLevelBook() {
+        public ReadOnlyAddressBook getAddressBook() {
             return new AddressBook();
         }
     }

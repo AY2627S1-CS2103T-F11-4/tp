@@ -19,11 +19,13 @@ public class UniqueStudentList implements Iterable<Student> {
     private final ObservableList<Student> internalUnmodifiableList =
             FXCollections.unmodifiableObservableList(internalList);
 
+    /** Returns true if the list contains a student with the same name. */
     public boolean contains(Student toCheck) {
         requireNonNull(toCheck);
         return internalList.stream().anyMatch(toCheck::isSameStudent);
     }
 
+    /** Adds a student while preserving name ordering. */
     public void add(Student toAdd) {
         requireNonNull(toAdd);
         if (contains(toAdd)) {
@@ -46,6 +48,7 @@ public class UniqueStudentList implements Iterable<Student> {
         sort();
     }
 
+    /** Removes a student from the list. */
     public void remove(Student toRemove) {
         requireNonNull(toRemove);
         if (!internalList.remove(toRemove)) {

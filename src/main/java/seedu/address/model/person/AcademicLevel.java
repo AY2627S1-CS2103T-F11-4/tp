@@ -23,6 +23,11 @@ public class AcademicLevel {
 
     public final String value;
 
+    /**
+     * Creates an academic level.
+     *
+     * @param level a valid academic level.
+     */
     public AcademicLevel(String level) {
         requireNonNull(level);
         String normalisedLevel = normalise(level);
