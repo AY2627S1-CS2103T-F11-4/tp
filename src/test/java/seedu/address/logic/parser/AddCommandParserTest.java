@@ -1,5 +1,6 @@
 package seedu.address.logic.parser;
 
+import static seedu.address.logic.Messages.getErrorMessageForDuplicatePrefixes;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_LEVEL_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_NAME_DESC;
 import static seedu.address.logic.commands.CommandTestUtil.INVALID_PARENT_EMAIL_DESC;
@@ -13,13 +14,22 @@ import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_NON_EMPTY;
 import static seedu.address.logic.commands.CommandTestUtil.PREAMBLE_WHITESPACE;
 import static seedu.address.logic.commands.CommandTestUtil.SUBJECT_DESC_MATH;
 import static seedu.address.logic.commands.CommandTestUtil.SUBJECT_DESC_SCIENCE;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_EMAIL;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.AddCommand;
+import seedu.address.model.person.AcademicLevel;
+import seedu.address.model.person.Email;
+import seedu.address.model.person.Name;
+import seedu.address.model.person.Phone;
 import seedu.address.model.person.Student;
+import seedu.address.model.subject.Subject;
 import seedu.address.testutil.PersonBuilder;
 
 public class AddCommandParserTest {
@@ -52,6 +62,18 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void duplicateSubjects_merge_success() {
+        Student expectedStudent = new PersonBuilder().withSubjects("Math").build();
+        String userInput = NAME_DESC_BOB + LEVEL_DESC_BOB + " s/Math s/math"
+                + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
+
+        assertParseSuccess(parser, userInput, new AddCommand(
+                new PersonBuilder(expectedStudent).withName("Bob Choo")
+                        .withAcademicLevel("Pri 5").withPhone("92222222")
+                        .withEmail("bob@example.com").build()));
+    }
+
+    @Test
     public void parse_missingRequiredField_failure() {
         String validInput = NAME_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC_MATH
                 + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
@@ -69,15 +91,22 @@ public class AddCommandParserTest {
                 + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
 
         assertParseFailure(parser, validInput.replace(NAME_DESC_BOB, INVALID_NAME_DESC),
-                AddCommand.MESSAGE_WRONG_FORMAT);
+                Name.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, validInput.replace(LEVEL_DESC_BOB, INVALID_LEVEL_DESC),
-                AddCommand.MESSAGE_WRONG_FORMAT);
+                AcademicLevel.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, validInput.replace(SUBJECT_DESC_MATH, INVALID_SUBJECT_DESC),
-                AddCommand.MESSAGE_WRONG_FORMAT);
+                Subject.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, validInput.replace(PARENT_PHONE_DESC_BOB, INVALID_PARENT_PHONE_DESC),
-                AddCommand.MESSAGE_WRONG_FORMAT);
+                Phone.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, validInput.replace(PARENT_EMAIL_DESC_BOB, INVALID_PARENT_EMAIL_DESC),
-                AddCommand.MESSAGE_WRONG_FORMAT);
+                Email.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_invalidLevel_reportsLevelConstraint() {
+        String userInput = " n/Jack lvl/Pri 1 2 s/Physics pn/91234567 pe/test@gmail";
+
+        assertParseFailure(parser, userInput, AcademicLevel.MESSAGE_CONSTRAINTS);
     }
 
     @Test
@@ -85,10 +114,14 @@ public class AddCommandParserTest {
         String validInput = NAME_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC_MATH
                 + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
 
-        assertParseFailure(parser, validInput + NAME_DESC_BOB, AddCommand.MESSAGE_WRONG_FORMAT);
-        assertParseFailure(parser, validInput + LEVEL_DESC_BOB, AddCommand.MESSAGE_WRONG_FORMAT);
-        assertParseFailure(parser, validInput + PARENT_PHONE_DESC_BOB, AddCommand.MESSAGE_WRONG_FORMAT);
-        assertParseFailure(parser, validInput + PARENT_EMAIL_DESC_BOB, AddCommand.MESSAGE_WRONG_FORMAT);
+        assertParseFailure(parser, validInput + NAME_DESC_BOB,
+                getErrorMessageForDuplicatePrefixes(PREFIX_NAME));
+        assertParseFailure(parser, validInput + LEVEL_DESC_BOB,
+                getErrorMessageForDuplicatePrefixes(PREFIX_LEVEL));
+        assertParseFailure(parser, validInput + PARENT_PHONE_DESC_BOB,
+                getErrorMessageForDuplicatePrefixes(PREFIX_PARENT_PHONE));
+        assertParseFailure(parser, validInput + PARENT_EMAIL_DESC_BOB,
+                getErrorMessageForDuplicatePrefixes(PREFIX_PARENT_EMAIL));
     }
 
     @Test

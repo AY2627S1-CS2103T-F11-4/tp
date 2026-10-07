@@ -34,7 +34,8 @@ public class AddCommand extends Command {
             + PREFIX_PARENT_PHONE + "98765432 "
             + PREFIX_PARENT_EMAIL + "johnd@example.com";
 
-    public static final String MESSAGE_WRONG_FORMAT = "Wrong format.";
+    public static final String MESSAGE_WRONG_FORMAT =
+            String.format(Messages.MESSAGE_INVALID_COMMAND_FORMAT, MESSAGE_USAGE);
 
     public static final String MESSAGE_SUCCESS = "New student added: %1$s";
     public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in the address book.";

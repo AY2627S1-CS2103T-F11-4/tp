@@ -18,6 +18,15 @@ public class NameTest {
     public void constructor_invalidName_throwsIllegalArgumentException() {
         String invalidName = "";
         assertThrows(IllegalArgumentException.class, () -> new Name(invalidName));
+        assertThrows(IllegalArgumentException.class, () -> new Name("   "));
+        assertThrows(IllegalArgumentException.class, () -> new Name("John@Doe"));
+    }
+
+    @Test
+    public void constructor_normalisesName() {
+        Name name = new Name("  John   Doe  ");
+        assertEquals("John Doe", name.fullName);
+        assertEquals(new Name("John-Doe/2"), new Name("john-doe/2"));
     }
 
     @Test
@@ -45,6 +54,7 @@ public class NameTest {
 
         // same values -> returns true
         assertTrue(name.equals(new Name("Valid Name")));
+        assertTrue(name.equals(new Name("valid name")));
 
         // same object -> returns true
         assertTrue(name.equals(name));

@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
@@ -19,6 +21,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import seedu.address.commons.core.GuiSettings;
@@ -91,6 +94,38 @@ public class UiCoverageTest {
         });
     }
 
+    @Test
+    public void mainWindow_executeFailure_displaysError() throws Exception {
+        runOnFxThread(() -> {
+            String errorMessage = "Invalid student input.";
+            Stage stage = new Stage();
+            MainWindow mainWindow = new MainWindow(stage, new StubLogic(new ParseException(errorMessage)),
+                    Path.of("data", "addressbook.json"));
+            mainWindow.fillInnerParts();
+
+            Method executeCommand = MainWindow.class.getDeclaredMethod("executeCommand", String.class);
+            executeCommand.setAccessible(true);
+            InvocationTargetException thrown;
+            try {
+                executeCommand.invoke(mainWindow, "addstudent invalid");
+                throw new AssertionError("Expected executeCommand to fail");
+            } catch (InvocationTargetException exception) {
+                thrown = exception;
+            }
+            assertEquals(errorMessage, thrown.getCause().getMessage());
+
+            Field resultDisplayField = MainWindow.class.getDeclaredField("resultDisplay");
+            resultDisplayField.setAccessible(true);
+            ResultDisplay resultDisplay = (ResultDisplay) resultDisplayField.get(mainWindow);
+
+            Field textAreaField = ResultDisplay.class.getDeclaredField("resultDisplay");
+            textAreaField.setAccessible(true);
+            TextArea textArea = (TextArea) textAreaField.get(resultDisplay);
+            assertEquals(errorMessage, textArea.getText());
+            stage.close();
+        });
+    }
+
     private static void runOnFxThread(FxAction action) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
@@ -117,17 +152,33 @@ public class UiCoverageTest {
 
     private static class StubLogic implements Logic {
         private final GuiSettings guiSettings;
+        private final Exception executionFailure;
 
         StubLogic() {
-            this(new GuiSettings());
+            this(new GuiSettings(), null);
         }
 
         StubLogic(GuiSettings guiSettings) {
+            this(guiSettings, null);
+        }
+
+        StubLogic(Exception executionFailure) {
+            this(new GuiSettings(), executionFailure);
+        }
+
+        StubLogic(GuiSettings guiSettings, Exception executionFailure) {
             this.guiSettings = guiSettings;
+            this.executionFailure = executionFailure;
         }
 
         @Override
         public CommandResult execute(String commandText) throws CommandException, ParseException {
+            if (executionFailure instanceof CommandException commandException) {
+                throw commandException;
+            }
+            if (executionFailure instanceof ParseException parseException) {
+                throw parseException;
+            }
             return new CommandResult(commandText);
         }
 

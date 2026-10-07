@@ -3,6 +3,8 @@ package seedu.address.model.subject;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.AppUtil.checkArgument;
 
+import java.util.Locale;
+
 /**
  * Represents a Subject in the address book.
  * Guarantees: immutable; name is valid as declared in {@link #isValidSubjectName(String)}
@@ -63,7 +65,7 @@ public class Subject {
 
     @Override
     public int hashCode() {
-        return subjectName.toLowerCase().hashCode();
+        return subjectName.toLowerCase(Locale.ROOT).hashCode();
     }
 
 }
