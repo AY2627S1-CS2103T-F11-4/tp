@@ -62,7 +62,7 @@
         "glossary": "Glossary",
         "appendix-instructions-for-manual-testing": "Appendix: Instructions for manual testing",
         "launch-and-shutdown": "Launch and shutdown",
-        "deleting-a-person": "Deleting a person",
+        "deleting-a-student": "Deleting a student",
         "saving-data": "Saving data"
       },
       "headingKeywords": {}
@@ -115,7 +115,7 @@
         "listing-all-persons-list": "Listing all persons: list",
         "editing-a-person-edit": "Editing a person: edit",
         "locating-persons-by-name-find": "Locating persons by name: find",
-        "deleting-a-person-delete": "Deleting a person: delete",
+        "deleting-a-student-deletestudent": "Deleting a student: deletestudent",
         "clearing-all-entries-clear": "Clearing all entries: clear",
         "exiting-the-program-exit": "Exiting the program: exit",
         "saving-the-data": "Saving the data",
