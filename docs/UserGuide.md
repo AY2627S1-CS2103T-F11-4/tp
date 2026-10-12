@@ -145,7 +145,7 @@ Examples:
 
 ### Deleting a student: `deletestudent`
 
-Deletes the specified student from the address book.
+Deletes the specified student and all their associated lesson notes from the address book.
 
 Format: `deletestudent INDEX`
 
@@ -155,6 +155,12 @@ Format: `deletestudent INDEX`
 
 Examples:
 * `deletestudent 2` deletes the 2nd student in the displayed student list.
+
+The success message reports the student name and the number of lesson notes removed, for example:
+`Deleted student: Alex Yeoh, and their 3 lesson note(s).`
+A student with no notes can also be deleted; the reported count is `0`.
+
+Deletion is immediate, without a confirmation prompt, and cannot be undone. Other students and their notes remain unchanged.
 
 ### Saving the data
 
