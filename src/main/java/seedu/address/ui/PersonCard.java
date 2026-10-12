@@ -1,12 +1,15 @@
 package seedu.address.ui;
 
 import java.util.Comparator;
+import java.util.List;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
+import seedu.address.model.lesson.LessonNote;
 import seedu.address.model.person.Student;
 
 /**
@@ -40,6 +43,8 @@ public class PersonCard extends UiPart<Region> {
     private Label parentEmail;
     @FXML
     private FlowPane subjects;
+    @FXML
+    private VBox lessonNotes;
 
     /**
      * Creates a {@code PersonCard} with the given {@code Person} and index to display.
@@ -55,5 +60,24 @@ public class PersonCard extends UiPart<Region> {
         student.getSubjects().stream()
                 .sorted(Comparator.comparing(subject -> subject.subjectName))
                 .forEach(subject -> subjects.getChildren().add(new Label(subject.subjectName)));
+        populateLessonNotes(student.getLessonNotes());
+    }
+
+    /**
+     * Fills the lesson note section with the lines produced by {@link LessonNoteFormatter}.
+     * The section is hidden and unmanaged when there are no lines, so that no blank space is
+     * left on the card.
+     */
+    private void populateLessonNotes(List<LessonNote> notes) {
+        List<String> lines = LessonNoteFormatter.format(notes);
+
+        lessonNotes.setVisible(!lines.isEmpty());
+        lessonNotes.setManaged(!lines.isEmpty());
+
+        for (String line : lines) {
+            Label label = new Label(line);
+            label.getStyleClass().add("cell_small_label");
+            lessonNotes.getChildren().add(label);
+        }
     }
 }
