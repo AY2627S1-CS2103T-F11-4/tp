@@ -326,7 +326,7 @@ The following rules apply to these use cases:
 
 **Use case: UC01 - Add a student**
 
-**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name. An invalid request leaves existing profiles unchanged.
+**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name and parent phone number. An invalid request leaves existing profiles unchanged.
 
 **MSS**
 
@@ -343,7 +343,7 @@ The following rules apply to these use cases:
 
   Use case resumes from step 1.
 
-* 1b. TutorBroPro detects that a student with the same name already exists.
+* 1b. TutorBroPro detects that a student with the same name and parent phone number already exists.
 
   * 1b1. TutorBroPro informs the tutor that the student already exists.
 
@@ -638,6 +638,8 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 * **Academic level**: The student’s education level, such as `Pri 4`, `Sec 2`, or `JC 1`.
 * **Subject**: An academic topic associated with a student or lesson note, such as Mathematics or Science.
 * **Parent or guardian contact**: The phone number and email address used to contact a student’s parent or guardian.
+* **Parent phone number**: An 8-digit phone number beginning with `8` or `9`, used to contact a student’s parent or guardian.
+* **Duplicate student**: A student whose name and parent phone number both match those of an existing student.
 * **Lesson note**: A dated record describing the subject and content covered during a lesson.
 * **Lesson history**: The collection of lesson notes associated with a student.
 * **Student index**: The number used to identify a student in the currently displayed list.
