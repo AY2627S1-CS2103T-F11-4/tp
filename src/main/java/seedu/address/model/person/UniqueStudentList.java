@@ -12,14 +12,14 @@ import javafx.collections.ObservableList;
 import seedu.address.model.person.exceptions.DuplicateStudentException;
 import seedu.address.model.person.exceptions.StudentNotFoundException;
 
-/** A sorted list of students with unique names. */
+/** A sorted list of students with unique names and parent phone combinations. */
 public class UniqueStudentList implements Iterable<Student> {
 
     private final ObservableList<Student> internalList = FXCollections.observableArrayList();
     private final ObservableList<Student> internalUnmodifiableList =
             FXCollections.unmodifiableObservableList(internalList);
 
-    /** Returns true if the list contains a student with the same name. */
+    /** Returns true if the list contains a student with the same name and parent phone number. */
     public boolean contains(Student toCheck) {
         requireNonNull(toCheck);
         return internalList.stream().anyMatch(toCheck::isSameStudent);
