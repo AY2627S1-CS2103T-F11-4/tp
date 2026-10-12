@@ -51,8 +51,8 @@ public class HistoryCommandTest {
         String expectedMessage = String.format(
                 HistoryCommand.MESSAGE_LESSON_HISTORY,
                 STUDENT_WITH_NOTES.getName(),
-                "2024-09-18 | Math | Covered quadratic equations\n"
-                        + "2024-09-04 | Science | Covered cells");
+                "1. 2024-09-18 | Math | Covered quadratic equations\n"
+                        + "2. 2024-09-04 | Science | Covered cells");
 
         Model expectedModel = new ModelManager(
                 new AddressBookBuilder()
