@@ -21,7 +21,8 @@ public class PersonCard extends UiPart<Region> {
 
     private static final int MAX_DISPLAYED_LESSON_NOTES = 3;
     private static final int MAX_DISPLAYED_NOTE_TEXT_LENGTH = 60;
-    private static final String MESSAGE_MORE_LESSON_NOTES = "+ %d more (history %d)";
+    private static final String LESSON_NOTES_HEADER = "Lesson Notes:";
+    private static final String MESSAGE_MORE_LESSON_NOTES = "+ %d more";
 
     /**
      * Note: Certain keywords such as "location" and "resources" are reserved keywords in JavaFX.
@@ -64,18 +65,24 @@ public class PersonCard extends UiPart<Region> {
         student.getSubjects().stream()
                 .sorted(Comparator.comparing(subject -> subject.subjectName))
                 .forEach(subject -> subjects.getChildren().add(new Label(subject.subjectName)));
-        populateLessonNotes(student.getLessonNotes(), displayedIndex);
+        populateLessonNotes(student.getLessonNotes());
     }
 
     /**
-     * Fills the lesson note section with the most recent notes, numbered to match the numbering
-     * used by the history command. At most {@code MAX_DISPLAYED_LESSON_NOTES} notes are shown,
-     * followed by a line pointing to the history command for the rest. The section is hidden and
-     * unmanaged when the student has no lesson notes, so that no blank space is left on the card.
+     * Fills the lesson note section with a header and the most recent notes, numbered to match the
+     * numbering used by the history command. At most {@code MAX_DISPLAYED_LESSON_NOTES} notes are
+     * shown, followed by a count of the rest. The section is hidden and unmanaged when the student
+     * has no lesson notes, so that no blank space is left on the card.
      */
-    private void populateLessonNotes(List<LessonNote> notes, int displayedIndex) {
+    private void populateLessonNotes(List<LessonNote> notes) {
         lessonNotes.setVisible(!notes.isEmpty());
         lessonNotes.setManaged(!notes.isEmpty());
+
+        if (notes.isEmpty()) {
+            return;
+        }
+
+        lessonNotes.getChildren().add(createSmallLabel(LESSON_NOTES_HEADER));
 
         int displayedNotes = Math.min(notes.size(), MAX_DISPLAYED_LESSON_NOTES);
         for (int i = 0; i < displayedNotes; i++) {
@@ -85,7 +92,7 @@ public class PersonCard extends UiPart<Region> {
         int hiddenNotes = notes.size() - displayedNotes;
         if (hiddenNotes > 0) {
             lessonNotes.getChildren().add(
-                    createSmallLabel(String.format(MESSAGE_MORE_LESSON_NOTES, hiddenNotes, displayedIndex)));
+                    createSmallLabel(String.format(MESSAGE_MORE_LESSON_NOTES, hiddenNotes)));
         }
     }
 
