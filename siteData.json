@@ -115,6 +115,8 @@
         "listing-all-persons-list": "Listing all persons: list",
         "editing-a-person-edit": "Editing a person: edit",
         "adding-a-lesson-note-addnote": "Adding a lesson note: addnote",
+        "viewing-lesson-history-history": "Viewing lesson history: history",
+        "deleting-a-lesson-note-deletenote": "Deleting a lesson note: deletenote",
         "locating-persons-by-name-find": "Locating persons by name: find",
         "deleting-a-student-deletestudent": "Deleting a student: deletestudent",
         "clearing-all-entries-clear": "Clearing all entries: clear",
