@@ -113,6 +113,23 @@ Examples:
 *  `edit 1 p/91234567 e/johndoe@example.com` Edits the phone number and email address of the 1st person to be `91234567` and `johndoe@example.com` respectively.
 *  `edit 2 n/Betsy Crower t/` Edits the name of the 2nd person to be `Betsy Crower` and clears all existing tags.
 
+### Adding a lesson note: `addnote`
+
+Adds a lesson note to an existing student in the address book.
+
+Format: `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`
+
+* Adds the lesson note to the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
+* All three of `d/`, `s/` and `note/` are compulsory.
+* `DATE` must be in `YYYY-MM-DD` format and cannot be a future date.
+* `NOTE_TEXT` cannot be blank, must not exceed 500 characters, and must be on a single line.
+* A student cannot have two lesson notes with the same date, subject and note text.
+* Lesson notes are kept sorted from the most recent date to the earliest.
+
+Examples:
+* `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
+* `addnote 2 d/2026-09-20 s/Science note/Covered photosynthesis, needs more practice on diagrams.`
+
 ### Locating persons by name: `find`
 
 Finds persons whose names contain any of the given keywords.
@@ -196,6 +213,7 @@ _Details coming soon ..._
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add**    | `add n/NAME p/PHONE_NUMBER e/EMAIL a/ADDRESS [t/TAG]... ` <br> e.g., `add n/James Ho p/22224444 e/jamesho@example.com a/123, Clementi Rd, 1234665 t/friend t/colleague`
+**Add note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **Clear**  | `clear`
 **Delete** | `deletestudent INDEX`<br> e.g., `deletestudent 3`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
