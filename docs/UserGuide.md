@@ -130,6 +130,40 @@ Examples:
 * `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 * `addnote 2 d/2026-09-20 s/Science note/Covered photosynthesis, needs more practice on diagrams.`
 
+### Viewing lesson history: `history`
+
+Shows all lesson notes recorded for a student, from the most recent date to the earliest.
+
+Format: `history INDEX`
+
+* Shows the lesson notes of the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
+* Each note is numbered. That number is the `LESSON_INDEX` used by the `deletenote` command.
+* If the student has no lesson notes, a message saying so is shown instead.
+
+Example:
+* `history 1` shows the lesson history of the 1st student, for example:
+
+```
+Lesson history for John Doe:
+1. 2026-10-01 | Math | Revised simultaneous equations.
+2. 2026-09-20 | Science | Covered photosynthesis.
+```
+
+### Deleting a lesson note: `deletenote`
+
+Deletes one lesson note from an existing student in the address book.
+
+Format: `deletenote INDEX ln/LESSON_INDEX`
+
+* Deletes a lesson note from the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list.
+* `LESSON_INDEX` refers to the number shown next to the note in the output of `history INDEX`.
+* Both indexes **must be positive integers** 1, 2, 3, ...
+* Remaining lesson notes are renumbered, so run `history` again before deleting another note.
+
+Examples:
+* `deletenote 1 ln/2` deletes the 2nd lesson note of the 1st student.
+* `deletenote 3 ln/1` deletes the most recent lesson note of the 3rd student.
+
 ### Locating persons by name: `find`
 
 Finds persons whose names contain any of the given keywords.
@@ -216,7 +250,9 @@ Action     | Format, Examples
 **Add note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **Clear**  | `clear`
 **Delete** | `deletestudent INDEX`<br> e.g., `deletestudent 3`
+**Delete note** | `deletenote INDEX ln/LESSON_INDEX`<br> e.g., `deletenote 1 ln/2`
 **Edit**   | `edit INDEX [n/NAME] [p/PHONE_NUMBER] [e/EMAIL] [a/ADDRESS] [t/TAG]... `<br> e.g.,`edit 2 n/James Lee e/jameslee@example.com`
 **Find**   | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**History** | `history INDEX`<br> e.g., `history 1`
 **List**   | `list`
 **Help**   | `help`
