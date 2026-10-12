@@ -26,6 +26,17 @@ public class UniqueStudentListTest {
     }
 
     @Test
+    public void add_sameNameDifferentPhone_success() {
+        UniqueStudentList list = new UniqueStudentList();
+        Student sameNameDifferentPhone = new PersonBuilder(ALICE).withPhone("81234567").build();
+
+        list.add(ALICE);
+        list.add(sameNameDifferentPhone);
+
+        assertEquals(2, list.asUnmodifiableObservableList().size());
+    }
+
+    @Test
     public void set_missingStudent_throwsStudentNotFoundException() {
         UniqueStudentList list = new UniqueStudentList();
 

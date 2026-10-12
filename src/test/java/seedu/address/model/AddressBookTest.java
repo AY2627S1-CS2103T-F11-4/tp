@@ -71,6 +71,14 @@ public class AddressBookTest {
     }
 
     @Test
+    public void hasStudent_sameNameDifferentPhone_returnsFalse() {
+        addressBook.addStudent(ALICE);
+        Student sameNameDifferentPhone = new PersonBuilder(ALICE).withPhone("81234567").build();
+
+        assertFalse(addressBook.hasStudent(sameNameDifferentPhone));
+    }
+
+    @Test
     public void getStudentList_modifyList_throwsUnsupportedOperationException() {
         assertThrows(UnsupportedOperationException.class, () -> addressBook.getStudentList().remove(0));
     }
