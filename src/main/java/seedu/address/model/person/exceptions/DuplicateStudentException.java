@@ -1,6 +1,6 @@
 package seedu.address.model.person.exceptions;
 
-/** Signals that an operation would create a student with a duplicate name. */
+/** Signals that an operation would create a student with a duplicate name and parent phone number. */
 public class DuplicateStudentException extends RuntimeException {
     public DuplicateStudentException() {
         super("Operation would result in duplicate students");

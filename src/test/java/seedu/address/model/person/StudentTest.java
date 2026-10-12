@@ -105,6 +105,26 @@ public class StudentTest {
     }
 
     @Test
+    public void isSameStudent_sameNameDifferentPhone_returnsFalse() {
+        Student student = new PersonBuilder().build();
+        Student sameNameDifferentPhone = new PersonBuilder(student)
+                .withPhone("91234567")
+                .build();
+
+        assertFalse(student.isSameStudent(sameNameDifferentPhone));
+    }
+
+    @Test
+    public void isSameStudent_sameNameAndPhoneDifferentSubjects_returnsTrue() {
+        Student student = new PersonBuilder().build();
+        Student sameNameAndPhoneDifferentSubjects = new PersonBuilder(student)
+                .withSubjects("Science")
+                .build();
+
+        assertTrue(student.isSameStudent(sameNameAndPhoneDifferentSubjects));
+    }
+
+    @Test
     public void equals_nonStudent_returnsFalse() {
         Student student = new PersonBuilder().build();
 

@@ -45,4 +45,22 @@ public class AddCommandIntegrationTest {
                 AddCommand.MESSAGE_DUPLICATE_PERSON);
     }
 
+    @Test
+    public void execute_sameNameDifferentPhone_success() {
+        Student existingStudent = model.getAddressBook().getStudentList().get(0);
+
+        Student newStudent = new PersonBuilder(existingStudent)
+                .withPhone("81234567")
+                .build();
+
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+        expectedModel.addStudent(newStudent);
+
+        assertCommandSuccess(
+                new AddCommand(newStudent),
+                model,
+                String.format(AddCommand.MESSAGE_SUCCESS, Messages.format(newStudent)),
+                expectedModel);
+    }
+
 }

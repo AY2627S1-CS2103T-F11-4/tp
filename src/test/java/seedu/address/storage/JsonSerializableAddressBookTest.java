@@ -41,7 +41,7 @@ public class JsonSerializableAddressBookTest {
         JsonAdaptedStudent first = new JsonAdaptedStudent(
                 "Alice", "Sec 2", List.of("Math"), "91234567", "alice@example.com");
         JsonAdaptedStudent second = new JsonAdaptedStudent(
-                "Alice", "Pri 1", List.of("Science"), "92345678", "alice2@example.com");
+                "Alice", "Pri 1", List.of("Science"), "91234567", "alice2@example.com");
         JsonSerializableAddressBook data = new JsonSerializableAddressBook(List.of(first, second));
 
         assertThrows(IllegalValueException.class, JsonSerializableAddressBook.MESSAGE_DUPLICATE_STUDENT,

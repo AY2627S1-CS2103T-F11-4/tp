@@ -80,9 +80,11 @@ public class Student {
         return lessonNotes;
     }
 
-    /** Returns true if both students have the same name. */
+    /** Returns true if both students have the same name and same parent phone number */
     public boolean isSameStudent(Student otherStudent) {
-        return otherStudent != null && name.equals(otherStudent.name);
+        return otherStudent != null
+                && name.equals(otherStudent.name)
+                && parentPhone.equals(otherStudent.parentPhone);
     }
 
     @Override
