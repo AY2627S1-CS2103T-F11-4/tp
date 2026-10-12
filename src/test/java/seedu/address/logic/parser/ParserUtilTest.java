@@ -12,6 +12,8 @@ import java.util.Set;
 import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -24,6 +26,10 @@ public class ParserUtilTest {
     private static final String INVALID_PHONE = "9123456";
     private static final String INVALID_EMAIL = "example.com";
     private static final String INVALID_SUBJECT = "M";
+    private static final String INVALID_LESSON_DATE = "01-01-2026";
+    private static final String NON_EXISTENT_LESSON_DATE = "2026-02-30";
+    private static final String FUTURE_LESSON_DATE = "2099-01-01";
+    private static final String BLANK_NOTE_TEXT = "   ";
 
     private static final String VALID_NAME = "Rachel Walker";
     private static final String VALID_LEVEL = "Sec 2";
@@ -31,6 +37,8 @@ public class ParserUtilTest {
     private static final String VALID_EMAIL = "rachel@example.com";
     private static final String VALID_SUBJECT_1 = "Math";
     private static final String VALID_SUBJECT_2 = "Computer Science";
+    private static final String VALID_LESSON_DATE = "2026-10-01";
+    private static final String VALID_NOTE_TEXT = "Revised simultaneous equations";
 
     @Test
     public void parseIndex_invalidInput_throwsParseException() {
@@ -98,5 +106,57 @@ public class ParserUtilTest {
         Set<Subject> actualSubjects = ParserUtil.parseSubjects(List.of(VALID_SUBJECT_1, VALID_SUBJECT_2));
         Set<Subject> expectedSubjects = Set.of(new Subject(VALID_SUBJECT_1), new Subject(VALID_SUBJECT_2));
         assertEquals(expectedSubjects, actualSubjects);
+    }
+
+    @Test
+    public void parseLessonDate_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseLessonDate(null));
+    }
+
+    @Test
+    public void parseLessonDate_invalidValue_throwsParseException() {
+        // wrong format
+        assertThrows(ParseException.class, LessonDate.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseLessonDate(INVALID_LESSON_DATE));
+
+        // correct format but not a real calendar date
+        assertThrows(ParseException.class, LessonDate.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseLessonDate(NON_EXISTENT_LESSON_DATE));
+
+        // a lesson cannot have happened in the future
+        assertThrows(ParseException.class, LessonDate.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseLessonDate(FUTURE_LESSON_DATE));
+    }
+
+    @Test
+    public void parseLessonDate_validValue_returnsLessonDate() throws Exception {
+        assertEquals(new LessonDate(VALID_LESSON_DATE), ParserUtil.parseLessonDate(VALID_LESSON_DATE));
+
+        // surrounding whitespace is trimmed
+        assertEquals(new LessonDate(VALID_LESSON_DATE), ParserUtil.parseLessonDate("  " + VALID_LESSON_DATE + "  "));
+    }
+
+    @Test
+    public void parseNoteText_null_throwsNullPointerException() {
+        assertThrows(NullPointerException.class, () -> ParserUtil.parseNoteText(null));
+    }
+
+    @Test
+    public void parseNoteText_invalidValue_throwsParseException() {
+        // blank
+        assertThrows(ParseException.class, NoteText.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseNoteText(BLANK_NOTE_TEXT));
+
+        // longer than the maximum allowed length
+        assertThrows(ParseException.class, NoteText.MESSAGE_CONSTRAINTS, () ->
+                ParserUtil.parseNoteText("a".repeat(NoteText.MAX_LENGTH + 1)));
+    }
+
+    @Test
+    public void parseNoteText_validValue_returnsNoteText() throws Exception {
+        assertEquals(new NoteText(VALID_NOTE_TEXT), ParserUtil.parseNoteText(VALID_NOTE_TEXT));
+
+        // surrounding whitespace is trimmed
+        assertEquals(new NoteText(VALID_NOTE_TEXT), ParserUtil.parseNoteText("  " + VALID_NOTE_TEXT + "  "));
     }
 }
