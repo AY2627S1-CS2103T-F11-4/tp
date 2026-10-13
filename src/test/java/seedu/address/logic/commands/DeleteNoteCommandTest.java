@@ -115,6 +115,7 @@ public class DeleteNoteCommandTest {
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setStudent(seeded, editedStudent);
+        showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
 
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
     }
