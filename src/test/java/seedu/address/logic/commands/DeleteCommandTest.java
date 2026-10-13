@@ -10,14 +10,22 @@ import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.logic.Messages;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.Student;
+import seedu.address.model.subject.Subject;
+import seedu.address.testutil.PersonBuilder;
 
 /**
  * Contains integration tests (interaction with the Model) and unit tests for
@@ -33,7 +41,7 @@ public class DeleteCommandTest {
         DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
 
         String expectedMessage = String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS,
-                Messages.format(studentToDelete));
+                studentToDelete.getName(), studentToDelete.getLessonNotes().size());
 
         ModelManager expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.deleteStudent(studentToDelete);
@@ -51,13 +59,13 @@ public class DeleteCommandTest {
 
     @Test
     public void execute_validIndexFilteredList_success() {
-        showPersonAtIndex(model, INDEX_FIRST_PERSON);
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
         Student studentToDelete = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         DeleteCommand deleteCommand = new DeleteCommand(INDEX_FIRST_PERSON);
 
         String expectedMessage = String.format(DeleteCommand.MESSAGE_DELETE_STUDENT_SUCCESS,
-                Messages.format(studentToDelete));
+                studentToDelete.getName(), studentToDelete.getLessonNotes().size());
 
         Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
         expectedModel.deleteStudent(studentToDelete);
@@ -77,6 +85,54 @@ public class DeleteCommandTest {
         DeleteCommand deleteCommand = new DeleteCommand(outOfBoundIndex);
 
         assertCommandFailure(deleteCommand, model, Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+    }
+
+    @Test
+    public void execute_studentWithNotes_preservesOtherStudentsAndNotes() {
+        Student deletedStudent = studentWithNotes("Alex Yeoh", "Algebra", "Geometry");
+        Student remainingStudent = studentWithNotes("Betty Lim", "Fractions");
+        AddressBook initialData = new AddressBook();
+        initialData.addStudent(deletedStudent);
+        initialData.addStudent(remainingStudent);
+        model = new ModelManager(initialData, new UserPrefs());
+
+        AddressBook expectedData = new AddressBook();
+        expectedData.addStudent(remainingStudent);
+        Model expectedModel = new ModelManager(expectedData, new UserPrefs());
+
+        assertCommandSuccess(new DeleteCommand(INDEX_FIRST_PERSON), model,
+                "Deleted student: Alex Yeoh, and their 2 lesson note(s).", expectedModel);
+    }
+
+    @Test
+    public void execute_lastStudentWithoutNotes_leavesEmptyList() {
+        AddressBook initialData = new AddressBook();
+        initialData.addStudent(new PersonBuilder().withName("Alex Yeoh").build());
+        model = new ModelManager(initialData, new UserPrefs());
+        Model expectedModel = new ModelManager(new AddressBook(), new UserPrefs());
+
+        assertCommandSuccess(new DeleteCommand(INDEX_FIRST_PERSON), model,
+                "Deleted student: Alex Yeoh, and their 0 lesson note(s).", expectedModel);
+    }
+
+    @Test
+    public void execute_invalidIndexWithNotes_preservesAllData() {
+        Student student = studentWithNotes("Alex Yeoh", "Algebra", "Geometry");
+        AddressBook initialData = new AddressBook();
+        initialData.addStudent(student);
+        model = new ModelManager(initialData, new UserPrefs());
+
+        assertCommandFailure(new DeleteCommand(INDEX_SECOND_PERSON), model,
+                Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
+        assertEquals(List.of(student), model.getAddressBook().getStudentList());
+    }
+
+    private Student studentWithNotes(String name, String... texts) {
+        LessonNote[] notes = java.util.Arrays.stream(texts)
+                .map(text -> new LessonNote(new LessonDate("2026-09-18"),
+                        new Subject("Math"), new NoteText(text)))
+                .toArray(LessonNote[]::new);
+        return new PersonBuilder().withName(name).withLessonNotes(notes).build();
     }
 
     @Test
