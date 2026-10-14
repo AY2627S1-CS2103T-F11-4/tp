@@ -326,7 +326,7 @@ The following rules apply to these use cases:
 
 **Use case: UC01 - Add a student**
 
-**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name. An invalid request leaves existing profiles unchanged.
+**Guarantees:** A student profile is created only if all the details are valid and no existing student has the same name and parent phone number. An invalid request leaves existing profiles unchanged.
 
 **MSS**
 
@@ -343,7 +343,7 @@ The following rules apply to these use cases:
 
   Use case resumes from step 1.
 
-* 1b. TutorBroPro detects that a student with the same name already exists.
+* 1b. TutorBroPro detects that a student with the same name and parent phone number already exists.
 
   * 1b1. TutorBroPro informs the tutor that the student already exists.
 
@@ -638,6 +638,8 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 * **Academic level**: The student’s education level, such as `Pri 4`, `Sec 2`, or `JC 1`.
 * **Subject**: An academic topic associated with a student or lesson note, such as Mathematics or Science.
 * **Parent or guardian contact**: The phone number and email address used to contact a student’s parent or guardian.
+* **Parent phone number**: An 8-digit phone number beginning with `8` or `9`, used to contact a student’s parent or guardian.
+* **Duplicate student**: A student whose name and parent phone number both match those of an existing student.
 * **Lesson note**: A dated record describing the subject and content covered during a lesson.
 * **Lesson history**: The collection of lesson notes associated with a student.
 * **Student index**: The number used to identify a student in the currently displayed list.
@@ -683,7 +685,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: List all students using the `list` command, with multiple students in the list.
 
    1. Test case: `deletestudent 1`<br>
-      Expected: The first student is deleted from the list. The status message shows the deleted student's details.
+      Expected: The first student is deleted from the list. The status message shows the deleted student's name and the number of lesson notes removed.
 
    1. Test case: `deletestudent 0`<br>
       Expected: No student is deleted. The status message shows error details.
@@ -691,7 +693,30 @@ testers are expected to do more *exploratory* testing.
    1. Other incorrect delete commands to try: `deletestudent`, `deletestudent x`, `...` (where x is larger than the list size)<br>
       Expected: Similar to previous.
 
-1. _{ more test cases … }_
+1. Deleting a student with lesson notes and checking persistence
+
+   1. Prerequisites: Two students are displayed. The first student, Alex Yeoh, has two lesson notes; the second student also has notes. Record the second student's details and lesson history before testing.
+
+   1. Test case: `deletestudent 1`<br>
+      Expected: Alex and their notes are removed immediately without a confirmation prompt. The message is `Deleted student: Alex Yeoh, and their 2 lesson note(s).` The remaining student's details and notes are unchanged. Any previous profile or history output is replaced by the deletion message.
+
+   1. Close and restart the application.<br>
+      Expected: Alex does not reappear. View the remaining student's profile and history using their current displayed index; their details and notes are unchanged.
+
+1. Deleting a student without lesson notes
+
+   1. Prerequisites: The first displayed student has no lesson notes.
+
+   1. Test case: `deletestudent 1`<br>
+      Expected: The student is removed and the success message reports `0 lesson note(s)`.
+
+1. Deleting from search results
+
+   1. Prerequisites: At least two students exist. Search by a unique name for a student who is not first in the full list, so that the student becomes index 1 in the results.
+
+   1. Test case: `deletestudent 1`<br>
+      Expected: The student shown in the search results is removed, rather than the original first student. Other students and their notes remain unchanged.
+
 
 ### Saving data
 

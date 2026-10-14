@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.ToStringBuilder;
@@ -59,11 +60,12 @@ public class HistoryCommand extends Command {
             return new CommandResult(String.format(MESSAGE_NO_LESSON_NOTES, student.getName()));
         }
 
-        String formattedLessonNotes = lessonNotes.stream()
-                .map(lessonNote -> String.format("%s | %s | %s",
-                        lessonNote.getDate(),
-                        lessonNote.getSubject(),
-                        lessonNote.getNoteText()))
+        String formattedLessonNotes = IntStream.range(0, lessonNotes.size())
+                .mapToObj(i -> String.format("%d. %s | %s | %s",
+                        i + 1,
+                        lessonNotes.get(i).getDate(),
+                        lessonNotes.get(i).getSubject(),
+                        lessonNotes.get(i).getNoteText()))
                 .collect(Collectors.joining("\n"));
 
         return new CommandResult(String.format(

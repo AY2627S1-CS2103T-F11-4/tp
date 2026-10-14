@@ -9,6 +9,8 @@ import java.util.Set;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.StringUtil;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
 import seedu.address.model.person.Name;
@@ -108,6 +110,26 @@ public class ParserUtil {
             subjectSet.add(parseSubject(subject));
         }
         return subjectSet;
+    }
+
+    /** Parses a string into a {@code LessonDate}. */
+    public static LessonDate parseLessonDate(String date) throws ParseException {
+        requireNonNull(date);
+        try {
+            return new LessonDate(date.trim());
+        } catch (IllegalArgumentException exception) {
+            throw new ParseException(LessonDate.MESSAGE_CONSTRAINTS, exception);
+        }
+    }
+
+    /** Parses a string into a {@code NoteText}. */
+    public static NoteText parseNoteText(String noteText) throws ParseException {
+        requireNonNull(noteText);
+        try {
+            return new NoteText(noteText.trim());
+        } catch (IllegalArgumentException exception) {
+            throw new ParseException(NoteText.MESSAGE_CONSTRAINTS, exception);
+        }
     }
 
 }

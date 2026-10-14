@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Test;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
@@ -29,7 +30,12 @@ import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.Student;
+import seedu.address.model.subject.Subject;
+import seedu.address.testutil.PersonBuilder;
 
 public class UiCoverageTest {
 
@@ -49,6 +55,46 @@ public class UiCoverageTest {
 
             assertEquals(ALICE, personCard.student);
             assertNotNull(personCard.getRoot());
+        });
+    }
+
+    @Test
+    public void personCard_studentWithLessonNotes_populatesNotesSection() throws Exception {
+        Student studentWithNotes = new PersonBuilder(ALICE)
+                .withLessonNotes(
+                        new LessonNote(new LessonDate("2026-10-01"), new Subject("Math"),
+                                new NoteText("Revised simultaneous equations")),
+                        new LessonNote(new LessonDate("2026-09-20"), new Subject("Science"),
+                                new NoteText("Covered photosynthesis")))
+                .build();
+
+        runOnFxThread(() -> {
+            PersonCard personCard = new PersonCard(studentWithNotes, 1);
+
+            Field lessonNotesField = PersonCard.class.getDeclaredField("lessonNotes");
+            lessonNotesField.setAccessible(true);
+            VBox lessonNotes = (VBox) lessonNotesField.get(personCard);
+
+            assertTrue(lessonNotes.isVisible());
+            // the header plus one label per note
+            assertEquals(3, lessonNotes.getChildren().size());
+            Label header = (Label) lessonNotes.getChildren().get(0);
+            assertEquals(LessonNoteFormatter.LESSON_NOTES_HEADER, header.getText());
+        });
+    }
+
+    @Test
+    public void personCard_studentWithoutLessonNotes_hidesNotesSection() throws Exception {
+        runOnFxThread(() -> {
+            PersonCard personCard = new PersonCard(ALICE, 1);
+
+            Field lessonNotesField = PersonCard.class.getDeclaredField("lessonNotes");
+            lessonNotesField.setAccessible(true);
+            VBox lessonNotes = (VBox) lessonNotesField.get(personCard);
+
+            assertTrue(!lessonNotes.isVisible());
+            assertTrue(!lessonNotes.isManaged());
+            assertTrue(lessonNotes.getChildren().isEmpty());
         });
     }
 
