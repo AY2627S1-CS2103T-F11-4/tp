@@ -112,6 +112,7 @@
         "features": "Features",
         "adding-a-student-addstudent": "Adding a student: addstudent",
         "viewing-a-student-s-profile-view": "Viewing a student's profile: view",
+        "finding-students-find": "Finding students: find",
         "adding-a-lesson-note-addnote": "Adding a lesson note: addnote",
         "viewing-lesson-history-history": "Viewing lesson history: history",
         "deleting-a-lesson-note-deletenote": "Deleting a lesson note: deletenote",
