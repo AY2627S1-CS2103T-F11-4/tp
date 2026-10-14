@@ -3,7 +3,6 @@ package seedu.address.model.person;
 import static java.util.Objects.requireNonNull;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -12,7 +11,7 @@ import javafx.collections.ObservableList;
 import seedu.address.model.person.exceptions.DuplicateStudentException;
 import seedu.address.model.person.exceptions.StudentNotFoundException;
 
-/** A sorted list of students with unique names and parent phone combinations. */
+/** A list of students with unique names and parent phone combinations. */
 public class UniqueStudentList implements Iterable<Student> {
 
     private final ObservableList<Student> internalList = FXCollections.observableArrayList();
@@ -25,14 +24,13 @@ public class UniqueStudentList implements Iterable<Student> {
         return internalList.stream().anyMatch(toCheck::isSameStudent);
     }
 
-    /** Adds a student while preserving name ordering. */
+    /** Adds a student to the end of the list. */
     public void add(Student toAdd) {
         requireNonNull(toAdd);
         if (contains(toAdd)) {
             throw new DuplicateStudentException();
         }
         internalList.add(toAdd);
-        sort();
     }
 
     public void setStudent(Student target, Student editedStudent) {
@@ -45,7 +43,6 @@ public class UniqueStudentList implements Iterable<Student> {
             throw new DuplicateStudentException();
         }
         internalList.set(index, editedStudent);
-        sort();
     }
 
     /** Removes a student from the list. */
@@ -66,16 +63,10 @@ public class UniqueStudentList implements Iterable<Student> {
             }
         }
         internalList.setAll(students);
-        sort();
     }
 
     public ObservableList<Student> asUnmodifiableObservableList() {
         return internalUnmodifiableList;
-    }
-
-    private void sort() {
-        FXCollections.sort(internalList, Comparator.comparing(student -> student.getName().fullName,
-                String.CASE_INSENSITIVE_ORDER));
     }
 
     @Override
