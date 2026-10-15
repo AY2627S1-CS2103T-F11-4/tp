@@ -20,7 +20,7 @@ TutorBroPro is a **desktop application for tutors to manage student profiles and
 
 1. Download the latest `.jar` file from [here](https://github.com/AY2627S1-CS2103T-F11-4/tp/releases).
 
-1. Copy the file to the folder you want to use as the _home folder_ for your AddressBook.
+1. Copy the file to the folder you want to use as the _home folder_ for your TutorBroPro.
 
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
@@ -81,6 +81,22 @@ Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAI
 Example:
 * `addstudent n/John Doe lvl/Sec 2 s/Math s/Science pn/91234567 pe/johnd@example.com`
 
+### Editing a student: `edit`
+
+Edits an existing student in the address book.
+
+Format: `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]`
+
+* Edits the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
+* At least one of the optional fields must be provided.
+* Existing values will be updated to the input values.
+* When editing subjects, all of the student's existing subjects are replaced; adding subjects is not cumulative. To replace them, list every subject you want the student to keep.
+* The student's lesson notes are not affected by an edit.
+
+Examples:
+* `edit 1 pn/91234567 pe/johndoe@example.com` Edits the parent phone and parent email of the 1st student.
+* `edit 2 n/Betsy Crower s/Math s/Science` Edits the name of the 2nd student and replaces their subjects with `Math` and `Science`.
+
 ### Viewing a student's profile: `view`
 
 Shows the full profile of a student, including their academic level, subjects, parent contact details, and number of recorded lessons.
@@ -91,6 +107,12 @@ Format: `view INDEX`
 
 Example:
 * `view 1` shows the full profile of the 1st student.
+
+### Listing all students: `list`
+
+Shows a list of all students in the address book, clearing any filter applied by `find`.
+
+Format: `list`
 
 ### Finding students: `find`
 
@@ -175,19 +197,42 @@ A student with no notes can also be deleted; the reported count is `0`.
 
 Deletion is immediate, without a confirmation prompt, and cannot be undone. Other students and their notes remain unchanged.
 
+### Clearing all entries: `clear`
+
+Removes every student, together with all their lesson notes, from the address book.
+
+Format: `clear`
+
+<box type="warning" seamless>
+
+**Caution:** This cannot be undone, and you are not asked to confirm. The change is saved to the data file immediately.
+</box>
+
+### Viewing help: `help`
+
+Opens a window with a link to this user guide.
+
+Format: `help`
+
+### Exiting the program: `exit`
+
+Exits the application. Your data is already saved, so nothing is lost.
+
+Format: `exit`
+
 ### Saving the data
 
-AddressBook automatically saves data after every command. You do not need to save manually.
+TutorBroPro automatically saves data after every command. You do not need to save manually.
 
 ### Editing the data file
 
-AddressBook data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
+TutorBroPro data is saved automatically as a JSON file `[JAR file location]/data/addressbook.json`. Advanced users are welcome to update data directly by editing that data file.
 
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, AddressBook starts with an empty address book at the next run. The invalid file remains on disk until you run a command (AddressBook saves after every command). Still, we recommend backing up the file before editing it.<br>
-Furthermore, certain edits can cause the AddressBook to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
+If your changes make the data file invalid, TutorBroPro starts with an empty address book at the next run. The invalid file remains on disk until you run a command (TutorBroPro saves after every command). Still, we recommend backing up the file before editing it.<br>
+Furthermore, certain edits can cause TutorBroPro to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 
 --------------------------------------------------------------------------------------------------------------------
@@ -195,7 +240,7 @@ Furthermore, certain edits can cause the AddressBook to behave in unexpected way
 ## FAQ
 
 **Q**: How do I transfer my data to another computer?<br>
-**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous AddressBook home folder.
+**A**: Install the app on the other computer and overwrite the data file it creates with the data file from your previous TutorBroPro home folder.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -211,8 +256,14 @@ Furthermore, certain edits can cause the AddressBook to behave in unexpected way
 Action     | Format, Examples
 -----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------
 **Add student** | `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL`<br> e.g., `addstudent n/James Ho lvl/Sec 2 s/Math s/Science pn/91234567 pe/jamesho@example.com`
+**Edit student** | `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]`<br> e.g., `edit 2 n/James Lee pe/jameslee@example.com`
 **View profile** | `view INDEX`<br> e.g., `view 1`
-**Delete student** | `deletestudent INDEX`<br> e.g., `deletestudent 3`
+**List students** | `list`
+**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **View lesson history** | `history INDEX`<br> e.g., `history 1`
 **Delete lesson note** | `deletenote INDEX ln/LESSON_INDEX`<br> e.g., `deletenote 1 ln/2`
+**Delete student** | `deletestudent INDEX`<br> e.g., `deletestudent 3`
+**Clear** | `clear`
+**Help** | `help`
+**Exit** | `exit`
