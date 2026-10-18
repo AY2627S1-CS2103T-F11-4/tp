@@ -22,7 +22,7 @@ Use the commands below to manage student profiles and lesson records.
 | Add a dated lesson note                                                               | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT` | `addnote 1 d/2026-09-18 s/Math note/Covered quadratic equations` |
 | Delete a lesson note                                                                  | `deletenote INDEX ln/LESSON_INDEX` | `deletenote 1 ln/2` |
 | View a student's lesson history                                                       | `history INDEX` | `history 1` |
-
+| Edit a lesson note | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]` | `editnote 1 ln/2 note/Recapped photosynthesis` |
 ## **Documentation and Resources**
 
 - [User Guide](https://ay2627s1-cs2103t-f11-4.github.io/tp/UserGuide.html)
