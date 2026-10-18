@@ -1,5 +1,6 @@
 package seedu.address.model.person;
 
+import static seedu.address.commons.util.AppUtil.checkArgument;
 import static seedu.address.commons.util.CollectionUtil.requireAllNonNull;
 
 import java.util.ArrayList;
@@ -16,6 +17,8 @@ import seedu.address.model.subject.Subject;
 
 /** Represents a student managed by the tutor. */
 public class Student {
+
+    public static final String MESSAGE_CONSTRAINTS = "A student must have at least one subject.";
 
     private final Name name;
     private final AcademicLevel academicLevel;
@@ -40,6 +43,7 @@ public class Student {
     public Student(Name name, AcademicLevel academicLevel, Set<Subject> subjects,
             Phone parentPhone, Email parentEmail, List<LessonNote> lessonNotes) {
         requireAllNonNull(name, academicLevel, subjects, parentPhone, parentEmail, lessonNotes);
+        checkArgument(!subjects.isEmpty(), MESSAGE_CONSTRAINTS);
         this.name = name;
         this.academicLevel = academicLevel;
         this.subjects.addAll(subjects);

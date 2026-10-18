@@ -8,6 +8,7 @@ import static seedu.address.testutil.TypicalPersons.ALICE;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.junit.jupiter.api.Test;
 
@@ -30,6 +31,12 @@ public class StudentTest {
     public void constructor_nullLessonNotes_throwsNullPointerException() {
         assertThrows(NullPointerException.class, () -> new Student(ALICE.getName(), ALICE.getAcademicLevel(),
                 ALICE.getSubjects(), ALICE.getParentPhone(), ALICE.getParentEmail(), null));
+    }
+
+    @Test
+    public void constructor_emptySubjects_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Student(ALICE.getName(), ALICE.getAcademicLevel(),
+                Set.of(), ALICE.getParentPhone(), ALICE.getParentEmail()));
     }
 
     @Test
