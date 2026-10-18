@@ -9,7 +9,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import seedu.address.commons.core.index.Index;
