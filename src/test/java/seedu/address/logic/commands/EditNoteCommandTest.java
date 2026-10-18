@@ -1,6 +1,6 @@
 package seedu.address.logic.commands;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
@@ -132,5 +132,68 @@ public class EditNoteCommandTest {
                 INDEX_FIRST_PERSON.getOneBased(), seededStudent.getName());
 
         assertCommandSuccess(command, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void equals() {
+        EditNoteCommand standard = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")));
+
+        assertTrue(standard.equals(standard));
+        assertTrue(standard.equals(new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")))));
+
+        assertFalse(standard.equals(null));
+        assertFalse(standard.equals(new ClearCommand()));
+
+        assertFalse(standard.equals(new EditNoteCommand(
+                INDEX_SECOND_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")))));
+        assertFalse(standard.equals(new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")))));
+        assertFalse(standard.equals(new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-02")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")))));
+        assertFalse(standard.equals(new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Science")),
+                Optional.of(new NoteText("Reviewed equations")))));
+        assertFalse(standard.equals(new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Different note")))));
+    }
+
+    @Test
+    public void toStringMethod() {
+        EditNoteCommand command = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.of(new Subject("Math")),
+                Optional.of(new NoteText("Reviewed equations")));
+
+        String expected = EditNoteCommand.class.getCanonicalName()
+                + "{studentIndex=" + INDEX_FIRST_PERSON
+                + ", lessonIndex=" + INDEX_SECOND_PERSON
+                + ", date=Optional[2026-10-01]"
+                + ", subject=Optional[Math]"
+                + ", noteText=Optional[Reviewed equations]}";
+
+        assertEquals(expected, command.toString());
     }
 }
