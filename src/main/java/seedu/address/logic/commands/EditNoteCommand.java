@@ -36,7 +36,7 @@ public class EditNoteCommand extends Command {
             + "[" + PREFIX_DATE + "DATE] "
             + "[" + PREFIX_SUBJECT + "SUBJECT] "
             + "[" + PREFIX_NOTE + "NOTE_TEXT]\n"
-            + "At least one of d/, subj/, or note/ must be provided.\n"
+            + "At least one of d/, s/, or note/ must be provided.\n"
             + "Example: " + COMMAND_WORD + " 1 "
             + PREFIX_LESSON_INDEX + "2 "
             + PREFIX_NOTE + "Recapped photosynthesis.";
