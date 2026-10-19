@@ -54,11 +54,11 @@ public class ViewCommandTest {
     }
 
     @Test
-    public void execute_noSubjectsAndNoLessons_showsEmptySubjectsAndZeroCount() {
+    public void execute_noLessons_showsSubjectsAndZeroCount() {
         Student student = new PersonBuilder()
                 .withName("Beth Lim")
                 .withAcademicLevel("Pri 5")
-                .withSubjects()
+                .withSubjects("Math")
                 .withPhone("92345678")
                 .withEmail("beth@example.com")
                 .build();
@@ -67,7 +67,7 @@ public class ViewCommandTest {
         Model expectedModel = modelWith(student);
         String expectedMessage = "Student: Beth Lim\n"
                 + "Level: Pri 5\n"
-                + "Subjects: \n"
+                + "Subjects: Math\n"
                 + "Parent phone: 92345678\n"
                 + "Parent email: beth@example.com\n"
                 + "Lessons recorded: 0";
