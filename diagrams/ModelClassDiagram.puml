@@ -4,7 +4,7 @@ skinparam arrowThickness 1.1
 skinparam arrowColor MODEL_COLOR
 skinparam classBackgroundColor MODEL_COLOR
 
-Package Model as ModelPackage <<Rectangle>>{
+package Model as ModelPackage <<Rectangle>> {
 Class "<<interface>>\nReadOnlyAddressBook" as ReadOnlyAddressBook
 Class "<<interface>>\nReadOnlyUserPrefs" as ReadOnlyUserPrefs
 Class "<<interface>>\nModel" as Model
@@ -12,43 +12,45 @@ Class AddressBook
 Class ModelManager
 Class UserPrefs
 
-Class UniquePersonList
-Class Person
-Class Address
-Class Email
+Class UniqueStudentList
+Class Student
 Class Name
+Class AcademicLevel
+Class Subject
 Class Phone
-Class Tag
-
-Class I #FFFFFF
+Class Email
+Class LessonNote
+Class LessonDate
+Class NoteText
 }
 
 Class HiddenOutside #FFFFFF
 HiddenOutside ..> Model
 
 AddressBook .up.|> ReadOnlyAddressBook
-
+UserPrefs .up.|> ReadOnlyUserPrefs
 ModelManager .up.|> Model
-Model .right.> ReadOnlyUserPrefs
+
 Model .left.> ReadOnlyAddressBook
+Model .right.> ReadOnlyUserPrefs
+Model ..> Student
+
 ModelManager -left-> "1" AddressBook
 ModelManager -right-> "1" UserPrefs
-UserPrefs .up.|> ReadOnlyUserPrefs
+ModelManager --> "~* filtered" Student
 
-AddressBook *--> "1" UniquePersonList
-UniquePersonList --> "~* all" Person
-Person *--> Name
-Person *--> Phone
-Person *--> Email
-Person *--> Address
-Person *--> "*" Tag
+AddressBook *--> "1" UniqueStudentList
+ReadOnlyAddressBook --> "~* students" Student
+UniqueStudentList --> "~* students" Student
 
-Person -[hidden]up--> I
-UniquePersonList -[hidden]right-> I
+Student *--> Name
+Student *--> AcademicLevel
+Student *--> "0..*" Subject
+Student *--> Phone
+Student *--> Email
+Student *--> "*" LessonNote
 
-Name -[hidden]right-> Phone
-Phone -[hidden]right-> Address
-Address -[hidden]right-> Email
-
-ModelManager --> "~* filtered" Person
+LessonNote *--> LessonDate
+LessonNote *--> Subject
+LessonNote *--> NoteText
 @enduml
