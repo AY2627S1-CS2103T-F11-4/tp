@@ -303,6 +303,9 @@ _{Explain here how the data archiving feature will be implemented}_
 * **As a tutor, I want to delete an incorrect lesson note, so that the student's records remain accurate.**
     * Priority: Must have
 
+* **As a tutor, I want to edit a lesson note, so that I can correct inaccurate information in a previous lesson record.**
+    * Priority: Should have
+
 #### Organisation and Retrieval
 
 * **As a tutor, I want to search for a student, so that I can find the correct profile quickly.**

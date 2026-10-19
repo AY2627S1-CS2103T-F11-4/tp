@@ -41,6 +41,8 @@ TutorBroPro is a **desktop application for tutors to manage student profiles and
 
    * `deletestudent 3` : Deletes the 3rd student shown in the current list.
 
+   * `editnote 1 ln/2 note/Recapped photosynthesis` : Edits the note text of the 2nd lesson note for the 1st student.
+   
    * `deletenote 1 ln/2` : Deletes the 2nd lesson note of the 1st student.
 
    * `exit` : Exits the app.
@@ -178,6 +180,24 @@ Examples:
 * `deletenote 1 ln/2` deletes the 2nd lesson note of the 1st student.
 * `deletenote 3 ln/1` deletes the most recent lesson note of the 3rd student.
 
+### Editing a lesson note: `editnote`
+
+Correct one or more details in a lesson note already recorded for a student.
+
+Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
+
+* `INDEX` identifies the student in the currently displayed student list.
+* `LESSON_INDEX` refers to the number shown by `history INDEX`.
+* At least one of `d/`, `s/`, or `note/` must be provided.
+* Any field you omit stays unchanged.
+* A supplied date must use `YYYY-MM-DD` and cannot be a future date.
+* A supplied subject follows the same validation rules as a subject in `addnote`.
+* Note text cannot be blank, must be at most 500 characters, and must be on one line.
+* If the date changes, the history is reordered from most recent to earliest.
+
+Examples:
+* `editnote 1 ln/2 note/Recapped photosynthesis`
+* `editnote 1 ln/1 d/2026-10-10 s/Science note/Reviewed cell structures`
 ### Deleting a student: `deletestudent`
 
 Deletes the specified student and all their associated lesson notes from the address book.
@@ -263,6 +283,7 @@ Action     | Format, Examples
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **View lesson history** | `history INDEX`<br> e.g., `history 1`
 **Delete lesson note** | `deletenote INDEX ln/LESSON_INDEX`<br> e.g., `deletenote 1 ln/2`
+**Edit lesson note** | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`<br> e.g., `editnote 1 ln/2 note/Recapped photosynthesis`
 **Delete student** | `deletestudent INDEX`<br> e.g., `deletestudent 3`
 **Clear** | `clear`
 **Help** | `help`
