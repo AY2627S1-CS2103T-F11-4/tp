@@ -17,8 +17,6 @@ public class FilterCommand extends Command {
 
     public static final String COMMAND_WORD = "filter";
 
-    private static final Logger logger = LogsCenter.getLogger(FilterCommand.class);
-
     public static final String MESSAGE_USAGE = COMMAND_WORD
             + ": Filters students by subject and/or academic level.\n"
             + "At least one subject or academic level must be supplied.\n"
@@ -31,6 +29,8 @@ public class FilterCommand extends Command {
 
     public static final String MESSAGE_NO_STUDENTS_FOUND =
             "No students match the specified filters.";
+
+    private static final Logger logger = LogsCenter.getLogger(FilterCommand.class);
 
     private final StudentMatchesFilterPredicate predicate;
 
