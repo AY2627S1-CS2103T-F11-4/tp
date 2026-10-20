@@ -21,7 +21,7 @@ public class FindCommand extends Command {
             + "Example: " + COMMAND_WORD + " alice bob charlie";
 
     public static final String MESSAGE_NO_STUDENTS_FOUND =
-            "No matching students found. The previous student list remains displayed.";
+            "No matching students found.";
 
     private final NameContainsKeywordsPredicate predicate;
 
@@ -32,10 +32,13 @@ public class FindCommand extends Command {
     @Override
     public CommandResult execute(Model model) {
         requireNonNull(model);
-        if (model.getAddressBook().getStudentList().stream().noneMatch(predicate)) {
+
+        model.updateFilteredStudentList(predicate);
+
+        if (model.getFilteredStudentList().isEmpty()) {
             return new CommandResult(MESSAGE_NO_STUDENTS_FOUND);
         }
-        model.updateFilteredStudentList(predicate);
+
         return new CommandResult(
                 String.format(Messages.MESSAGE_PERSONS_LISTED_OVERVIEW, model.getFilteredStudentList().size()));
     }
