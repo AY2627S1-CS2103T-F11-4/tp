@@ -25,8 +25,7 @@ public class FilterCommand extends Command {
             + COMMAND_WORD + " s/Math s/Science lvl/Sec 2";
 
     public static final String MESSAGE_NO_STUDENTS_FOUND =
-            "No students match the specified filters. "
-                    + "The previous student list remains displayed.";
+            "No students match the specified filters.";
 
     private final StudentMatchesFilterPredicate predicate;
 
@@ -38,16 +37,11 @@ public class FilterCommand extends Command {
     public CommandResult execute(Model model) {
         requireNonNull(model);
 
-        boolean hasMatch = model.getAddressBook()
-                .getStudentList()
-                .stream()
-                .anyMatch(predicate);
+        model.updateFilteredStudentList(predicate);
 
-        if (!hasMatch) {
+        if (model.getFilteredStudentList().isEmpty()) {
             return new CommandResult(MESSAGE_NO_STUDENTS_FOUND);
         }
-
-        model.updateFilteredStudentList(predicate);
 
         return new CommandResult(String.format(
                 Messages.MESSAGE_PERSONS_LISTED_OVERVIEW,
