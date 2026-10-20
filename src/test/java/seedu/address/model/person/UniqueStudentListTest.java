@@ -37,6 +37,25 @@ public class UniqueStudentListTest {
     }
 
     @Test
+    public void add_studentPreservesInsertionOrder_success() {
+        UniqueStudentList list = new UniqueStudentList();
+
+        list.add(BENSON);
+        list.add(ALICE);
+
+        assertEquals(List.of(BENSON, ALICE), list.asUnmodifiableObservableList());
+    }
+
+    @Test
+    public void setStudents_preservesInsertionOrder_success() {
+        UniqueStudentList list = new UniqueStudentList();
+
+        list.setStudents(List.of(BENSON, ALICE));
+
+        assertEquals(List.of(BENSON, ALICE), list.asUnmodifiableObservableList());
+    }
+
+    @Test
     public void set_missingStudent_throwsStudentNotFoundException() {
         UniqueStudentList list = new UniqueStudentList();
 

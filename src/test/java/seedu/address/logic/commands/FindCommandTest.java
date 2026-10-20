@@ -1,10 +1,13 @@
 package seedu.address.logic.commands;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_PERSONS_LISTED_OVERVIEW;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
+import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
+import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalPersons.CARL;
 import static seedu.address.testutil.TypicalPersons.ELLE;
 import static seedu.address.testutil.TypicalPersons.FIONA;
@@ -17,7 +20,11 @@ import org.junit.jupiter.api.Test;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.UserPrefs;
+import seedu.address.model.lesson.LessonDate;
+import seedu.address.model.lesson.LessonNote;
+import seedu.address.model.lesson.NoteText;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
+import seedu.address.model.subject.Subject;
 
 /**
  * Contains integration tests (interaction with the Model) for {@code FindCommand}.
@@ -54,13 +61,26 @@ public class FindCommandTest {
     }
 
     @Test
-    public void execute_zeroKeywords_noPersonFound() {
-        String expectedMessage = String.format(MESSAGE_PERSONS_LISTED_OVERVIEW, 0);
+    public void execute_zeroKeywords_keepsDisplayedList() {
         NameContainsKeywordsPredicate predicate = preparePredicate(" ");
         FindCommand command = new FindCommand(predicate);
-        expectedModel.updateFilteredStudentList(predicate);
-        assertCommandSuccess(command, model, expectedMessage, expectedModel);
-        assertEquals(List.of(), model.getFilteredStudentList());
+        assertCommandSuccess(command, model, FindCommand.MESSAGE_NO_STUDENTS_FOUND, expectedModel);
+    }
+
+    @Test
+    public void execute_noMatches_keepsFilteredListAndItsIndexesUsable() {
+        showPersonAtIndex(model, INDEX_FIRST_PERSON);
+        showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
+
+        FindCommand command = new FindCommand(preparePredicate("NonexistentStudentName"));
+        assertCommandSuccess(command, model, FindCommand.MESSAGE_NO_STUDENTS_FOUND, expectedModel);
+        assertEquals(1, model.getFilteredStudentList().size());
+
+        assertDoesNotThrow(() -> new ViewCommand(INDEX_FIRST_PERSON).execute(model));
+        LessonNote note = new LessonNote(new LessonDate("2026-10-01"),
+                new Subject("Math"), new NoteText("Reviewed algebra"));
+        assertDoesNotThrow(() -> new AddNoteCommand(INDEX_FIRST_PERSON, note).execute(model));
+        assertEquals(List.of(note), model.getAddressBook().getStudentList().get(0).getLessonNotes());
     }
 
     @Test

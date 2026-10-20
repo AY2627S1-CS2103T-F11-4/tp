@@ -19,10 +19,10 @@ Use the commands below to manage student profiles and lesson records.
 | Add a student profile with name, academic level, subjects, and parent contact details | `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL` | `addstudent n/Alex Yeoh lvl/Sec 2 s/Math s/Science pn/91234567 pe/parent_alex@example.com` |
 | Delete a student and their lesson notes                                               | `deletestudent INDEX` | `deletestudent 3` |
 | View a student's full profile                                                         | `view INDEX` | `view 2` |
-| Add a dated lesson note                                                               | `addnote INDEX d/DATE subj/SUBJECT note/NOTE_TEXT` | `addnote 1 d/2026-09-18 subj/Math note/Covered quadratic equations` |
+| Add a dated lesson note                                                               | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT` | `addnote 1 d/2026-09-18 s/Math note/Covered quadratic equations` |
 | Delete a lesson note                                                                  | `deletenote INDEX ln/LESSON_INDEX` | `deletenote 1 ln/2` |
 | View a student's lesson history                                                       | `history INDEX` | `history 1` |
-
+| Edit a lesson note | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]` | `editnote 1 ln/2 note/Recapped photosynthesis` |
 ## **Documentation and Resources**
 
 - [User Guide](https://ay2627s1-cs2103t-f11-4.github.io/tp/UserGuide.html)
