@@ -506,7 +506,7 @@ For example, filtering for Math includes students taking Math and Science. Filte
 **MSS**
 
 1. Tutor requests to edit a student in the displayed list, specifying the student and the profile details to change.
-2. TutorBroPro updates the student's profile and displays the updated details.
+2. TutorBroPro updates the student's profile, displays the full student list, and confirms the updated details.
 
    Use case ends.
 
@@ -530,9 +530,9 @@ For example, filtering for Math includes students taking Math and Science. Filte
 
   Use case resumes from step 1.
 
-* 1d. TutorBroPro detects that the proposed name duplicates another student's name.
+* 1d. TutorBroPro detects that the edited profile has the same name and parent phone number as another student.
 
-  * 1d1. TutorBroPro informs the tutor that another student already has that name.
+  * 1d1. TutorBroPro informs the tutor that another student already has that name and parent phone number.
 
   Use case resumes from step 1.
 
@@ -680,6 +680,21 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Editing a student
+
+1. Start with two students with different parent phone numbers. Give the first student a lesson note.
+   Record both profiles and the note before testing.
+1. Run `edit 1 lvl/Sec 3`. Only the first student's level changes; their other fields and notes remain unchanged.
+1. Run `edit 1 s/Math s/Science`. The subjects become Math and Science, replacing the previous set.
+1. Run `edit 1 n/Changed Name pn/abc`, then `edit 1 s/`. Each command reports an error and changes nothing.
+1. Edit the first student's name to match the second student's name, keeping different phone numbers.
+   The edit succeeds. Then try also matching the second student's phone; the duplicate edit is rejected.
+1. Restore distinct student names, then use `find` to display only a student who was not first in the full list.
+   Run `edit 1 lvl/Sec 4`.
+   That displayed student is updated, and the full student list is shown afterward.
+1. Restart the application from the same folder. Successful edits persist, rejected edits do not appear,
+   and lesson notes and profiles match their state immediately before restarting.
 
 ### Deleting a student
 

@@ -1,7 +1,5 @@
 package seedu.address.logic.parser;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static seedu.address.logic.commands.CommandTestUtil.LEVEL_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.NAME_DESC_AMY;
 import static seedu.address.logic.commands.CommandTestUtil.PARENT_EMAIL_DESC_AMY;
@@ -15,6 +13,10 @@ import org.junit.jupiter.api.Test;
 
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.model.person.AcademicLevel;
+import seedu.address.model.person.Email;
+import seedu.address.model.person.Name;
+import seedu.address.model.person.Phone;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 
 public class EditCommandParserTest {
@@ -75,10 +77,16 @@ public class EditCommandParserTest {
     }
 
     @Test
-    public void parse_resetSubjects_success() {
-        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withSubjects().build();
-        assertParseSuccess(parser, "1 s/", new EditCommand(INDEX_FIRST_PERSON, descriptor));
-        assertEquals(java.util.Set.of(), descriptor.getSubjects().orElseThrow());
+    public void parse_emptySubject_failure() {
+        assertParseFailure(parser, "1 s/", EditCommand.MESSAGE_SUBJECT_REQUIRED);
+        assertParseFailure(parser, "1 s/   ", EditCommand.MESSAGE_SUBJECT_REQUIRED);
+        assertParseFailure(parser, "1 s/Math s/", EditCommand.MESSAGE_SUBJECT_REQUIRED);
+        assertParseFailure(parser, "1 s/ s/Math", EditCommand.MESSAGE_SUBJECT_REQUIRED);
+    }
+
+    @Test
+    public void parse_validNameAndInvalidPhone_failure() {
+        assertParseFailure(parser, "1 n/Jamie Tan pn/abc", Phone.MESSAGE_CONSTRAINTS);
     }
 
     @Test
@@ -90,22 +98,26 @@ public class EditCommandParserTest {
     }
 
     @Test
-    public void parse_invalidName_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 n/!!!"));
+    public void parse_invalidName_failure() {
+        assertParseFailure(parser, "1 n/!!!", Name.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 n/", Name.MESSAGE_CONSTRAINTS);
     }
 
     @Test
-    public void parse_invalidAcademicLevel_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 lvl/Secondary 2"));
+    public void parse_invalidAcademicLevel_failure() {
+        assertParseFailure(parser, "1 lvl/Secondary 2", AcademicLevel.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 lvl/", AcademicLevel.MESSAGE_CONSTRAINTS);
     }
 
     @Test
-    public void parse_invalidPhone_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 pn/123"));
+    public void parse_invalidPhone_failure() {
+        assertParseFailure(parser, "1 pn/123", Phone.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 pn/", Phone.MESSAGE_CONSTRAINTS);
     }
 
     @Test
-    public void parse_invalidEmail_throwsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> parser.parse("1 pe/not-an-email"));
+    public void parse_invalidEmail_failure() {
+        assertParseFailure(parser, "1 pe/not-an-email", Email.MESSAGE_CONSTRAINTS);
+        assertParseFailure(parser, "1 pe/", Email.MESSAGE_CONSTRAINTS);
     }
 }
