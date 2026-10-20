@@ -108,6 +108,19 @@ How the `Logic` component works:
    Note that although this is shown as a single step in the diagram above for simplicity, the code can require several interactions between the command object and the `Model` to complete the operation.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
+#### Editing a student profile
+
+The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
+`commandText` represents the full command and `arguments` represents the text after `edit`.
+
+<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
+
+* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
+* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
+* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
+* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
+* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
+
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
 <puml src="diagrams/ParserClasses.puml" width="600"/>
