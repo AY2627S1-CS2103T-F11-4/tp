@@ -93,9 +93,13 @@ Format: `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PA
 
 * Edits the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
 * At least one of the optional fields must be provided.
-* Existing values will be updated to the input values.
+* Supplied fields are updated; omitted fields remain unchanged.
+* Invalid edits leave all student profiles and lesson notes unchanged.
+* An edit cannot create another student with the same name and parent phone number.
+* After a successful edit, the full student list is displayed.
 * When editing subjects, all of the student's existing subjects are replaced; adding subjects is not cumulative. To replace them, list every subject you want the student to keep.
-* The edited student must retain at least one subject, and each supplied field follows the same validation rules as `addstudent`.
+* The edited student must retain at least one subject. Empty subject entries such as `edit 1 s/` are rejected.
+* Each supplied field follows the same validation rules as `addstudent`.
 * The student's lesson notes are not affected by an edit.
 
 Examples:
