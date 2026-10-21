@@ -704,6 +704,29 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Adding a student
+
+1. Adding a student while all students are being shown
+
+   1. Prerequisites: List all students using the `list` command.
+
+   1. Test case: `addstudent n/John Doe lvl/Sec 2 s/Math pn/98765432 pe/johnd@example.com`<br>
+      Expected: The student is added to the bottom of the list. The status message shows the new profile.
+
+   1. Test case: repeat the same command.<br>
+      Expected: No student is added. Two students count as the same when they share a name *and* a parent phone number, so the duplicate is rejected.
+
+   1. Test case: `addstudent n/John Doe lvl/Sec 2 s/Math pn/91111111 pe/johnd@example.com`<br>
+      Expected: The student is added. The name is shared but the parent phone differs, so this is not a duplicate.
+
+1. Adding a student with invalid fields
+
+   1. Test cases: `addstudent n/Amy Tan lvl/Sec 9 s/Math pn/91234567 pe/amy@example.com`, then the same command with `pn/12345678`, then with `s/M`.<br>
+      Expected: Each is rejected and nothing is added. Levels must be `Pri 1`-`Pri 6`, `Sec 1`-`Sec 5` or `JC 1`-`JC 2`; parent phone numbers must be 8 digits starting with 8 or 9; subjects must be 2 to 30 letters and spaces.
+
+   1. Test case: `addstudent n/Amy Tan lvl/Sec 2 pn/91234567 pe/amy@example.com`<br>
+      Expected: Rejected. At least one subject is compulsory.
+
 ### Editing a student
 
 1. Start with two students with different parent phone numbers. Give the first student a lesson note.
@@ -759,10 +782,124 @@ testers are expected to do more *exploratory* testing.
       Expected: The student shown in the search results is removed, rather than the original first student. Other students and their notes remain unchanged.
 
 
+### Viewing a student's profile
+
+1. Prerequisites: At least one student exists, with at least one of them having lesson notes.
+
+1. Test case: `view 1`<br>
+   Expected: The result box shows the first student's name, level, subjects, parent phone, parent email and a count of lesson notes recorded. The displayed list is unchanged.
+
+1. Test case: `view 0`, then `view x` where x is larger than the list size.<br>
+   Expected: No profile is shown and the status message reports an invalid index.
+
+### Finding and filtering students
+
+1. Finding by name
+
+   1. Prerequisites: List all students using the `list` command, with at least two students having different names.
+
+   1. Test case: `find` followed by the first name of one student.<br>
+      Expected: Only matching students are displayed and the status message reports how many were listed.
+
+   1. Test case: `find zzzz` (matching nobody).<br>
+      Expected: The previously displayed list stays on screen and the status message says no matching students were found.
+
+1. Filtering by subject and level
+
+   1. Prerequisites: At least one student takes Math at `Sec 2`, and at least one does not.
+
+   1. Test case: `filter s/Math`<br>
+      Expected: Only students taking Math are displayed.
+
+   1. Test case: `filter s/Math lvl/Sec 2`<br>
+      Expected: Only students who are `Sec 2` *and* take Math are displayed. A student must match the level and take every subject listed.
+
+   1. Test case: `filter`<br>
+      Expected: Rejected. At least one subject or level must be supplied.
+
+1. Restoring the full list
+
+   1. Test case: run `list` after any `find` or `filter`.<br>
+      Expected: All students are displayed again, and displayed indexes return to their full-list positions.
+
+### Managing lesson notes
+
+1. Adding and viewing lesson notes
+
+   1. Prerequisites: At least one student exists with no lesson notes.
+
+   1. Test case: `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations`<br>
+      Expected: The note is added, the status message echoes it, and the note appears on the student's card under `Lesson Notes:`.
+
+   1. Test case: `history 1`<br>
+      Expected: The note is listed, numbered from 1, most recent date first.
+
+   1. Add three more notes with different dates, then run `history 1`.<br>
+      Expected: All four are listed newest first. The card shows only the three most recent, followed by `+ 1 more`.
+
+   1. Test case: repeat an `addnote` command exactly.<br>
+      Expected: Rejected. A student cannot have two notes with the same date, subject and text.
+
+   1. Test cases: `addnote 1 d/2099-01-01 s/Math note/Future`, `addnote 1 d/2026-02-30 s/Math note/Not a date`, `addnote 1 d/2026-10-01 s/Math note/`<br>
+      Expected: Each is rejected. Dates must be real calendar dates in `YYYY-MM-DD` format and cannot be in the future; note text cannot be blank.
+
+1. Editing a lesson note
+
+   1. Prerequisites: The first displayed student has at least two lesson notes. Run `history 1` and record the numbering.
+
+   1. Test case: `editnote 1 ln/2 note/Recapped photosynthesis`<br>
+      Expected: Only the text of the second note changes; its date and subject are unchanged.
+
+   1. Test case: edit the date of a note so that it becomes the most recent, then run `history 1`.<br>
+      Expected: The notes are re-sorted and the numbering changes, so the edited note is now number 1.
+
+   1. Test case: `editnote 1 ln/1`<br>
+      Expected: Rejected. At least one of `d/`, `s/` or `note/` must be provided.
+
+1. Deleting a lesson note
+
+   1. Prerequisites: The first displayed student has at least two lesson notes.
+
+   1. Test case: `deletenote 1 ln/2`<br>
+      Expected: That note is removed and the status message echoes it. Running `history 1` shows the remaining notes renumbered.
+
+   1. Test case: `deletenote 1 ln/99`<br>
+      Expected: Rejected with an invalid lesson note index message.
+
+   1. Test case: `deletenote x ln/1` where student x has no notes.<br>
+      Expected: Rejected with a message saying that student has no lesson notes to delete.
+
+1. Lesson notes and the displayed list
+
+   1. Prerequisites: At least three students exist. Use `find` to display only one of them.
+
+   1. Test case: `addnote 1 ...`, then `deletenote 1 ln/1`.<br>
+      Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
+
+1. Persistence
+
+   1. Close and restart the app from the same folder, then run `history` on a student with notes.<br>
+      Expected: All notes, their order and their contents are unchanged.
+
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+1. Dealing with a missing data file
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Close the app. Delete `data/addressbook.json` from the folder containing the JAR file.
 
-1. _{ more test cases … }_
+   1. Relaunch the app.<br>
+      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first command that changes data.
+
+1. Dealing with a corrupted data file
+
+   1. Prerequisites: Close the app. Open `data/addressbook.json` in a text editor and make it invalid, for example by deleting a closing brace or setting a student's `parentPhone` to `"abc"`.
+
+   1. Relaunch the app.<br>
+      Expected: The app starts with an **empty** student list rather than sample data, and `addressbook.log.0` records that the data file could not be loaded. The invalid file is left on disk until a command writes new data over it, so back it up first if you want to keep it.
+
+1. Saving after every command
+
+   1. Prerequisites: The app is running with at least one student.
+
+   1. Run any command that changes data, such as `addnote`, then close the app without any further action.<br>
+      Expected: `data/addressbook.json` already contains the change; there is no separate save step.
