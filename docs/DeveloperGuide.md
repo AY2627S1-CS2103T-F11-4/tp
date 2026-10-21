@@ -147,7 +147,7 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 * The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
 * Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
 
-#### Design considerations:
+#### Design considerations: filtering students
 
 **Aspect: How multiple subjects are combined:**
 
@@ -168,6 +168,57 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 * **Alternative 2:** Leave the previous list displayed, as `find` does.
   * Pros: The tutor keeps their place after a filter that matched nothing.
   * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
+
+#### Managing lesson notes
+
+`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
+
+<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
+
+_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
+
+Each command follows the same four steps:
+
+1. Resolve the student from `Model#getFilteredStudentList()` using the displayed `INDEX`, failing with an invalid-index error if it is out of range.
+2. Resolve the lesson note, where one is addressed, using the 1-based `ln/LESSON_INDEX` into that student's note list.
+3. Copy the note list, because `Student#getLessonNotes()` returns an unmodifiable list, and apply the change to the copy.
+4. Build a replacement `Student` carrying the other fields unchanged, and hand it to `Model#setStudent(Student, Student)`.
+
+A `Student` is immutable, so there is no way to add, edit or remove a note in place. Every one of these commands therefore constructs a new `Student`.
+
+The commands differ only in step 3:
+
+* **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
+* **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
+
+Two consequences of rebuilding the `Student` are worth knowing:
+
+* The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
+* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
+
+#### Design considerations: lesson notes
+
+**Aspect: How a lesson note is addressed:**
+
+* **Alternative 1 (current choice):** By its position in the student's note list, as printed by `history`.
+  * Pros: Nothing extra to store or show, and it matches how students are addressed everywhere else in the app.
+  * Cons: Positions shift after a delete or a date edit, so a `history` output taken earlier can point at the wrong note.
+
+* **Alternative 2:** Give each note an identifier that is stored with it and never changes.
+  * Pros: A reference stays valid for the life of the note.
+  * Cons: Another field to persist and display, and an opaque identifier is harder for a tutor to type than a position.
+
+**Aspect: Where lesson notes are sorted:**
+
+* **Alternative 1 (current choice):** The `Student` constructor sorts them.
+  * Pros: Every reader, including the card, `history` and the note commands, sees the same order without repeating the sort.
+  * Cons: Sorting runs on every `Student` construction, and an edit to a date silently renumbers the notes.
+
+* **Alternative 2:** Keep insertion order and sort where notes are displayed.
+  * Pros: Construction stays cheap, and positions change only when a note is removed.
+  * Cons: Each display site has to sort, and two sites that disagree would show different numbering for the same note.
 
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
