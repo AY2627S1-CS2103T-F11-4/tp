@@ -151,7 +151,6 @@ public class AddressBookParserTest {
         ViewCommand command = (ViewCommand) parser.parseCommand("view 1");
         assertEquals(new ViewCommand(INDEX_FIRST_PERSON), command);
     }
-    
     @Test
     public void parseCommand_filter() throws Exception {
         StudentMatchesFilterPredicate predicate =
@@ -169,7 +168,6 @@ public class AddressBookParserTest {
 
         assertEquals(new FilterCommand(predicate), command);
     }
-    
     @Test
     public void parseCommand_editnote() throws Exception {
         EditNoteCommand expected = new EditNoteCommand(
