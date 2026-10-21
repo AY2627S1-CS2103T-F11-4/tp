@@ -222,7 +222,7 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 
 ### Managing lesson notes
 
-`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
+`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape. The sequence diagram below traces `addnote` through the `Logic` component; the diagram later in this section covers the failure paths of `deletenote`.
 
 <!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
      <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
@@ -243,6 +243,13 @@ The commands differ only in step 3:
 * **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
 * **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
 * **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
+
+`deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.
+
+<!-- TODO: add diagrams/DeleteNoteSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/DeleteNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `deletenote 1 ln/2` Command" /> -->
+
+_[Placeholder: sequence diagram for `deletenote 1 ln/2` through the `Logic` component, showing the two rejection paths: a student with no lesson notes, and a lesson index outside the range of an existing note list.]_
 
 Two consequences of rebuilding the `Student` are worth knowing:
 
