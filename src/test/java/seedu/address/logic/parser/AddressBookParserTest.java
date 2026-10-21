@@ -11,6 +11,7 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.DeleteNoteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditNoteCommand;
 import seedu.address.logic.commands.ExitCommand;
 import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.commands.FindCommand;
@@ -149,6 +151,7 @@ public class AddressBookParserTest {
         ViewCommand command = (ViewCommand) parser.parseCommand("view 1");
         assertEquals(new ViewCommand(INDEX_FIRST_PERSON), command);
     }
+  
     @Test
     public void parseCommand_filter() throws Exception {
         StudentMatchesFilterPredicate predicate =
@@ -165,5 +168,19 @@ public class AddressBookParserTest {
                         + " " + PREFIX_LEVEL + "Sec 2");
 
         assertEquals(new FilterCommand(predicate), command);
+    }
+      
+    @Test
+    public void parseCommand_editnote() throws Exception {
+        EditNoteCommand expected = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.empty(),
+                Optional.of(new NoteText("Revised simultaneous equations")));
+
+        EditNoteCommand actual = (EditNoteCommand) parser.parseCommand(
+                "editnote 1 ln/2 d/2026-10-01 note/Revised simultaneous equations");
+
+        assertEquals(expected, actual);
     }
 }
