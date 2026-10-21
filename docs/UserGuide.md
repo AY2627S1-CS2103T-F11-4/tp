@@ -174,6 +174,24 @@ Examples:
 * `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 * `addnote 2 d/2026-09-20 s/Science note/Covered photosynthesis, needs more practice on diagrams.`
 
+### Editing a lesson note: `editnote`
+
+Edits an existing lesson note of a student in the address book.
+
+Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
+
+* Edits a lesson note of the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list.
+* `LESSON_INDEX` refers to the number shown next to the note in the output of `history INDEX`.
+* Both indexes **must be positive integers** 1, 2, 3, ...
+* At least one of `d/`, `s/` and `note/` must be provided.
+* Only the fields you provide are changed; the rest of the note is left as it was.
+* `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
+* Changing the date re-sorts the student's notes, so a note's number may change. Run `history` again before editing another note.
+
+Examples:
+* `editnote 1 ln/2 note/Recapped photosynthesis.` rewrites the text of the 2nd lesson note of the 1st student.
+* `editnote 1 ln/1 d/2026-09-28 s/Science` changes the date and subject of the most recent lesson note of the 1st student.
+
 ### Viewing lesson history: `history`
 
 Shows all lesson notes recorded for a student, from the most recent date to the earliest.
@@ -292,6 +310,7 @@ Action     | Format, Examples
 **Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
 **Filter students** | `filter [s/SUBJECT]... [lvl/LEVEL]`<br> e.g., `filter s/Math s/Science lvl/Sec 2`
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
+**Edit lesson note** | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`<br> e.g., `editnote 1 ln/2 note/Recapped photosynthesis.`
 **View lesson history** | `history INDEX`<br> e.g., `history 1`
 **Delete lesson note** | `deletenote INDEX ln/LESSON_INDEX`<br> e.g., `deletenote 1 ln/2`
 **Delete student** | `deletestudent INDEX`<br> e.g., `deletestudent 3`

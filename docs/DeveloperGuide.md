@@ -108,29 +108,6 @@ How the `Logic` component works:
 1. The deletion success message includes the student's name and the number of associated lesson notes removed. The diagram shows the successful path; invalid indices are rejected before deletion.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
-#### View student feature
-
-The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
-
-<puml src="diagrams/ViewSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `view 2` Command" />
-
-<box type="info" seamless>
-
-**Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
-</box>
-#### Editing a student profile
-
-The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
-`commandText` represents the full command and `arguments` represents the text after `edit`.
-
-<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
-
-* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
-* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
-* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
-* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
-* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
-
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
 <puml src="diagrams/ParserClasses.puml" width="600"/>
@@ -181,6 +158,118 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### View student feature
+
+The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
+
+<puml src="diagrams/ViewSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `view 2` Command" />
+
+<box type="info" seamless>
+
+**Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
+</box>
+### Editing a student profile
+
+The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
+`commandText` represents the full command and `arguments` represents the text after `edit`.
+
+<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
+
+* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
+* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
+* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
+* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
+* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
+
+### Filtering students
+
+The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both.
+
+<!-- TODO: add diagrams/FilterSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" /> -->
+
+_[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic` component.]_
+
+* `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
+* The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
+* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. The subject test is `containsAll`, so a student may take more subjects than were asked for, but not fewer.
+* `FilterCommand` passes the predicate to `Model#updateFilteredStudentList(Predicate)` and then reports how many students matched. When nothing matches it returns `MESSAGE_NO_STUDENTS_FOUND` instead of a count.
+* The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
+* Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
+
+#### Design considerations: filtering students
+
+**Aspect: How multiple subjects are combined:**
+
+* **Alternative 1 (current choice):** A student must take every subject supplied.
+  * Pros: Answers the question a tutor actually asks, such as "who do I teach both Math and Physics".
+  * Cons: Supplying several subjects quickly narrows the list to nothing, which can look like a broken filter.
+
+* **Alternative 2:** Match students taking any of the supplied subjects.
+  * Pros: Easier to get a non-empty result.
+  * Cons: Adding a subject widens the result, which reads backwards for a filter, and the same list can be produced by running `filter` once per subject.
+
+**Aspect: What to display when nothing matches:**
+
+* **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
+  * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
+  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
+
+* **Alternative 2:** Leave the previous list displayed, as `find` does.
+  * Pros: The tutor keeps their place after a filter that matched nothing.
+  * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
+
+### Managing lesson notes
+
+`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
+
+<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
+
+_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
+
+Each command follows the same four steps:
+
+1. Resolve the student from `Model#getFilteredStudentList()` using the displayed `INDEX`, failing with an invalid-index error if it is out of range.
+2. Resolve the lesson note, where one is addressed, using the 1-based `ln/LESSON_INDEX` into that student's note list.
+3. Copy the note list, because `Student#getLessonNotes()` returns an unmodifiable list, and apply the change to the copy.
+4. Build a replacement `Student` carrying the other fields unchanged, and hand it to `Model#setStudent(Student, Student)`.
+
+A `Student` is immutable, so there is no way to add, edit or remove a note in place. Every one of these commands therefore constructs a new `Student`.
+
+The commands differ only in step 3:
+
+* **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
+* **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
+
+Two consequences of rebuilding the `Student` are worth knowing:
+
+* The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
+* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
+
+#### Design considerations: lesson notes
+
+**Aspect: How a lesson note is addressed:**
+
+* **Alternative 1 (current choice):** By its position in the student's note list, as printed by `history`.
+  * Pros: Nothing extra to store or show, and it matches how students are addressed everywhere else in the app.
+  * Cons: Positions shift after a delete or a date edit, so a `history` output taken earlier can point at the wrong note.
+
+* **Alternative 2:** Give each note an identifier that is stored with it and never changes.
+  * Pros: A reference stays valid for the life of the note.
+  * Cons: Another field to persist and display, and an opaque identifier is harder for a tutor to type than a position.
+
+**Aspect: Where lesson notes are sorted:**
+
+* **Alternative 1 (current choice):** The `Student` constructor sorts them.
+  * Pros: Every reader, including the card, `history` and the note commands, sees the same order without repeating the sort.
+  * Cons: Sorting runs on every `Student` construction, and an edit to a date silently renumbers the notes.
+
+* **Alternative 2:** Keep insertion order and sort where notes are displayed.
+  * Pros: Construction stays cheap, and positions change only when a note is removed.
+  * Cons: Each display site has to sort, and two sites that disagree would show different numbering for the same note.
 
 ### \[Proposed\] Undo/redo feature
 
@@ -704,6 +793,29 @@ testers are expected to do more *exploratory* testing.
 
 1. _{ more test cases … }_
 
+### Adding a student
+
+1. Adding a student while all students are being shown
+
+   1. Prerequisites: List all students using the `list` command.
+
+   1. Test case: `addstudent n/John Doe lvl/Sec 2 s/Math pn/98765432 pe/johnd@example.com`<br>
+      Expected: The student is added to the bottom of the list. The status message shows the new profile.
+
+   1. Test case: repeat the same command.<br>
+      Expected: No student is added. Two students count as the same when they share a name *and* a parent phone number, so the duplicate is rejected.
+
+   1. Test case: `addstudent n/John Doe lvl/Sec 2 s/Math pn/91111111 pe/johnd@example.com`<br>
+      Expected: The student is added. The name is shared but the parent phone differs, so this is not a duplicate.
+
+1. Adding a student with invalid fields
+
+   1. Test cases: `addstudent n/Amy Tan lvl/Sec 9 s/Math pn/91234567 pe/amy@example.com`, then the same command with `pn/12345678`, then with `s/M`.<br>
+      Expected: Each is rejected and nothing is added. Levels must be `Pri 1`-`Pri 6`, `Sec 1`-`Sec 5` or `JC 1`-`JC 2`; parent phone numbers must be 8 digits starting with 8 or 9; subjects must be 2 to 30 letters and spaces.
+
+   1. Test case: `addstudent n/Amy Tan lvl/Sec 2 pn/91234567 pe/amy@example.com`<br>
+      Expected: Rejected. At least one subject is compulsory.
+
 ### Editing a student
 
 1. Start with two students with different parent phone numbers. Give the first student a lesson note.
@@ -759,10 +871,124 @@ testers are expected to do more *exploratory* testing.
       Expected: The student shown in the search results is removed, rather than the original first student. Other students and their notes remain unchanged.
 
 
+### Viewing a student's profile
+
+1. Prerequisites: At least one student exists, with at least one of them having lesson notes.
+
+1. Test case: `view 1`<br>
+   Expected: The result box shows the first student's name, level, subjects, parent phone, parent email and a count of lesson notes recorded. The displayed list is unchanged.
+
+1. Test case: `view 0`, then `view x` where x is larger than the list size.<br>
+   Expected: No profile is shown and the status message reports an invalid index.
+
+### Finding and filtering students
+
+1. Finding by name
+
+   1. Prerequisites: List all students using the `list` command, with at least two students having different names.
+
+   1. Test case: `find` followed by the first name of one student.<br>
+      Expected: Only matching students are displayed and the status message reports how many were listed.
+
+   1. Test case: `find zzzz` (matching nobody).<br>
+      Expected: The previously displayed list stays on screen and the status message says no matching students were found.
+
+1. Filtering by subject and level
+
+   1. Prerequisites: At least one student takes Math at `Sec 2`, and at least one does not.
+
+   1. Test case: `filter s/Math`<br>
+      Expected: Only students taking Math are displayed.
+
+   1. Test case: `filter s/Math lvl/Sec 2`<br>
+      Expected: Only students who are `Sec 2` *and* take Math are displayed. A student must match the level and take every subject listed.
+
+   1. Test case: `filter`<br>
+      Expected: Rejected. At least one subject or level must be supplied.
+
+1. Restoring the full list
+
+   1. Test case: run `list` after any `find` or `filter`.<br>
+      Expected: All students are displayed again, and displayed indexes return to their full-list positions.
+
+### Managing lesson notes
+
+1. Adding and viewing lesson notes
+
+   1. Prerequisites: At least one student exists with no lesson notes.
+
+   1. Test case: `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations`<br>
+      Expected: The note is added, the status message echoes it, and the note appears on the student's card under `Lesson Notes:`.
+
+   1. Test case: `history 1`<br>
+      Expected: The note is listed, numbered from 1, most recent date first.
+
+   1. Add three more notes with different dates, then run `history 1`.<br>
+      Expected: All four are listed newest first. The card shows only the three most recent, followed by `+ 1 more`.
+
+   1. Test case: repeat an `addnote` command exactly.<br>
+      Expected: Rejected. A student cannot have two notes with the same date, subject and text.
+
+   1. Test cases: `addnote 1 d/2099-01-01 s/Math note/Future`, `addnote 1 d/2026-02-30 s/Math note/Not a date`, `addnote 1 d/2026-10-01 s/Math note/`<br>
+      Expected: Each is rejected. Dates must be real calendar dates in `YYYY-MM-DD` format and cannot be in the future; note text cannot be blank.
+
+1. Editing a lesson note
+
+   1. Prerequisites: The first displayed student has at least two lesson notes. Run `history 1` and record the numbering.
+
+   1. Test case: `editnote 1 ln/2 note/Recapped photosynthesis`<br>
+      Expected: Only the text of the second note changes; its date and subject are unchanged.
+
+   1. Test case: edit the date of a note so that it becomes the most recent, then run `history 1`.<br>
+      Expected: The notes are re-sorted and the numbering changes, so the edited note is now number 1.
+
+   1. Test case: `editnote 1 ln/1`<br>
+      Expected: Rejected. At least one of `d/`, `s/` or `note/` must be provided.
+
+1. Deleting a lesson note
+
+   1. Prerequisites: The first displayed student has at least two lesson notes.
+
+   1. Test case: `deletenote 1 ln/2`<br>
+      Expected: That note is removed and the status message echoes it. Running `history 1` shows the remaining notes renumbered.
+
+   1. Test case: `deletenote 1 ln/99`<br>
+      Expected: Rejected with an invalid lesson note index message.
+
+   1. Test case: `deletenote x ln/1` where student x has no notes.<br>
+      Expected: Rejected with a message saying that student has no lesson notes to delete.
+
+1. Lesson notes and the displayed list
+
+   1. Prerequisites: At least three students exist. Use `find` to display only one of them.
+
+   1. Test case: `addnote 1 ...`, then `deletenote 1 ln/1`.<br>
+      Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
+
+1. Persistence
+
+   1. Close and restart the app from the same folder, then run `history` on a student with notes.<br>
+      Expected: All notes, their order and their contents are unchanged.
+
 ### Saving data
 
-1. Dealing with missing/corrupted data files
+1. Dealing with a missing data file
 
-   1. _{Explain how to simulate missing or corrupted data files and state the expected behavior.}_
+   1. Prerequisites: Close the app. Delete `data/addressbook.json` from the folder containing the JAR file.
 
-1. _{ more test cases … }_
+   1. Relaunch the app.<br>
+      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first command that changes data.
+
+1. Dealing with a corrupted data file
+
+   1. Prerequisites: Close the app. Open `data/addressbook.json` in a text editor and make it invalid, for example by deleting a closing brace or setting a student's `parentPhone` to `"abc"`.
+
+   1. Relaunch the app.<br>
+      Expected: The app starts with an **empty** student list rather than sample data, and `addressbook.log.0` records that the data file could not be loaded. The invalid file is left on disk until a command writes new data over it, so back it up first if you want to keep it.
+
+1. Saving after every command
+
+   1. Prerequisites: The app is running with at least one student.
+
+   1. Run any command that changes data, such as `addnote`, then close the app without any further action.<br>
+      Expected: `data/addressbook.json` already contains the change; there is no separate save step.
