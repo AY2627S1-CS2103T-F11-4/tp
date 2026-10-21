@@ -108,6 +108,16 @@ How the `Logic` component works:
 1. The deletion success message includes the student's name and the number of associated lesson notes removed. The diagram shows the successful path; invalid indices are rejected before deletion.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
+#### View student feature
+
+The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
+
+<puml src="diagrams/ViewSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `view 2` Command" />
+
+<box type="info" seamless>
+
+**Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
+</box>
 #### Editing a student profile
 
 The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
