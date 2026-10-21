@@ -243,10 +243,7 @@ The commands differ only in step 3:
 
 `deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.
 
-<!-- TODO: add diagrams/DeleteNoteSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/DeleteNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `deletenote 1 ln/2` Command" /> -->
-
-_[Placeholder: sequence diagram for `deletenote 1 ln/2` through the `Logic` component, showing the two rejection paths: a student with no lesson notes, and a lesson index outside the range of an existing note list.]_
+<puml src="diagrams/DeleteNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `deletenote 1 ln/2` Command" />
 
 Two consequences of rebuilding the `Student` are worth knowing:
 
