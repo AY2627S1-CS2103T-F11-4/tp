@@ -31,3 +31,6 @@ CLAUDE.md
 _temp/
 docs/_markbind/logs/
 /bin/
+
+# Local project agent skills
+/.agents/

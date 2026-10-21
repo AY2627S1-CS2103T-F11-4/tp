@@ -90,9 +90,9 @@ Here's a (partial) class diagram of the `Logic` component:
 
 <puml src="diagrams/LogicClassDiagram.puml" width="550"/>
 
-The sequence diagram below illustrates the interactions within the `Logic` component, taking `execute("delete 1")` API call as an example.
+The sequence diagram below illustrates the interactions within the `Logic` component, taking a successful `execute("deletestudent 1")` API call as an example.
 
-<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `delete 1` Command" />
+<puml src="diagrams/DeleteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `deletestudent 1` Command" />
 
 <box type="info" seamless>
 
@@ -104,8 +104,8 @@ How the `Logic` component works:
 
 1. When `Logic` is called upon to execute a command, the command is passed to an `AddressBookParser` object, which in turn creates a parser that matches the command (e.g., `DeleteCommandParser`) and uses it to parse the command.
 1. This results in a `Command` object (more precisely, an object of one of its subclasses e.g., `DeleteCommand`) which is executed by the `LogicManager`.
-1. The command can communicate with the `Model` when it is executed (e.g. to delete a person).<br>
-   Note that although this is shown as a single step in the diagram above for simplicity, the code can require several interactions between the command object and the `Model` to complete the operation.
+1. The command retrieves the currently displayed student list from the `Model`. For a valid displayed index, it selects the student, counts their lesson notes, and calls `Model#deleteStudent(studentToDelete)`. The student object owns its lesson notes, so no separate note-deletion call is needed.
+1. The deletion success message includes the student's name and the number of associated lesson notes removed. The diagram shows the successful path; invalid indices are rejected before deletion.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
 #### View student feature
@@ -118,6 +118,18 @@ The following sequence diagram shows how the `Logic` component handles the `view
 
 **Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+#### Editing a student profile
+
+The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
+`commandText` represents the full command and `arguments` represents the text after `edit`.
+
+<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
+
+* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
+* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
+* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
+* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
+* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
 
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
@@ -517,7 +529,7 @@ For example, filtering for Math includes students taking Math and Science. Filte
 **MSS**
 
 1. Tutor requests to edit a student in the displayed list, specifying the student and the profile details to change.
-2. TutorBroPro updates the student's profile and displays the updated details.
+2. TutorBroPro updates the student's profile, displays the full student list, and confirms the updated details.
 
    Use case ends.
 
@@ -541,9 +553,9 @@ For example, filtering for Math includes students taking Math and Science. Filte
 
   Use case resumes from step 1.
 
-* 1d. TutorBroPro detects that the proposed name duplicates another student's name.
+* 1d. TutorBroPro detects that the edited profile has the same name and parent phone number as another student.
 
-  * 1d1. TutorBroPro informs the tutor that another student already has that name.
+  * 1d1. TutorBroPro informs the tutor that another student already has that name and parent phone number.
 
   Use case resumes from step 1.
 
@@ -691,6 +703,21 @@ testers are expected to do more *exploratory* testing.
        Expected: The most recent window size and location are retained.
 
 1. _{ more test cases … }_
+
+### Editing a student
+
+1. Start with two students with different parent phone numbers. Give the first student a lesson note.
+   Record both profiles and the note before testing.
+1. Run `edit 1 lvl/Sec 3`. Only the first student's level changes; their other fields and notes remain unchanged.
+1. Run `edit 1 s/Math s/Science`. The subjects become Math and Science, replacing the previous set.
+1. Run `edit 1 n/Changed Name pn/abc`, then `edit 1 s/`. Each command reports an error and changes nothing.
+1. Edit the first student's name to match the second student's name, keeping different phone numbers.
+   The edit succeeds. Then try also matching the second student's phone; the duplicate edit is rejected.
+1. Restore distinct student names, then use `find` to display only a student who was not first in the full list.
+   Run `edit 1 lvl/Sec 4`.
+   That displayed student is updated, and the full student list is shown afterward.
+1. Restart the application from the same folder. Successful edits persist, rejected edits do not appear,
+   and lesson notes and profiles match their state immediately before restarting.
 
 ### Deleting a student
 
