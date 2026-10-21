@@ -224,10 +224,7 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 
 `addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape. The sequence diagram below traces `addnote` through the `Logic` component; the diagram later in this section covers the failure paths of `deletenote`.
 
-<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
-
-_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
+<puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" />
 
 Each command follows the same four steps:
 

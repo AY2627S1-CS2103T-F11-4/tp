@@ -1,0 +1,97 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":AddNoteCommandParser" as AddNoteCommandParser LOGIC_COLOR
+participant "a:AddNoteCommand" as AddNoteCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute(commandText)
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand(commandText)
+activate AddressBookParser
+
+create AddNoteCommandParser
+AddressBookParser -> AddNoteCommandParser : AddNoteCommandParser()
+activate AddNoteCommandParser
+AddNoteCommandParser --> AddressBookParser
+deactivate AddNoteCommandParser
+
+AddressBookParser -> AddNoteCommandParser : parse(arguments)
+activate AddNoteCommandParser
+note right of AddNoteCommandParser
+Parse the displayed index, and the date, subject
+and text into a LessonNote.
+This diagram assumes valid input.
+end note
+
+create AddNoteCommand
+AddNoteCommandParser -> AddNoteCommand : AddNoteCommand(index, lessonNote)
+activate AddNoteCommand
+AddNoteCommand --> AddNoteCommandParser
+deactivate AddNoteCommand
+
+AddNoteCommandParser --> AddressBookParser : a
+deactivate AddNoteCommandParser
+'Hidden arrow to position the destroy marker below the end of the activation bar.
+AddNoteCommandParser -[hidden]-> AddressBookParser
+destroy AddNoteCommandParser
+
+AddressBookParser --> LogicManager : a
+deactivate AddressBookParser
+
+LogicManager -> AddNoteCommand : execute(m)
+activate AddNoteCommand
+
+AddNoteCommand -> Model : getFilteredStudentList()
+activate Model
+Model --> AddNoteCommand : lastShownList
+deactivate Model
+
+note right of AddNoteCommand
+Validate the displayed index and select studentToEdit.
+Reject the command if that student already has
+a note with the same date, subject and text.
+end note
+
+note right of AddNoteCommand
+Build editedStudent with the new note appended.
+The Student constructor keeps lesson notes sorted
+from the most recent date to the earliest.
+end note
+
+AddNoteCommand -> Model : setStudent(studentToEdit, editedStudent)
+activate Model
+Model --> AddNoteCommand
+deactivate Model
+
+AddNoteCommand -> Model : updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)
+activate Model
+Model --> AddNoteCommand
+deactivate Model
+
+create CommandResult
+AddNoteCommand -> CommandResult : CommandResult(successMessage)
+activate CommandResult
+CommandResult --> AddNoteCommand
+deactivate CommandResult
+
+AddNoteCommand --> LogicManager : r
+deactivate AddNoteCommand
+
+note right of LogicManager
+Save the updated address book through Storage
+before returning r (storage interactions omitted).
+end note
+[<-- LogicManager : r
+deactivate LogicManager
+@enduml
