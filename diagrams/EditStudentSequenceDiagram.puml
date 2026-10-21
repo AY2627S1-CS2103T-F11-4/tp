@@ -1,0 +1,98 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":EditCommandParser" as EditCommandParser LOGIC_COLOR
+participant "e:EditCommand" as EditCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute(commandText)
+activate LogicManager
+LogicManager -> AddressBookParser : parseCommand(commandText)
+activate AddressBookParser
+
+create EditCommandParser
+AddressBookParser -> EditCommandParser : EditCommandParser()
+activate EditCommandParser
+EditCommandParser --> AddressBookParser
+deactivate EditCommandParser
+
+AddressBookParser -> EditCommandParser : parse(arguments)
+activate EditCommandParser
+note right of EditCommandParser
+Parse the displayed index and supplied fields
+into an EditPersonDescriptor.
+This diagram assumes valid input.
+end note
+
+create EditCommand
+EditCommandParser -> EditCommand : EditCommand(index, descriptor)
+activate EditCommand
+EditCommand --> EditCommandParser
+deactivate EditCommand
+EditCommandParser --> AddressBookParser : e
+deactivate EditCommandParser
+AddressBookParser --> LogicManager : e
+deactivate AddressBookParser
+
+LogicManager -> EditCommand : execute(m)
+activate EditCommand
+EditCommand -> Model : getFilteredStudentList()
+activate Model
+Model --> EditCommand : lastShownList
+deactivate Model
+
+note right of EditCommand
+Validate the displayed index and select studentToEdit.
+Ensure the resulting subject set is not empty.
+end note
+
+EditCommand -> EditCommand : createEditedStudent(studentToEdit, editStudentDescriptor)
+activate EditCommand
+note right of EditCommand
+Replace supplied fields; preserve omitted fields
+and all existing lesson notes.
+end note
+EditCommand --> EditCommand : editedStudent
+deactivate EditCommand
+
+opt name or parent phone changes (student identity changes)
+    EditCommand -> Model : hasStudent(editedStudent)
+    activate Model
+    Model --> EditCommand : false
+    deactivate Model
+end
+
+EditCommand -> Model : setStudent(studentToEdit, editedStudent)
+activate Model
+Model --> EditCommand
+deactivate Model
+
+EditCommand -> Model : updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)
+activate Model
+Model --> EditCommand
+deactivate Model
+
+create CommandResult
+EditCommand -> CommandResult : CommandResult(successMessage)
+activate CommandResult
+CommandResult --> EditCommand
+deactivate CommandResult
+EditCommand --> LogicManager : r
+deactivate EditCommand
+
+note right of LogicManager
+Save the updated address book through Storage
+before returning r (storage interactions omitted).
+end note
+[<-- LogicManager : r
+deactivate LogicManager
+@enduml
