@@ -131,6 +131,44 @@ The following sequence diagram shows a successful student-profile edit, such as 
 * The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
 * Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
 
+#### Filtering students
+
+The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both.
+
+<!-- TODO: add diagrams/FilterSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" /> -->
+
+_[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic` component.]_
+
+* `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
+* The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
+* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. The subject test is `containsAll`, so a student may take more subjects than were asked for, but not fewer.
+* `FilterCommand` passes the predicate to `Model#updateFilteredStudentList(Predicate)` and then reports how many students matched. When nothing matches it returns `MESSAGE_NO_STUDENTS_FOUND` instead of a count.
+* The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
+* Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
+
+#### Design considerations:
+
+**Aspect: How multiple subjects are combined:**
+
+* **Alternative 1 (current choice):** A student must take every subject supplied.
+  * Pros: Answers the question a tutor actually asks, such as "who do I teach both Math and Physics".
+  * Cons: Supplying several subjects quickly narrows the list to nothing, which can look like a broken filter.
+
+* **Alternative 2:** Match students taking any of the supplied subjects.
+  * Pros: Easier to get a non-empty result.
+  * Cons: Adding a subject widens the result, which reads backwards for a filter, and the same list can be produced by running `filter` once per subject.
+
+**Aspect: What to display when nothing matches:**
+
+* **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
+  * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
+  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
+
+* **Alternative 2:** Leave the previous list displayed, as `find` does.
+  * Pros: The tutor keeps their place after a filter that matched nothing.
+  * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
+
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
 <puml src="diagrams/ParserClasses.puml" width="600"/>
