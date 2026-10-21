@@ -108,118 +108,6 @@ How the `Logic` component works:
 1. The deletion success message includes the student's name and the number of associated lesson notes removed. The diagram shows the successful path; invalid indices are rejected before deletion.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
-#### View student feature
-
-The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
-
-<puml src="diagrams/ViewSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `view 2` Command" />
-
-<box type="info" seamless>
-
-**Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
-</box>
-#### Editing a student profile
-
-The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
-`commandText` represents the full command and `arguments` represents the text after `edit`.
-
-<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
-
-* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
-* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
-* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
-* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
-* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
-
-#### Filtering students
-
-The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both.
-
-<!-- TODO: add diagrams/FilterSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" /> -->
-
-_[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic` component.]_
-
-* `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
-* The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
-* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. The subject test is `containsAll`, so a student may take more subjects than were asked for, but not fewer.
-* `FilterCommand` passes the predicate to `Model#updateFilteredStudentList(Predicate)` and then reports how many students matched. When nothing matches it returns `MESSAGE_NO_STUDENTS_FOUND` instead of a count.
-* The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
-* Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
-
-#### Design considerations: filtering students
-
-**Aspect: How multiple subjects are combined:**
-
-* **Alternative 1 (current choice):** A student must take every subject supplied.
-  * Pros: Answers the question a tutor actually asks, such as "who do I teach both Math and Physics".
-  * Cons: Supplying several subjects quickly narrows the list to nothing, which can look like a broken filter.
-
-* **Alternative 2:** Match students taking any of the supplied subjects.
-  * Pros: Easier to get a non-empty result.
-  * Cons: Adding a subject widens the result, which reads backwards for a filter, and the same list can be produced by running `filter` once per subject.
-
-**Aspect: What to display when nothing matches:**
-
-* **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
-  * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
-  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
-
-* **Alternative 2:** Leave the previous list displayed, as `find` does.
-  * Pros: The tutor keeps their place after a filter that matched nothing.
-  * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
-
-#### Managing lesson notes
-
-`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
-
-<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
-
-_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
-
-Each command follows the same four steps:
-
-1. Resolve the student from `Model#getFilteredStudentList()` using the displayed `INDEX`, failing with an invalid-index error if it is out of range.
-2. Resolve the lesson note, where one is addressed, using the 1-based `ln/LESSON_INDEX` into that student's note list.
-3. Copy the note list, because `Student#getLessonNotes()` returns an unmodifiable list, and apply the change to the copy.
-4. Build a replacement `Student` carrying the other fields unchanged, and hand it to `Model#setStudent(Student, Student)`.
-
-A `Student` is immutable, so there is no way to add, edit or remove a note in place. Every one of these commands therefore constructs a new `Student`.
-
-The commands differ only in step 3:
-
-* **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
-* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
-* **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
-
-Two consequences of rebuilding the `Student` are worth knowing:
-
-* The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
-* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
-
-#### Design considerations: lesson notes
-
-**Aspect: How a lesson note is addressed:**
-
-* **Alternative 1 (current choice):** By its position in the student's note list, as printed by `history`.
-  * Pros: Nothing extra to store or show, and it matches how students are addressed everywhere else in the app.
-  * Cons: Positions shift after a delete or a date edit, so a `history` output taken earlier can point at the wrong note.
-
-* **Alternative 2:** Give each note an identifier that is stored with it and never changes.
-  * Pros: A reference stays valid for the life of the note.
-  * Cons: Another field to persist and display, and an opaque identifier is harder for a tutor to type than a position.
-
-**Aspect: Where lesson notes are sorted:**
-
-* **Alternative 1 (current choice):** The `Student` constructor sorts them.
-  * Pros: Every reader, including the card, `history` and the note commands, sees the same order without repeating the sort.
-  * Cons: Sorting runs on every `Student` construction, and an edit to a date silently renumbers the notes.
-
-* **Alternative 2:** Keep insertion order and sort where notes are displayed.
-  * Pros: Construction stays cheap, and positions change only when a note is removed.
-  * Cons: Each display site has to sort, and two sites that disagree would show different numbering for the same note.
-
 Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
 
 <puml src="diagrams/ParserClasses.puml" width="600"/>
@@ -270,6 +158,118 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 ## **Implementation**
 
 This section describes some noteworthy details on how certain features are implemented.
+
+### View student feature
+
+The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
+
+<puml src="diagrams/ViewSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `view 2` Command" />
+
+<box type="info" seamless>
+
+**Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
+</box>
+### Editing a student profile
+
+The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
+`commandText` represents the full command and `arguments` represents the text after `edit`.
+
+<puml src="diagrams/EditStudentSequenceDiagram.puml" alt="Sequence for successfully editing a student profile" />
+
+* `EditCommandParser` parses the displayed index and supplied fields into an `EditPersonDescriptor`, then creates an `EditCommand`.
+* `EditCommand` selects the student from the currently displayed list and checks that the resulting subject set is nonempty before constructing the updated student. Omitted fields and existing lesson notes are preserved.
+* If the student's identity changes (name or parent phone), the command checks for a duplicate in the full address book. The successful path shown assumes no duplicate exists; an academic-level-only edit skips this check.
+* The command updates the student, restores the full displayed list, and returns a success message containing the updated profile. `LogicManager` saves the data before returning the result; storage interactions are omitted from this Logic-focused diagram.
+* Rejected requests do not reach the model update. Invalid input produces a parsing error, while an invalid displayed index, empty subject replacement supplied directly to the command, or duplicate student produces a command error. These failure paths are omitted for readability.
+
+### Filtering students
+
+The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both.
+
+<!-- TODO: add diagrams/FilterSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" /> -->
+
+_[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic` component.]_
+
+* `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
+* The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
+* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. The subject test is `containsAll`, so a student may take more subjects than were asked for, but not fewer.
+* `FilterCommand` passes the predicate to `Model#updateFilteredStudentList(Predicate)` and then reports how many students matched. When nothing matches it returns `MESSAGE_NO_STUDENTS_FOUND` instead of a count.
+* The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
+* Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
+
+#### Design considerations: filtering students
+
+**Aspect: How multiple subjects are combined:**
+
+* **Alternative 1 (current choice):** A student must take every subject supplied.
+  * Pros: Answers the question a tutor actually asks, such as "who do I teach both Math and Physics".
+  * Cons: Supplying several subjects quickly narrows the list to nothing, which can look like a broken filter.
+
+* **Alternative 2:** Match students taking any of the supplied subjects.
+  * Pros: Easier to get a non-empty result.
+  * Cons: Adding a subject widens the result, which reads backwards for a filter, and the same list can be produced by running `filter` once per subject.
+
+**Aspect: What to display when nothing matches:**
+
+* **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
+  * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
+  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
+
+* **Alternative 2:** Leave the previous list displayed, as `find` does.
+  * Pros: The tutor keeps their place after a filter that matched nothing.
+  * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
+
+### Managing lesson notes
+
+`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
+
+<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
+     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
+
+_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
+
+Each command follows the same four steps:
+
+1. Resolve the student from `Model#getFilteredStudentList()` using the displayed `INDEX`, failing with an invalid-index error if it is out of range.
+2. Resolve the lesson note, where one is addressed, using the 1-based `ln/LESSON_INDEX` into that student's note list.
+3. Copy the note list, because `Student#getLessonNotes()` returns an unmodifiable list, and apply the change to the copy.
+4. Build a replacement `Student` carrying the other fields unchanged, and hand it to `Model#setStudent(Student, Student)`.
+
+A `Student` is immutable, so there is no way to add, edit or remove a note in place. Every one of these commands therefore constructs a new `Student`.
+
+The commands differ only in step 3:
+
+* **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
+* **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
+
+Two consequences of rebuilding the `Student` are worth knowing:
+
+* The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
+* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
+
+#### Design considerations: lesson notes
+
+**Aspect: How a lesson note is addressed:**
+
+* **Alternative 1 (current choice):** By its position in the student's note list, as printed by `history`.
+  * Pros: Nothing extra to store or show, and it matches how students are addressed everywhere else in the app.
+  * Cons: Positions shift after a delete or a date edit, so a `history` output taken earlier can point at the wrong note.
+
+* **Alternative 2:** Give each note an identifier that is stored with it and never changes.
+  * Pros: A reference stays valid for the life of the note.
+  * Cons: Another field to persist and display, and an opaque identifier is harder for a tutor to type than a position.
+
+**Aspect: Where lesson notes are sorted:**
+
+* **Alternative 1 (current choice):** The `Student` constructor sorts them.
+  * Pros: Every reader, including the card, `history` and the note commands, sees the same order without repeating the sort.
+  * Cons: Sorting runs on every `Student` construction, and an edit to a date silently renumbers the notes.
+
+* **Alternative 2:** Keep insertion order and sort where notes are displayed.
+  * Pros: Construction stays cheap, and positions change only when a note is removed.
+  * Cons: Each display site has to sort, and two sites that disagree would show different numbering for the same note.
 
 ### \[Proposed\] Undo/redo feature
 
