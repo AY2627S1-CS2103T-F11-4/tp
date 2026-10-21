@@ -130,7 +130,7 @@ Searches all students by name and displays the matches with new index numbers.
 Format: `find KEYWORD [MORE_KEYWORDS]...`
 
 * Matching is case-insensitive and includes students whose names contain any of the keywords as whole words.
-* If there are no matches, the previous student list stays displayed, so its index numbers remain usable.
+* If there are no matches, an empty student list is displayed.
 * Use `list` to display all students again.
 
 Example:
