@@ -169,6 +169,7 @@ The following sequence diagram shows how the `Logic` component handles the `view
 
 **Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+
 ### Editing a student profile
 
 The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
@@ -214,9 +215,9 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 
 * **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
   * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
-  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
+  * Cons: A filter that matches nothing leaves the tutor looking at an empty list, with no reminder of what they were looking at before.
 
-* **Alternative 2:** Leave the previous list displayed, as `find` does.
+* **Alternative 2:** Leave the previous list displayed when nothing matches.
   * Pros: The tutor keeps their place after a filter that matched nothing.
   * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
 
@@ -892,7 +893,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only matching students are displayed and the status message reports how many were listed.
 
    1. Test case: `find zzzz` (matching nobody).<br>
-      Expected: The previously displayed list stays on screen and the status message says no matching students were found.
+      Expected: The displayed list becomes empty and the status message says no matching students were found. Run `list` to bring the students back.
 
 1. Filtering by subject and level
 
@@ -963,8 +964,11 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: At least three students exist. Use `find` to display only one of them.
 
-   1. Test case: `addnote 1 ...`, then `deletenote 1 ln/1`.<br>
-      Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
+   1. Test case: `deletenote 1 ln/1`<br>
+      Expected: The command acts on the displayed student, and the filtered list stays on screen afterwards.
+
+   1. Test case: `find` again to display one student, then `addnote 1 d/2026-10-01 s/Math note/Filter check`<br>
+      Expected: The note is added to the displayed student, but the list resets to showing all students.
 
 1. Persistence
 
