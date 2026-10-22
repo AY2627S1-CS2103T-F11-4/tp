@@ -249,7 +249,7 @@ The commands differ only in step 3:
 Two consequences of rebuilding the `Student` are worth knowing:
 
 * The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
-* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
+* None of the three changes the displayed student list, so a filter applied by `find` or `filter` survives the command and the student stays on screen.
 
 #### Design considerations: lesson notes
 
@@ -964,11 +964,8 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: At least three students exist. Use `find` to display only one of them.
 
-   1. Test case: `deletenote 1 ln/1`<br>
-      Expected: The command acts on the displayed student, and the filtered list stays on screen afterwards.
-
-   1. Test case: `find` again to display one student, then `addnote 1 d/2026-10-01 s/Math note/Filter check`<br>
-      Expected: The note is added to the displayed student, but the list resets to showing all students.
+   1. Test case: `addnote 1 d/2026-10-01 s/Math note/Filter check`, then `deletenote 1 ln/1`<br>
+      Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
 
 1. Persistence
 
