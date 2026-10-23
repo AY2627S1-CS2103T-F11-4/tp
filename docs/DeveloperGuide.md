@@ -4,7 +4,7 @@
   pageNav: 3
 ---
 
-# AB-3 Developer Guide
+# TutorBroPro Developer Guide
 
 <!-- * Table of Contents -->
 <page-nav-print />
@@ -50,7 +50,7 @@ The bulk of the app's work is done by the following four components:
 
 **How the architecture components interact with each other**
 
-The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `delete 1`.
+The *Sequence Diagram* below shows how the components interact with each other for the scenario where the user issues the command `deletestudent 1`.
 
 <puml src="diagrams/ArchitectureSequenceDiagram.puml" width="574" />
 
@@ -169,6 +169,7 @@ The following sequence diagram shows how the `Logic` component handles the `view
 
 **Note:** The lifeline for `ViewCommandParser` should end at the destroy marker (X), but due to a limitation of PlantUML, the lifeline continues till the end of diagram.
 </box>
+
 ### Editing a student profile
 
 The following sequence diagram shows a successful student-profile edit, such as `edit 1 lvl/Sec 3`.
@@ -214,20 +215,17 @@ _[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic
 
 * **Alternative 1 (current choice):** Apply the predicate anyway, leaving an empty list.
   * Pros: The displayed list always reflects the last command, so the index shown never disagrees with what a following command will act on.
-  * Cons: Differs from `find`, which keeps the previous list on screen when nothing matches.
+  * Cons: A filter that matches nothing leaves the tutor looking at an empty list, with no reminder of what they were looking at before.
 
-* **Alternative 2:** Leave the previous list displayed, as `find` does.
+* **Alternative 2:** Leave the previous list displayed when nothing matches.
   * Pros: The tutor keeps their place after a filter that matched nothing.
   * Cons: The displayed list no longer corresponds to the command just run, and a following index-based command would act on students the tutor was not looking at.
 
 ### Managing lesson notes
 
-`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape.
+`addnote`, `editnote` and `deletenote` all change the lesson notes of one student, and share the same shape. The sequence diagram below traces `addnote` through the `Logic` component; the diagram later in this section covers the failure paths of `deletenote`.
 
-<!-- TODO: add diagrams/AddNoteSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" /> -->
-
-_[Placeholder: sequence diagram for `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations` through the `Logic` component.]_
+<puml src="diagrams/AddNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `addnote 1 d/2026-10-01 s/Math note/...` Command" />
 
 Each command follows the same four steps:
 
@@ -244,10 +242,14 @@ The commands differ only in step 3:
 * **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
 * **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
 
+`deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.
+
+<puml src="diagrams/DeleteNoteSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `deletenote 1 ln/2` Command" />
+
 Two consequences of rebuilding the `Student` are worth knowing:
 
 * The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
-* `deletenote` and `editnote` leave the displayed student list as they found it, so a filter applied by `find` or `filter` survives. `addnote` currently calls `Model#updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS)` and resets the list to all students.
+* None of the three changes the displayed student list, so a filter applied by `find` or `filter` survives the command and the student stays on screen.
 
 #### Design considerations: lesson notes
 
@@ -733,7 +735,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 ### Non-Functional Requirements
 
 1.  Should work on any _mainstream OS_ as long as it has Java `25` or above installed.
-2.  Should be able to hold up to 1000 persons without noticeable sluggishness in performance for typical usage.
+2.  Should be able to hold up to 1000 students without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
 4.  The graphical user interface should display its core components without truncation or overlap at resolutions of 1920×1080 and above, and all features should remain accessible at resolutions of 1280×720 and above.
 5.  The application should support English characters only in names and lesson notes.
@@ -782,7 +784,7 @@ testers are expected to do more *exploratory* testing.
    1. Download the JAR file and copy it into an empty folder.
 
    1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample contacts. The window size may not be optimal.
+      Expected: The GUI opens with a set of sample students. The window size may not be optimal.
 
 1. Saving window preferences
 
@@ -891,7 +893,7 @@ testers are expected to do more *exploratory* testing.
       Expected: Only matching students are displayed and the status message reports how many were listed.
 
    1. Test case: `find zzzz` (matching nobody).<br>
-      Expected: The previously displayed list stays on screen and the status message says no matching students were found.
+      Expected: The displayed list becomes empty and the status message says no matching students were found. Run `list` to bring the students back.
 
 1. Filtering by subject and level
 
@@ -962,7 +964,7 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: At least three students exist. Use `find` to display only one of them.
 
-   1. Test case: `addnote 1 ...`, then `deletenote 1 ln/1`.<br>
+   1. Test case: `addnote 1 d/2026-10-01 s/Math note/Filter check`, then `deletenote 1 ln/1`<br>
       Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
 
 1. Persistence
