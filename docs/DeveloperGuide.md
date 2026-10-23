@@ -251,6 +251,21 @@ Two consequences of rebuilding the `Student` are worth knowing:
 * The `Student` constructor sorts lesson notes from the most recent date to the earliest, so the note numbering that `history` prints and that `ln/` accepts is recomputed on every change. Deleting a note renumbers the notes after it, and editing a note's date can move it to a different position.
 * None of the three changes the displayed student list, so a filter applied by `find` or `filter` survives the command and the student stays on screen.
 
+#### Editing a lesson note
+
+The following sequence diagram shows successful execution of
+`EditNoteCommand` after parsing and field validation. Collection operations
+and simple getters are omitted for readability.
+
+<puml src="diagrams/EditNoteSequenceDiagram.puml" alt="Sequence diagram for successfully editing a lesson note" />
+
+Omitted fields retain their existing values. Rebuilding the student sorts
+the notes by date, so changing a date may change the edited note's history
+index. The current student filter is preserved.
+
+After the command returns, `LogicManager` saves the updated address book
+through storage. This persistence step is outside the diagram's scope.
+
 #### Design considerations: lesson notes
 
 **Aspect: How a lesson note is addressed:**
