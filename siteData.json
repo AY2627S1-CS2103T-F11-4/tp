@@ -40,7 +40,7 @@
       "src": "DeveloperGuide.md",
       "title": "Developer Guide",
       "headings": {
-        "ab-3-developer-guide": "AB-3 Developer Guide",
+        "tutorbropro-developer-guide": "TutorBroPro Developer Guide",
         "acknowledgements": "Acknowledgements",
         "setting-up-getting-started": "Setting up, getting started",
         "design": "Design",
@@ -52,6 +52,7 @@
         "common-classes": "Common classes",
         "implementation": "Implementation",
         "view-student-feature": "View student feature",
+        "editing-a-student-profile": "Editing a student profile",
         "filtering-students": "Filtering students",
         "managing-lesson-notes": "Managing lesson notes",
         "proposed-undo-redo-feature": "[Proposed] Undo/redo feature",

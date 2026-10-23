@@ -1,0 +1,94 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as LogicManager LOGIC_COLOR
+participant ":AddressBookParser" as AddressBookParser LOGIC_COLOR
+participant ":DeleteNoteCommandParser" as DeleteNoteCommandParser LOGIC_COLOR
+participant "d:DeleteNoteCommand" as DeleteNoteCommand LOGIC_COLOR
+participant "r:CommandResult" as CommandResult LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "m:Model" as Model MODEL_COLOR
+end box
+
+[-> LogicManager : execute(commandText)
+activate LogicManager
+
+LogicManager -> AddressBookParser : parseCommand(commandText)
+activate AddressBookParser
+
+create DeleteNoteCommandParser
+AddressBookParser -> DeleteNoteCommandParser : DeleteNoteCommandParser()
+activate DeleteNoteCommandParser
+DeleteNoteCommandParser --> AddressBookParser
+deactivate DeleteNoteCommandParser
+
+AddressBookParser -> DeleteNoteCommandParser : parse(arguments)
+activate DeleteNoteCommandParser
+note right of DeleteNoteCommandParser
+Parse the displayed index and the lesson index.
+This diagram assumes valid input.
+end note
+
+create DeleteNoteCommand
+DeleteNoteCommandParser -> DeleteNoteCommand : DeleteNoteCommand(index, lessonIndex)
+activate DeleteNoteCommand
+DeleteNoteCommand --> DeleteNoteCommandParser
+deactivate DeleteNoteCommand
+
+DeleteNoteCommandParser --> AddressBookParser : d
+deactivate DeleteNoteCommandParser
+'Hidden arrow to position the destroy marker below the end of the activation bar.
+DeleteNoteCommandParser -[hidden]-> AddressBookParser
+destroy DeleteNoteCommandParser
+
+AddressBookParser --> LogicManager : d
+deactivate AddressBookParser
+
+LogicManager -> DeleteNoteCommand : execute(m)
+activate DeleteNoteCommand
+
+DeleteNoteCommand -> Model : getFilteredStudentList()
+activate Model
+Model --> DeleteNoteCommand : lastShownList
+deactivate Model
+
+note right of DeleteNoteCommand
+Validate the displayed index and select studentToEdit,
+then read that student's lesson notes.
+end note
+
+alt studentToEdit has no lesson notes
+    DeleteNoteCommand --> LogicManager : CommandException(MESSAGE_NO_LESSON_NOTES)
+
+else lessonIndex is outside the note list
+    DeleteNoteCommand --> LogicManager : CommandException(MESSAGE_INVALID_LESSON_NOTE_INDEX)
+
+else lessonIndex is valid
+    note right of DeleteNoteCommand
+    Build editedStudent without the selected note.
+    The Student constructor renumbers the remaining
+    notes, most recent date first.
+    end note
+
+    DeleteNoteCommand -> Model : setStudent(studentToEdit, editedStudent)
+    activate Model
+    Model --> DeleteNoteCommand
+    deactivate Model
+
+    create CommandResult
+    DeleteNoteCommand -> CommandResult : CommandResult(successMessage)
+    activate CommandResult
+    CommandResult --> DeleteNoteCommand
+    deactivate CommandResult
+
+    DeleteNoteCommand --> LogicManager : r
+end
+deactivate DeleteNoteCommand
+
+[<-- LogicManager : r
+deactivate LogicManager
+@enduml
