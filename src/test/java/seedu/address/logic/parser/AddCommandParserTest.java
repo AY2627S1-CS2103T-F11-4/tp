@@ -21,8 +21,11 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailure;
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
@@ -70,7 +73,8 @@ public class AddCommandParserTest {
         assertParseSuccess(parser, userInput, new AddCommand(
                 new PersonBuilder(expectedStudent).withName("Bob Choo")
                         .withAcademicLevel("Pri 5").withPhone("92222222")
-                        .withEmail("bob@example.com").build()));
+                        .withEmail("bob@example.com").build(),
+                Messages.getWarningMessageForDuplicateSubjects(List.of("math"))));
     }
 
     @Test

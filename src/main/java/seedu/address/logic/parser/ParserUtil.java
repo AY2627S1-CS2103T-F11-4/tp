@@ -4,6 +4,8 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
@@ -110,6 +112,22 @@ public class ParserUtil {
             subjectSet.add(parseSubject(subject));
         }
         return subjectSet;
+    }
+
+    /**
+     * Returns subject values that duplicate an earlier value, ignoring case.
+     */
+    public static List<String> findDuplicateSubjects(Collection<String> subjects) throws ParseException {
+        requireNonNull(subjects);
+        final Set<Subject> uniqueSubjects = new HashSet<>();
+        final List<String> duplicateSubjects = new ArrayList<>();
+        for (String subject : subjects) {
+            Subject parsedSubject = parseSubject(subject);
+            if (!uniqueSubjects.add(parsedSubject)) {
+                duplicateSubjects.add(subject);
+            }
+        }
+        return duplicateSubjects;
     }
 
     /** Parses a string into a {@code LessonDate}. */

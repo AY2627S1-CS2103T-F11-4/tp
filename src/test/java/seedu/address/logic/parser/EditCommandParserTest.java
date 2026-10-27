@@ -9,8 +9,11 @@ import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailur
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.AcademicLevel;
@@ -95,6 +98,15 @@ public class EditCommandParserTest {
                 .withSubjects("Math", "Science").build();
 
         assertParseSuccess(parser, "1 s/Math s/Science", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
+    public void parse_duplicateSubjects_successWithWarning() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects("Math").build();
+
+        assertParseSuccess(parser, "1 s/Math s/math", new EditCommand(INDEX_FIRST_PERSON, descriptor,
+                Messages.getWarningMessageForDuplicateSubjects(List.of("math"))));
     }
 
     @Test
