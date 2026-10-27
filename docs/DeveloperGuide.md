@@ -592,7 +592,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 
 **Use case: UC09 - Edit a lesson note**
 
-**Preconditions:** A student list is displayed, and the target student has the relevant lesson-note index.
+**Preconditions:** A student list is displayed.
 
 **Guarantees:** An invalid request leaves all lesson notes unchanged. A successful edit changes only the specified note's requested fields; other notes and the student's profile remain unchanged.
 
