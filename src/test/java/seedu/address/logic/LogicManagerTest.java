@@ -14,6 +14,8 @@ import static seedu.address.testutil.TypicalPersons.AMY;
 import java.io.IOException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +23,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ExitCommand;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -81,6 +85,33 @@ public class LogicManagerTest {
     public void execute_storageThrowsAdException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_AD_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()));
+    }
+
+    @Test
+    public void execute_helpAndExitWithFailingStorage_returnsResultWithoutSaving() throws Exception {
+        model.addStudent(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        for (IOException failure : List.of(DUMMY_IO_EXCEPTION, DUMMY_AD_EXCEPTION)) {
+            AtomicInteger saveAttempts = new AtomicInteger();
+            JsonAddressBookStorage addressBookStorage =
+                    new JsonAddressBookStorage(temporaryFolder.resolve("blocked.json")) {
+                        @Override
+                        public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                            saveAttempts.incrementAndGet();
+                            throw failure;
+                        }
+                    };
+            JsonUserPrefsStorage userPrefsStorage =
+                    new JsonUserPrefsStorage(temporaryFolder.resolve("blockedUserPrefs.json"));
+            Logic testLogic = new LogicManager(model, new StorageManager(addressBookStorage, userPrefsStorage));
+
+            assertEquals(new CommandResult(HelpCommand.SHOWING_HELP_MESSAGE, true, false), testLogic.execute("help"));
+            assertEquals(new CommandResult(ExitCommand.MESSAGE_EXIT_ACKNOWLEDGEMENT, false, true),
+                    testLogic.execute("exit"));
+            assertEquals(0, saveAttempts.get());
+            assertEquals(expectedModel, model);
+        }
     }
 
     @Test
