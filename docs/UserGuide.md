@@ -100,7 +100,7 @@ Format: `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PA
 * When editing subjects, all of the student's existing subjects are replaced; adding subjects is not cumulative. To replace them, list every subject you want the student to keep.
 * The edited student must retain at least one subject. Empty subject entries such as `edit 1 s/` are rejected.
 * Each supplied field follows the same validation rules as `addstudent`.
-* The student's lesson notes are not affected by an edit.
+* TEditing a student's profile does not change or delete existing lesson notes. Removing a subject from the profile does not remove historical notes recorded for that subject.
 
 Examples:
 * `edit 1 pn/91234567 pe/johndoe@example.com` Edits the parent phone and parent email of the 1st student.
@@ -186,7 +186,7 @@ Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
 * At least one of `d/`, `s/` and `note/` must be provided.
 * Only the fields you provide are changed; the rest of the note is left as it was.
 * `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
-* Changing the date re-sorts the student's notes, so a note's number may change. Run `history` again before editing another note.
+* Changing the date re-sorts the student's notes, so a note's number may change. Run `history INDEX` again before editing or deleting another note, replacing `INDEX` with the student's current displayed index.
 
 Examples:
 * `editnote 1 ln/2 note/Recapped photosynthesis.` rewrites the text of the 2nd lesson note of the 1st student.
@@ -199,10 +199,12 @@ Shows all lesson notes recorded for a student, from the most recent date to the 
 Format: `history INDEX`
 
 * Shows the lesson notes of the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
-* Each note is numbered. That number is the `LESSON_INDEX` used by the `deletenote` command.
+* Each note is numbered. Use that number as `LESSON_INDEX` in `editnote` or `deletenote`.
+* `INDEX` selects a student from the currently displayed student list; 
+`LESSON_INDEX` selects a note from that student's history.
 * If the student has no lesson notes, a message saying so is shown instead.
 
-Example:
+Examples:
 * `history 1` shows the lesson history of the 1st student, for example:
 
 ```
@@ -220,7 +222,7 @@ Format: `deletenote INDEX ln/LESSON_INDEX`
 * Deletes a lesson note from the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list.
 * `LESSON_INDEX` refers to the number shown next to the note in the output of `history INDEX`.
 * Both indexes **must be positive integers** 1, 2, 3, ...
-* Remaining lesson notes are renumbered, so run `history` again before deleting another note.
+* Deleting a note shifts subsequent notes up by one position. Run `history INDEX` again before editing or deleting another note; do not reuse note numbers from an earlier history output.
 
 Examples:
 * `deletenote 1 ln/2` deletes the 2nd lesson note of the 1st student.
