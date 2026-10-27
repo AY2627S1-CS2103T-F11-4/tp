@@ -253,6 +253,8 @@ Removes every student, together with all their lesson notes, from the address bo
 
 Format: `clear`
 
+This command does not accept an index or other arguments. Inputs such as `clear 1` are rejected without changing any data.
+
 <box type="warning" seamless>
 
 **Caution:** This cannot be undone, and you are not asked to confirm. The change is saved to the data file immediately.
