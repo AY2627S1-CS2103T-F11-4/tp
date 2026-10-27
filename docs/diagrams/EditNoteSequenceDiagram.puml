@@ -1,0 +1,72 @@
+@startuml
+!include style.puml
+skinparam ArrowFontStyle plain
+
+box Logic LOGIC_COLOR_T1
+participant ":LogicManager" as Logic LOGIC_COLOR
+participant ":EditNoteCommand" as Command LOGIC_COLOR
+participant "result:CommandResult" as Result LOGIC_COLOR
+end box
+
+box Model MODEL_COLOR_T1
+participant "model:Model" as Model MODEL_COLOR
+participant "studentToEdit:Student" as Student MODEL_COLOR
+participant "editedNote:LessonNote" as Note MODEL_COLOR
+participant "editedStudent:Student" as Edited MODEL_COLOR
+end box
+
+note over Logic, Edited
+Successful execution after parsing.
+Both indices and supplied field values are valid.
+Collection operations and simple getters are omitted.
+end note
+
+Logic -> Command : execute(model)
+activate Logic
+activate Command
+Command -> Model : getFilteredStudentList()
+activate Model
+Model --> Command : displayedStudents
+deactivate Model
+
+note right of Command
+Check studentIndex and select studentToEdit
+from displayedStudents.
+end note
+
+Command -> Student : getLessonNotes()
+activate Student
+Student --> Command : lessonNotes
+deactivate Student
+
+note right of Command
+Check lessonIndex and select oldNote.
+Resolve replacement values, retaining omitted fields.
+end note
+
+create Note
+Command -> Note : LessonNote(resolvedDate,\nresolvedSubject, resolvedNoteText)
+
+note right of Command
+Copy lessonNotes into updatedLessonNotes.
+Replace the note at lessonIndex with editedNote.
+end note
+
+create Edited
+Command -> Edited : Student(existing profile fields,\nupdatedLessonNotes)
+note right of Edited
+The constructor sorts notes by date,
+most recent first.
+end note
+
+Command -> Model : setStudent(studentToEdit, editedStudent)
+activate Model
+Model --> Command
+deactivate Model
+
+create Result
+Command -> Result : CommandResult(successMessage)
+Command --> Logic : result
+deactivate Command
+deactivate Logic
+@enduml

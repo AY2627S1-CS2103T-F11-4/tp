@@ -10,18 +10,26 @@
 * **Problem solved**: Tutors often keep student details, parent contacts and lesson notes scattered across chat messages, notebooks and memory, which makes it hard to recall what was covered with each student or to reach a parent quickly.
 * **Value proposition**: TutorBroPro lets tutors manage students and their associated information faster and more intuitively than with scattered notes or a typical mouse-driven app.
 
-## **Key Features**
+## **Features**
 
 Use the commands below to manage student profiles and lesson records.
 
-| Feature                                                                               | Command | Example |
-|---------------------------------------------------------------------------------------|---|---|
-| Add a student profile with name, academic level, subjects, and parent contact details | `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL` | `addstudent n/Alex Yeoh lvl/Sec 2 s/Math s/Science pn/91234567 pe/parent_alex@example.com` |
-| Delete a student and their lesson notes                                               | `deletestudent INDEX` | `deletestudent 3` |
-| View a student's full profile                                                         | `view INDEX` | `view 2` |
-| Add a dated lesson note                                                               | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT` | `addnote 1 d/2026-09-18 s/Math note/Covered quadratic equations` |
-| Delete a lesson note                                                                  | `deletenote INDEX ln/LESSON_INDEX` | `deletenote 1 ln/2` |
-| View a student's lesson history                                                       | `history INDEX` | `history 1` |
+| Command | Format | Example |
+|---|---|---|
+| Add a student | `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL` | `addstudent n/Alex Yeoh lvl/Sec 2 s/Math s/Science pn/91234567 pe/parent_alex@example.com` |
+| Edit a student | `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]` | `edit 2 n/James Lee pe/jameslee@example.com` |
+| Delete a student | `deletestudent INDEX` | `deletestudent 3` |
+| View a student's profile | `view INDEX` | `view 2` |
+| List all students | `list` | `list` |
+| Find students by name | `find KEYWORD [MORE_KEYWORDS]` | `find James Jake` |
+| Filter students by subject or level | `filter [s/SUBJECT]... [lvl/LEVEL]` | `filter s/Math lvl/Sec 2` |
+| Add a lesson note | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT` | `addnote 1 d/2026-09-18 s/Math note/Covered quadratic equations` |
+| Edit a lesson note | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]` | `editnote 1 ln/2 note/Recapped photosynthesis` |
+| Delete a lesson note | `deletenote INDEX ln/LESSON_INDEX` | `deletenote 1 ln/2` |
+| View a student's lesson history | `history INDEX` | `history 1` |
+| Clear all entries | `clear` | `clear` |
+| View help | `help` | `help` |
+| Exit the app | `exit` | `exit` |
 
 ## **Documentation and Resources**
 

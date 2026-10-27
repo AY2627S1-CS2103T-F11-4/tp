@@ -6,12 +6,16 @@ import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_DATE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_LESSON_INDEX;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_LEVEL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_NOTE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
+import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
@@ -23,7 +27,9 @@ import seedu.address.logic.commands.DeleteCommand;
 import seedu.address.logic.commands.DeleteNoteCommand;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
+import seedu.address.logic.commands.EditNoteCommand;
 import seedu.address.logic.commands.ExitCommand;
+import seedu.address.logic.commands.FilterCommand;
 import seedu.address.logic.commands.FindCommand;
 import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.HistoryCommand;
@@ -33,8 +39,10 @@ import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.lesson.LessonDate;
 import seedu.address.model.lesson.LessonNote;
 import seedu.address.model.lesson.NoteText;
+import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.NameContainsKeywordsPredicate;
 import seedu.address.model.person.Student;
+import seedu.address.model.person.StudentMatchesFilterPredicate;
 import seedu.address.model.subject.Subject;
 import seedu.address.testutil.EditPersonDescriptorBuilder;
 import seedu.address.testutil.PersonBuilder;
@@ -142,5 +150,35 @@ public class AddressBookParserTest {
     public void parseCommand_view() throws Exception {
         ViewCommand command = (ViewCommand) parser.parseCommand("view 1");
         assertEquals(new ViewCommand(INDEX_FIRST_PERSON), command);
+    }
+    @Test
+    public void parseCommand_filter() throws Exception {
+        StudentMatchesFilterPredicate predicate =
+                new StudentMatchesFilterPredicate(
+                        Optional.of(new AcademicLevel("Sec 2")),
+                        Set.of(
+                                new Subject("Math"),
+                                new Subject("Science")));
+
+        FilterCommand command = (FilterCommand) parser.parseCommand(
+                FilterCommand.COMMAND_WORD
+                        + " " + PREFIX_SUBJECT + "Math"
+                        + " " + PREFIX_SUBJECT + "Science"
+                        + " " + PREFIX_LEVEL + "Sec 2");
+
+        assertEquals(new FilterCommand(predicate), command);
+    }
+    @Test
+    public void parseCommand_editnote() throws Exception {
+        EditNoteCommand expected = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
+                Optional.of(new LessonDate("2026-10-01")),
+                Optional.empty(),
+                Optional.of(new NoteText("Revised simultaneous equations")));
+
+        EditNoteCommand actual = (EditNoteCommand) parser.parseCommand(
+                "editnote 1 ln/2 d/2026-10-01 note/Revised simultaneous equations");
+
+        assertEquals(expected, actual);
     }
 }

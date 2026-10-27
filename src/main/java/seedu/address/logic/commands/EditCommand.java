@@ -9,7 +9,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Logger;
 
+import seedu.address.commons.core.LogsCenter;
 import seedu.address.commons.core.index.Index;
 import seedu.address.commons.util.CollectionUtil;
 import seedu.address.commons.util.ToStringBuilder;
@@ -33,6 +35,10 @@ public class EditCommand extends Command {
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
     public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in the address book.";
 
+    public static final String MESSAGE_SUBJECT_REQUIRED = "A student must have at least one nonblank subject.";
+
+    private static final Logger logger = LogsCenter.getLogger(EditCommand.class);
+
     private final Index index;
     private final EditPersonDescriptor editStudentDescriptor;
 
@@ -55,18 +61,27 @@ public class EditCommand extends Command {
         List<Student> lastShownList = model.getFilteredStudentList();
 
         if (index.getZeroBased() >= lastShownList.size()) {
+            logger.fine("Student edit rejected: displayed index is out of range.");
             throw new CommandException(Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX);
         }
 
         Student studentToEdit = lastShownList.get(index.getZeroBased());
+        if (editStudentDescriptor.getSubjects().orElse(studentToEdit.getSubjects()).isEmpty()) {
+            logger.fine("Student edit rejected: no subjects would remain.");
+            throw new CommandException(MESSAGE_SUBJECT_REQUIRED);
+        }
         Student editedStudent = createEditedStudent(studentToEdit, editStudentDescriptor);
+        assert editedStudent.getLessonNotes().equals(studentToEdit.getLessonNotes())
+                : "Editing a student profile must preserve lesson notes";
 
         if (!studentToEdit.isSameStudent(editedStudent) && model.hasStudent(editedStudent)) {
+            logger.fine("Student edit rejected: duplicate student.");
             throw new CommandException(MESSAGE_DUPLICATE_PERSON);
         }
 
         model.setStudent(studentToEdit, editedStudent);
         model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
+        logger.fine("Student profile updated in the model.");
         return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent)));
     }
 

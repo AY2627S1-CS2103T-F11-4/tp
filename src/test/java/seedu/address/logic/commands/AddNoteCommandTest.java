@@ -102,6 +102,7 @@ public class AddNoteCommandTest {
 
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setStudent(firstStudent, editedStudent);
+        showPersonAtIndex(expectedModel, INDEX_FIRST_PERSON);
 
         assertCommandSuccess(addNoteCommand, model, expectedMessage, expectedModel);
     }

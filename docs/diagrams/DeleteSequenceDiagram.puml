@@ -14,10 +14,10 @@ box Model MODEL_COLOR_T1
 participant "m:Model" as Model MODEL_COLOR
 end box
 
-[-> LogicManager : execute("delete 1")
+[-> LogicManager : execute("deletestudent 1")
 activate LogicManager
 
-LogicManager -> AddressBookParser : parseCommand("delete 1")
+LogicManager -> AddressBookParser : parseCommand("deletestudent 1")
 activate AddressBookParser
 
 create DeleteCommandParser
@@ -49,14 +49,31 @@ deactivate AddressBookParser
 LogicManager -> DeleteCommand : execute(m)
 activate DeleteCommand
 
-DeleteCommand -> Model : deletePerson(1)
+DeleteCommand -> Model : getFilteredStudentList()
+activate Model
+Model --> DeleteCommand : lastShownList
+deactivate Model
+
+note right of DeleteCommand
+Successful deletion: the displayed index is valid.
+Select studentToDelete from lastShownList at index 0.
+Count their lesson notes as deletedNoteCount.
+end note
+
+DeleteCommand -> Model : deleteStudent(studentToDelete)
 activate Model
 
 Model --> DeleteCommand
 deactivate Model
 
+note right of DeleteCommand
+Removing the student also removes their associated notes.
+Format successMessage with the student's name
+and deletedNoteCount.
+end note
+
 create CommandResult
-DeleteCommand -> CommandResult
+DeleteCommand -> CommandResult : CommandResult(successMessage)
 activate CommandResult
 
 CommandResult --> DeleteCommand

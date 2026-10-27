@@ -112,7 +112,7 @@ public class EditCommandTest {
 
     @Test
     public void execute_filteredList_success() {
-        showPersonAtIndex(model, INDEX_FIRST_PERSON);
+        showPersonAtIndex(model, INDEX_SECOND_PERSON);
 
         Student personInFilteredList = model.getFilteredStudentList().get(INDEX_FIRST_PERSON.getZeroBased());
         Student editedPerson = new PersonBuilder(personInFilteredList).withName(VALID_NAME_BOB).build();
@@ -125,6 +125,27 @@ public class EditCommandTest {
         expectedModel.setStudent(model.getFilteredStudentList().get(0), editedPerson);
 
         assertCommandSuccess(editCommand, model, expectedMessage, expectedModel);
+    }
+
+    @Test
+    public void execute_emptySubjects_failure() {
+        EditCommand command = new EditCommand(INDEX_FIRST_PERSON,
+                new EditPersonDescriptorBuilder().withName("Changed Name").withSubjects().build());
+        assertCommandFailure(command, model, EditCommand.MESSAGE_SUBJECT_REQUIRED);
+    }
+
+    @Test
+    public void execute_sameNameDifferentPhone_success() {
+        Student firstStudent = model.getFilteredStudentList().get(0);
+        Student secondStudent = model.getFilteredStudentList().get(1);
+        Student editedStudent = new PersonBuilder(secondStudent)
+                .withName(firstStudent.getName().fullName).build();
+        EditCommand command = new EditCommand(INDEX_SECOND_PERSON,
+                new EditPersonDescriptorBuilder().withName(firstStudent.getName().fullName).build());
+        Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
+        expectedModel.setStudent(secondStudent, editedStudent);
+        assertCommandSuccess(command, model,
+                String.format(EditCommand.MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent)), expectedModel);
     }
 
     @Test

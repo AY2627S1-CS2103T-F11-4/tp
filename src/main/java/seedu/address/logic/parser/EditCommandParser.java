@@ -9,7 +9,6 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
@@ -38,10 +37,18 @@ public class EditCommandParser implements Parser<EditCommand> {
         argMultimap.verifyNoDuplicatePrefixesFor(PREFIX_NAME, PREFIX_LEVEL, PREFIX_PARENT_PHONE, PREFIX_PARENT_EMAIL);
 
         EditPersonDescriptor descriptor = new EditPersonDescriptor();
-        argMultimap.getValue(PREFIX_NAME).ifPresent(value -> setName(descriptor, value));
-        argMultimap.getValue(PREFIX_LEVEL).ifPresent(value -> setAcademicLevel(descriptor, value));
-        argMultimap.getValue(PREFIX_PARENT_PHONE).ifPresent(value -> setParentPhone(descriptor, value));
-        argMultimap.getValue(PREFIX_PARENT_EMAIL).ifPresent(value -> setParentEmail(descriptor, value));
+        if (argMultimap.getValue(PREFIX_NAME).isPresent()) {
+            descriptor.setName(ParserUtil.parseName(argMultimap.getValue(PREFIX_NAME).get()));
+        }
+        if (argMultimap.getValue(PREFIX_LEVEL).isPresent()) {
+            descriptor.setAcademicLevel(ParserUtil.parseAcademicLevel(argMultimap.getValue(PREFIX_LEVEL).get()));
+        }
+        if (argMultimap.getValue(PREFIX_PARENT_PHONE).isPresent()) {
+            descriptor.setParentPhone(ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PARENT_PHONE).get()));
+        }
+        if (argMultimap.getValue(PREFIX_PARENT_EMAIL).isPresent()) {
+            descriptor.setParentEmail(ParserUtil.parseEmail(argMultimap.getValue(PREFIX_PARENT_EMAIL).get()));
+        }
         parseSubjectsForEdit(argMultimap.getAllValues(PREFIX_SUBJECT)).ifPresent(descriptor::setSubjects);
 
         if (!descriptor.isAnyFieldEdited()) {
@@ -50,44 +57,13 @@ public class EditCommandParser implements Parser<EditCommand> {
         return new EditCommand(index, descriptor);
     }
 
-    private void setName(EditPersonDescriptor descriptor, String value) {
-        try {
-            descriptor.setName(ParserUtil.parseName(value));
-        } catch (ParseException exception) {
-            throw new IllegalArgumentException(exception);
-        }
-    }
-
-    private void setAcademicLevel(EditPersonDescriptor descriptor, String value) {
-        try {
-            descriptor.setAcademicLevel(ParserUtil.parseAcademicLevel(value));
-        } catch (ParseException exception) {
-            throw new IllegalArgumentException(exception);
-        }
-    }
-
-    private void setParentPhone(EditPersonDescriptor descriptor, String value) {
-        try {
-            descriptor.setParentPhone(ParserUtil.parsePhone(value));
-        } catch (ParseException exception) {
-            throw new IllegalArgumentException(exception);
-        }
-    }
-
-    private void setParentEmail(EditPersonDescriptor descriptor, String value) {
-        try {
-            descriptor.setParentEmail(ParserUtil.parseEmail(value));
-        } catch (ParseException exception) {
-            throw new IllegalArgumentException(exception);
-        }
-    }
-
     private Optional<Set<Subject>> parseSubjectsForEdit(Collection<String> subjects) throws ParseException {
         if (subjects.isEmpty()) {
             return Optional.empty();
         }
-        Collection<String> subjectValues = subjects.size() == 1 && subjects.contains("")
-                ? Collections.emptySet() : subjects;
-        return Optional.of(ParserUtil.parseSubjects(subjectValues));
+        if (subjects.stream().anyMatch(String::isBlank)) {
+            throw new ParseException(EditCommand.MESSAGE_SUBJECT_REQUIRED);
+        }
+        return Optional.of(ParserUtil.parseSubjects(subjects));
     }
 }
