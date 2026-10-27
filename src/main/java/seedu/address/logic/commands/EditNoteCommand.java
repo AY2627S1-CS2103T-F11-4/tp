@@ -113,7 +113,6 @@ public class EditNoteCommand extends Command {
             // Locate the exact edited object, not another note with equal details.
             if (sortedNotes.get(i) == editedNote) {
                 newIndex = i + 1;
-                break;
             }
         }
         assert newIndex > 0 : "Edited note must exist in the updated student's history";
