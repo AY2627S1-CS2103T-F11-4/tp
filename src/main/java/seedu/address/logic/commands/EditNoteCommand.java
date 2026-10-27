@@ -49,6 +49,9 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
 
+    public static final String MESSAGE_EDIT_NOTE_MOVED_SUCCESS =
+            "Edited lesson note %1$s for %2$s. It is now lesson note %3$s.";
+
     private final Index studentIndex;
     private final Index lessonIndex;
     private final Optional<LessonDate> date;
@@ -104,7 +107,23 @@ public class EditNoteCommand extends Command {
                 studentToEdit.getSubjects(), studentToEdit.getParentPhone(), studentToEdit.getParentEmail(),
                 updatedLessonNotes);
 
+        List<LessonNote> sortedNotes = editedStudent.getLessonNotes();
+        int newIndex = -1;
+        for (int i = 0; i < sortedNotes.size(); i++) {
+            // Locate the exact edited object, not another note with equal details.
+            if (sortedNotes.get(i) == editedNote) {
+                newIndex = i + 1;
+                break;
+            }
+        }
+        assert newIndex > 0 : "Edited note must exist in the updated student's history";
+
         model.setStudent(studentToEdit, editedStudent);
+
+        if (newIndex != lessonIndex.getOneBased()) {
+            return new CommandResult(String.format(MESSAGE_EDIT_NOTE_MOVED_SUCCESS,
+                    lessonIndex.getOneBased(), studentToEdit.getName(), newIndex));
+        }
 
         return new CommandResult(String.format(MESSAGE_EDIT_NOTE_SUCCESS,
                 lessonIndex.getOneBased(), studentToEdit.getName()));
