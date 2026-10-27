@@ -7,6 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -76,6 +78,28 @@ public class JsonAddressBookStorageTest {
         DataLoadingException exception = assertThrows(DataLoadingException.class, storage::readAddressBook);
 
         assertEquals(testFolder.resolve("addressbook.corrupted-2.json"), exception.getBackupPath().orElseThrow());
+    }
+
+    @Test
+    public void getNextCorruptedFilePath_fileWithoutParentOrExtension_usesCorruptedSuffix() throws Exception {
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(Path.of("addressbook"));
+        Method method = JsonAddressBookStorage.class.getDeclaredMethod("getNextCorruptedFilePath", Path.class);
+        method.setAccessible(true);
+
+        assertEquals(Path.of("addressbook.corrupted-1"), method.invoke(storage, Path.of("addressbook")));
+    }
+
+    @Test
+    public void saveAddressBook_writeBlocked_throwsIoException() throws Exception {
+        Path filePath = testFolder.resolve("addressbook.json");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+        Field writeBlockedField = JsonAddressBookStorage.class.getDeclaredField("isWriteBlocked");
+        writeBlockedField.setAccessible(true);
+        writeBlockedField.set(storage, true);
+
+        IOException exception = assertThrows(IOException.class, () -> storage.saveAddressBook(new AddressBook()));
+
+        assertEquals("Refusing to overwrite an invalid data file that could not be preserved", exception.getMessage());
     }
 
     @Test

@@ -26,6 +26,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
@@ -60,6 +61,23 @@ public class UiCoverageTest {
         startupWarningField.setAccessible(true);
         assertNull(startupWarningField.get(uiManagerWithoutWarning));
         assertEquals(warning, startupWarningField.get(uiManagerWithWarning));
+    }
+
+    @Test
+    public void uiManager_startWithWarning_displaysWarningDialog() throws Exception {
+        runOnFxThread(() -> {
+            Platform.setImplicitExit(false);
+            Stage stage = new Stage();
+            UiManager uiManager = new UiManager(new StubLogic(), Path.of("data", "addressbook.json"),
+                    "The invalid data file was preserved.");
+            Platform.runLater(() -> Window.getWindows().stream()
+                    .filter(window -> window != stage)
+                    .forEach(Window::hide));
+
+            uiManager.start(stage);
+
+            stage.close();
+        });
     }
 
     @Test
