@@ -66,6 +66,12 @@ public class JsonUtil {
             throw new DataLoadingException(e);
         }
 
+        if (jsonFile == null) {
+            IOException exception = new IOException("JSON document must not be null");
+            logger.warning("Error reading from jsonFile file " + filePath + ": " + exception);
+            throw new DataLoadingException(exception);
+        }
+
         return Optional.of(jsonFile);
     }
 

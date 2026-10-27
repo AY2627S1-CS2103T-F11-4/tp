@@ -45,6 +45,26 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
+    public void read_nullDocument_exceptionThrown() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullDocumentAddressBook.json"));
+    }
+
+    @Test
+    public void read_nullStudent_exceptionThrown() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullStudentAddressBook.json"));
+    }
+
+    @Test
+    public void read_nullLessonNote_exceptionThrown() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullLessonNoteAddressBook.json"));
+    }
+
+    @Test
+    public void read_nullSubject_exceptionThrown() {
+        assertThrows(DataLoadingException.class, () -> readAddressBook("nullSubjectAddressBook.json"));
+    }
+
+    @Test
     public void readAndSaveAddressBook_success() throws Exception {
         Path filePath = testFolder.resolve("students.json");
         AddressBook original = getTypicalAddressBook();
