@@ -83,8 +83,9 @@ public class EditNoteCommandTest {
                 INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
                 Optional.of(new LessonDate("2026-10-10")), Optional.empty(), Optional.empty());
 
-        String expectedMessage = String.format(EditNoteCommand.MESSAGE_EDIT_NOTE_SUCCESS,
-                INDEX_SECOND_PERSON.getOneBased(), seededStudent.getName());
+        String expectedMessage = String.format(EditNoteCommand.MESSAGE_EDIT_NOTE_MOVED_SUCCESS,
+                INDEX_SECOND_PERSON.getOneBased(), seededStudent.getName(),
+                INDEX_FIRST_PERSON.getOneBased());
 
         assertCommandSuccess(command, model, expectedMessage,
                 createExpectedModel(seededStudent, editedStudent));
