@@ -2,6 +2,7 @@ package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
@@ -46,6 +47,19 @@ public class UiCoverageTest {
         } catch (IllegalStateException exception) {
             // The toolkit has already been initialized by another test.
         }
+    }
+
+    @Test
+    public void uiManager_constructors_storeStartupWarning() throws Exception {
+        Path dataFilePath = Path.of("data", "addressbook.json");
+        UiManager uiManagerWithoutWarning = new UiManager(new StubLogic(), dataFilePath);
+        String warning = "The invalid data file was preserved.";
+        UiManager uiManagerWithWarning = new UiManager(new StubLogic(), dataFilePath, warning);
+
+        Field startupWarningField = UiManager.class.getDeclaredField("startupWarning");
+        startupWarningField.setAccessible(true);
+        assertNull(startupWarningField.get(uiManagerWithoutWarning));
+        assertEquals(warning, startupWarningField.get(uiManagerWithWarning));
     }
 
     @Test
