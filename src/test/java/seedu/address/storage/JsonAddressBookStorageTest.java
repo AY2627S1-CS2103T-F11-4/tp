@@ -2,10 +2,12 @@ package seedu.address.storage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static seedu.address.testutil.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -42,6 +44,48 @@ public class JsonAddressBookStorageTest {
     @Test
     public void read_notJsonFormat_exceptionThrown() {
         assertThrows(DataLoadingException.class, () -> readAddressBook("notJsonFormatAddressBook.json"));
+    }
+
+    @Test
+    public void readAddressBook_invalidData_preservesCorruptedFile() throws IOException {
+        Path filePath = testFolder.resolve("addressbook.json");
+        String invalidData = "{ invalid json";
+        Files.writeString(filePath, invalidData);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        DataLoadingException exception = assertThrows(DataLoadingException.class, storage::readAddressBook);
+
+        Path backupPath = testFolder.resolve("addressbook.corrupted-1.json");
+        assertEquals(backupPath, exception.getBackupPath().orElseThrow());
+        assertEquals(invalidData, Files.readString(backupPath));
+        assertFalse(Files.exists(filePath));
+
+        storage.saveAddressBook(new AddressBook());
+
+        assertTrue(Files.exists(filePath));
+        assertEquals(invalidData, Files.readString(backupPath));
+    }
+
+    @Test
+    public void readAddressBook_existingCorruptedFile_usesNextAvailableName() throws IOException {
+        Path filePath = testFolder.resolve("addressbook.json");
+        Files.writeString(filePath, "{ invalid json");
+        Files.writeString(testFolder.resolve("addressbook.corrupted-1.json"), "older data");
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath);
+
+        DataLoadingException exception = assertThrows(DataLoadingException.class, storage::readAddressBook);
+
+        assertEquals(testFolder.resolve("addressbook.corrupted-2.json"), exception.getBackupPath().orElseThrow());
+    }
+
+    @Test
+    public void read_unknownProperty_exceptionThrown() throws IOException {
+        Path filePath = testFolder.resolve("addressbook.json");
+        Files.writeString(filePath, "{\"students\":[],\"unknownProperty\":true}");
+
+        assertThrows(DataLoadingException.class, () ->
+                new JsonAddressBookStorage(filePath).readAddressBook(filePath));
+        assertTrue(Files.exists(filePath));
     }
 
     @Test

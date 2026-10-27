@@ -42,6 +42,7 @@ public class MainApp extends Application {
     protected Logic logic;
     protected Storage storage;
     protected Model model;
+    private String dataLoadingWarning;
 
     @Override
     public void init() throws Exception {
@@ -57,7 +58,7 @@ public class MainApp extends Application {
 
         logic = new LogicManager(model, storage);
 
-        ui = new UiManager(logic, storage.getAddressBookFilePath());
+        ui = new UiManager(logic, storage.getAddressBookFilePath(), dataLoadingWarning);
     }
 
     /**
@@ -78,8 +79,13 @@ public class MainApp extends Application {
             }
             initialData = addressBookOptional.orElseGet(SampleDataUtil::getSampleAddressBook);
         } catch (DataLoadingException e) {
-            logger.warning("Data file at " + storage.getAddressBookFilePath() + " could not be loaded."
-                    + " Will be starting with an empty AddressBook.");
+            Path dataFilePath = storage.getAddressBookFilePath();
+            dataLoadingWarning = e.getBackupPath()
+                    .map(backupPath -> "The data file could not be loaded and has been preserved at " + backupPath
+                            + ". TutorProPro has started with an empty data set.")
+                    .orElse("The data file at " + dataFilePath + " could not be loaded. "
+                            + "TutorProPro has started with an empty data set; the original file was not changed.");
+            logger.warning(dataLoadingWarning);
             initialData = new AddressBook();
         }
 
