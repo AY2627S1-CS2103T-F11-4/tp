@@ -12,13 +12,15 @@ import java.util.Locale;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters, spaces, - and /, and it should not be blank";
+            "Names should only contain letters, accent marks, digits, spaces, apostrophes, - and /, "
+                    + "and should not be blank.";
 
     /*
-     * The first character of the name must not be a whitespace,
-     * otherwise " " (a blank string) becomes a valid input.
+     * Allows Unicode letters, combining accent marks, and straight or curly apostrophes.
+     * The first character must be a letter, an ASCII digit, a slash, or a hyphen.
      */
-    public static final String VALIDATION_REGEX = "[\\p{Alnum}/\\-][\\p{Alnum}/\\- ]*";
+    public static final String VALIDATION_REGEX =
+            "[\\p{L}0-9/\\-][\\p{L}\\p{M}0-9/\\- '\u2019]*";
 
     public final String fullName;
 
