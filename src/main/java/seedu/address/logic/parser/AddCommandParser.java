@@ -7,11 +7,11 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
-import java.util.Set;
 import java.util.List;
+import java.util.Set;
 
-import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.Messages;
+import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.AcademicLevel;
 import seedu.address.model.person.Email;
