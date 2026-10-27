@@ -144,6 +144,8 @@ Format: `filter [s/SUBJECT]... [lvl/LEVEL]`
 
 * At least one `s/` or `lvl/` criterion must be provided.
 * Subject and academic-level matching is case-insensitive.
+* Repeated spaces between words in subject names are treated as a single space when filtering.
+  For example, `s/Additional  Mathematics` matches `Additional Mathematics`.
 * A student must match the specified academic level, if one is provided.
 * When multiple subjects are specified, a student must take every specified subject.
 * Students may take additional subjects not specified in the command.
