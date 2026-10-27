@@ -129,7 +129,8 @@ Searches all students by name and displays the matches with new index numbers.
 
 Format: `find KEYWORD [MORE_KEYWORDS]...`
 
-* Matching is case-insensitive and includes students whose names contain any of the keywords as whole words.
+* Matching is case-insensitive and includes students whose name components start with any of the keywords.
+* Partial name searching is supported. For example, `J`, `Ja`, and `JA` all match a student named `Jack Neo`.
 * If there are no matches, an empty student list is displayed.
 * Use `list` to display all students again.
 
@@ -307,7 +308,7 @@ Action     | Format, Examples
 **Edit student** | `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]`<br> e.g., `edit 2 n/James Lee pe/jameslee@example.com`
 **View profile** | `view INDEX`<br> e.g., `view 1`
 **List students** | `list`
-**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find Ja` or `find James Jake`
 **Filter students** | `filter [s/SUBJECT]... [lvl/LEVEL]`<br> e.g., `filter s/Math s/Science lvl/Sec 2`
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **Edit lesson note** | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`<br> e.g., `editnote 1 ln/2 note/Recapped photosynthesis.`
