@@ -94,6 +94,31 @@ public class EditNoteCommandTest {
     }
 
     @Test
+    public void execute_editDate_movesNoteDown() {
+        Student seededStudent = seedFirstStudentWith(NEWER_NOTE, OLDER_NOTE);
+        LessonNote editedNote = new LessonNote(
+                new LessonDate("2026-09-10"),
+                NEWER_NOTE.getSubject(), NEWER_NOTE.getNoteText());
+        Student editedStudent = new PersonBuilder(seededStudent)
+                .withLessonNotes(OLDER_NOTE, editedNote).build();
+
+        EditNoteCommand command = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(editedNote.getDate()),
+                Optional.empty(), Optional.empty());
+
+        String expectedMessage = String.format(EditNoteCommand.MESSAGE_EDIT_NOTE_MOVED_SUCCESS,
+                INDEX_FIRST_PERSON.getOneBased(), seededStudent.getName(),
+                INDEX_SECOND_PERSON.getOneBased());
+
+        assertCommandSuccess(command, model, expectedMessage,
+                createExpectedModel(seededStudent, editedStudent));
+        assertEquals(editedNote, model.getFilteredStudentList()
+                .get(INDEX_FIRST_PERSON.getZeroBased()).getLessonNotes()
+                .get(INDEX_SECOND_PERSON.getZeroBased()));
+    }
+
+    @Test
     public void execute_invalidLessonIndex_throwsCommandException() {
         seedFirstStudentWith(NEWER_NOTE);
         EditNoteCommand command = new EditNoteCommand(
