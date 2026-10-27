@@ -13,7 +13,14 @@
 
 ## **Acknowledgements**
 
-* _{List the sources of reused or adapted ideas, code, documentation, and third-party libraries here, with links to the originals.}_
+* This project is based on the
+  [AddressBook-Level3 project](https://github.com/se-edu/addressbook-level3)
+  created by the [SE-EDU initiative](https://se-education.org/). We retain
+  its overall component structure and adapt it for managing students and
+  lesson notes.
+* The project uses [JavaFX](https://openjfx.io/) for the graphical interface,
+  [Jackson](https://github.com/FasterXML/jackson) for JSON serialization, and
+  [JUnit 5](https://junit.org/junit5/) for automated testing.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -37,7 +44,7 @@ The following provides a quick overview of the main components and their interac
 
 **`Main`** (consisting of classes [`Main`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
-* At shut down, it shuts down the other components and invokes cleanup methods where necessary.
+* At shutdown, it saves the current user preferences.
 
 The bulk of the app's work is done by the following four components:
 
@@ -80,7 +87,7 @@ The `UI` component,
 * executes user commands using the `Logic` component.
 * listens for changes to `Model` data so that the UI can be updated with the modified data.
 * keeps a reference to the `Logic` component, because the `UI` relies on the `Logic` to execute commands.
-* depends on some classes in the `Model` component because it displays `Person` objects from the model.
+* depends on some classes in the `Model` component because it displays `Student` objects from the model.
 
 ### Logic component
 
@@ -124,20 +131,10 @@ How the parsing works:
 
 The `Model` component,
 
-* stores the address book data i.e., all `Person` objects (which are contained in a `UniquePersonList` object).
-* stores the `Person` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Person>` that the UI can observe and bind to, so the UI updates when the list changes.
+* stores the address book data i.e., all `Student` objects (which are contained in a `UniqueStudentList` object).
+* stores the `Student` objects selected by the current filter, such as search results, in a separate _filtered_ list. It exposes this list as an unmodifiable `ObservableList<Student>` that the UI can observe and bind to, so the UI updates when the list changes.
 * stores a `UserPrefs` object that represents the user’s preferences (currently, just the GUI settings). This is exposed to the outside as a `ReadOnlyUserPrefs` object.
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
-
-
-<box type="info" seamless>
-
-**Note:** The alternative, arguably more object-oriented, design below keeps a unique list of tags in `AddressBook`, and each `Person` references tags from that list. This lets `AddressBook` maintain one `Tag` object per unique tag instead of each `Person` holding its own `Tag` objects.<br>
-
-<puml src="diagrams/BetterModelClassDiagram.puml" width="450" />
-</box>
-
-
 ### Storage component
 
 **API** : [`Storage.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/storage/Storage.java)
@@ -185,12 +182,9 @@ The following sequence diagram shows a successful student-profile edit, such as 
 
 ### Filtering students
 
-The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both.
+The `filter` command narrows the displayed student list to students who match an academic level, a set of subjects, or both. The sequence diagram below shows how `filter s/Math lvl/Sec 2` is parsed, applied to the model, and saved through the normal command-execution flow.
 
-<!-- TODO: add diagrams/FilterSequenceDiagram.puml and replace this placeholder with:
-     <puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" /> -->
-
-_[Placeholder: sequence diagram for `filter s/Math lvl/Sec 2` through the `Logic` component.]_
+<puml src="diagrams/FilterSequenceDiagram.puml" alt="Interactions Inside the Logic Component for the `filter s/Math lvl/Sec 2` Command" />
 
 * `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
 * The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
@@ -288,100 +282,6 @@ through storage. This persistence step is outside the diagram's scope.
   * Pros: Construction stays cheap, and positions change only when a note is removed.
   * Cons: Each display site has to sort, and two sites that disagree would show different numbering for the same note.
 
-### \[Proposed\] Undo/redo feature
-
-#### Proposed Implementation
-
-The proposed undo/redo mechanism is facilitated by `VersionedAddressBook`. It extends `AddressBook` with an undo/redo history, stored internally as an `addressBookStateList` and `currentStatePointer`. Additionally, it implements the following operations:
-
-* `VersionedAddressBook#commit()` -- Saves the current address book state in its history.
-* `VersionedAddressBook#undo()` -- Restores the previous address book state from its history.
-* `VersionedAddressBook#redo()` -- Restores a previously undone address book state from its history.
-
-These operations are exposed in the `Model` interface as `Model#commitAddressBook()`, `Model#undoAddressBook()` and `Model#redoAddressBook()` respectively.
-
-Given below is an example usage scenario and how the undo/redo mechanism behaves at each step.
-
-Step 1. The user launches the application for the first time. The `VersionedAddressBook` will be initialized with the initial address book state, and the `currentStatePointer` pointing to that single address book state.
-
-<puml src="diagrams/UndoRedoState0.puml" alt="UndoRedoState0" />
-
-Step 2. The user executes `delete 5` command to delete the 5th person in the address book. The `delete` command calls `Model#commitAddressBook()`, causing the modified state of the address book after the `delete 5` command executes to be saved in the `addressBookStateList`, and the `currentStatePointer` is shifted to the newly inserted address book state.
-
-<puml src="diagrams/UndoRedoState1.puml" alt="UndoRedoState1" />
-
-Step 3. The user executes `add n/David …​` to add a new person. The `add` command also calls `Model#commitAddressBook()`, causing another modified address book state to be saved into the `addressBookStateList`.
-
-<puml src="diagrams/UndoRedoState2.puml" alt="UndoRedoState2" />
-
-<box type="info" seamless>
-
-**Note:** If a command fails its execution, it will not call `Model#commitAddressBook()`, so the address book state will not be saved into the `addressBookStateList`.
-</box>
-
-Step 4. The user now decides that adding the person was a mistake, and decides to undo that action by executing the `undo` command. The `undo` command will call `Model#undoAddressBook()`, which will shift the `currentStatePointer` once to the left, pointing it to the previous address book state, and restores the address book to that state.
-
-<puml src="diagrams/UndoRedoState3.puml" alt="UndoRedoState3" />
-
-
-<box type="info" seamless>
-
-**Note:** If the `currentStatePointer` is at index 0, pointing to the initial AddressBook state, then there are no previous AddressBook states to restore. The `undo` command uses `Model#canUndoAddressBook()` to check if this is the case. If so, it will return an error to the user rather
-than attempting to perform the undo.
-</box>
-
-The following sequence diagram shows how an undo operation goes through the `Logic` component:
-
-<puml src="diagrams/UndoSequenceDiagram-Logic.puml" alt="UndoSequenceDiagram-Logic" />
-
-<box type="info" seamless>
-
-**Note:** The lifeline for `UndoCommand` should end at the destroy marker (X), but due to a limitation of PlantUML, it continues to the end of the diagram.
-</box>
-
-Similarly, how an undo operation goes through the `Model` component is shown below:
-
-<puml src="diagrams/UndoSequenceDiagram-Model.puml" alt="UndoSequenceDiagram-Model" />
-
-The `redo` command does the opposite — it calls `Model#redoAddressBook()`, which shifts the `currentStatePointer` once to the right, pointing to the previously undone state, and restores the address book to that state.
-
-<box type="info" seamless>
-
-**Note:** If the `currentStatePointer` is at index `addressBookStateList.size() - 1`, pointing to the latest address book state, then there are no undone AddressBook states to restore. The `redo` command uses `Model#canRedoAddressBook()` to check if this is the case. If so, it will return an error to the user rather than attempting to perform the redo.
-</box>
-
-Step 5. The user then decides to execute the command `list`. Commands that do not modify the address book, such as `list`, will usually not call `Model#commitAddressBook()`, `Model#undoAddressBook()` or `Model#redoAddressBook()`. Thus, the `addressBookStateList` remains unchanged.
-
-<puml src="diagrams/UndoRedoState4.puml" alt="UndoRedoState4" />
-
-Step 6. The user executes `clear`, which calls `Model#commitAddressBook()`. Since the `currentStatePointer` is not pointing at the end of the `addressBookStateList`, all address book states after the `currentStatePointer` will be purged. Reason: It no longer makes sense to redo the `add n/David …` command. This is the behavior that most modern desktop applications follow.
-
-<puml src="diagrams/UndoRedoState5.puml" alt="UndoRedoState5" />
-
-The following activity diagram summarizes what happens when a user executes a new command:
-
-<puml src="diagrams/CommitActivityDiagram.puml" width="250" />
-
-#### Design considerations:
-
-**Aspect: How undo & redo execute:**
-
-* **Alternative 1 (current choice):** Saves the entire address book.
-  * Pros: Easy to implement.
-  * Cons: May have performance issues in terms of memory usage.
-
-* **Alternative 2:** Individual command knows how to undo/redo by
-  itself.
-  * Pros: Will use less memory (e.g. for `delete`, just save the person being deleted).
-  * Cons: We must ensure that the implementation of each individual command is correct.
-
-_{more aspects and alternatives to be added}_
-
-### \[Proposed\] Data archiving
-
-_{Explain here how the data archiving feature will be implemented}_
-
-
 --------------------------------------------------------------------------------------------------------------------
 
 ## **Documentation, logging, testing, dev-ops**
@@ -445,6 +345,7 @@ _{Explain here how the data archiving feature will be implemented}_
 
 * **As a tutor, I want to protect student information, so that private contact and academic details are not exposed unnecessarily.**
     * Priority: Could have
+    * Status: Not implemented in the current release.
 
 ### Use cases
 
@@ -691,7 +592,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 
 **Use case: UC09 - Edit a lesson note**
 
-**Preconditions:** The target student's lesson history is displayed.
+**Preconditions:** A student list is displayed.
 
 **Guarantees:** An invalid request leaves all lesson notes unchanged. A successful edit changes only the specified note's requested fields; other notes and the student's profile remain unchanged.
 
@@ -725,7 +626,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 
 **Use case: UC10 - Delete a lesson note**
 
-**Preconditions:** The target student's lesson history is displayed.
+**Preconditions:** A student list is displayed, and the target student has the relevant lesson-note index.
 
 **Guarantees:** A successful deletion removes only the specified lesson note. The student's profile and other lesson notes remain unchanged. An invalid request deletes nothing.
 
@@ -753,7 +654,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 2.  Should be able to hold up to 1000 students without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
 4.  The graphical user interface should display its core components without truncation or overlap at resolutions of 1920×1080 and above, and all features should remain accessible at resolutions of 1280×720 and above.
-5.  The application should support English characters only in names and lesson notes.
+5.  Names and subjects should use English letters and their permitted punctuation; lesson-note text should be nonblank, contain no line breaks, and be at most 500 characters long.
 6.  An invalid command should leave all stored student profiles and lesson notes unchanged and should display an error message stating what went wrong, including the correct command format where the command word is recognised.
 7.  Student profiles and lesson notes should be saved after every successful data-modifying command. If the application terminates unexpectedly, the last successfully saved state should remain readable after restarting the application.
 8.  If the data file is invalid after a manual edit, the application should not crash and should inform the user of the problem.
@@ -807,8 +708,6 @@ testers are expected to do more *exploratory* testing.
 
    1. Relaunch the app by double-clicking the JAR file.<br>
        Expected: The most recent window size and location are retained.
-
-1. _{ more test cases … }_
 
 ### Adding a student
 
@@ -972,7 +871,7 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `deletenote 1 ln/99`<br>
       Expected: Rejected with an invalid lesson note index message.
 
-   1. Test case: `deletenote x ln/1` where student x has no notes.<br>
+   1. Test case: `deletenote 1 ln/1`, where the first displayed student has no notes.<br>
       Expected: Rejected with a message saying that student has no lesson notes to delete.
 
 1. Lesson notes and the displayed list
@@ -994,7 +893,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Close the app. Delete `data/addressbook.json` from the folder containing the JAR file.
 
    1. Relaunch the app.<br>
-      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first command that changes data.
+      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first successful command.
 
 1. Dealing with a corrupted data file
 
@@ -1007,5 +906,5 @@ testers are expected to do more *exploratory* testing.
 
    1. Prerequisites: The app is running with at least one student.
 
-   1. Run any command that changes data, such as `addnote`, then close the app without any further action.<br>
-      Expected: `data/addressbook.json` already contains the change; there is no separate save step.
+   1. Run any successful command, such as `addnote`, then close the app without any further action.<br>
+      Expected: `data/addressbook.json` already reflects the latest state; there is no separate save step because `LogicManager` saves after every successful command.
