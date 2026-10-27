@@ -81,6 +81,25 @@ public class JsonAddressBookStorageTest {
     }
 
     @Test
+    public void readAddressBook_backupFails_preservesOriginalAndBlocksWrites() throws IOException {
+        Path filePath = testFolder.resolve("addressbook.json");
+        String invalidData = "{ invalid json";
+        Files.writeString(filePath, invalidData);
+        JsonAddressBookStorage storage = new JsonAddressBookStorage(filePath) {
+            @Override
+            void preserveInvalidData(Path source, Path backupPath) throws IOException {
+                throw new IOException("Backup failed");
+            }
+        };
+
+        DataLoadingException exception = assertThrows(DataLoadingException.class, storage::readAddressBook);
+
+        assertTrue(exception.getBackupPath().isEmpty());
+        assertEquals(invalidData, Files.readString(filePath));
+        assertThrows(IOException.class, () -> storage.saveAddressBook(new AddressBook()));
+    }
+
+    @Test
     public void getNextCorruptedFilePath_fileWithoutParentOrExtension_usesCorruptedSuffix() throws Exception {
         JsonAddressBookStorage storage = new JsonAddressBookStorage(Path.of("addressbook"));
         Method method = JsonAddressBookStorage.class.getDeclaredMethod("getNextCorruptedFilePath", Path.class);

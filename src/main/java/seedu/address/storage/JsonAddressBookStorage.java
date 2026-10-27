@@ -45,7 +45,7 @@ public class JsonAddressBookStorage {
         } catch (DataLoadingException e) {
             try {
                 Path backupPath = getNextCorruptedFilePath(filePath);
-                Files.move(filePath, backupPath);
+                preserveInvalidData(filePath, backupPath);
                 isWriteBlocked = false;
                 logger.warning("Invalid data file preserved at " + backupPath);
                 throw new DataLoadingException(e, backupPath);
@@ -79,6 +79,11 @@ public class JsonAddressBookStorage {
             logger.info("Illegal values found in " + filePath + ": " + ive.getMessage());
             throw new DataLoadingException(ive);
         }
+    }
+
+    /** Moves invalid data aside so that a fresh address book can be created safely. */
+    void preserveInvalidData(Path source, Path backupPath) throws IOException {
+        Files.move(source, backupPath);
     }
 
     private Path getNextCorruptedFilePath(Path originalPath) {
