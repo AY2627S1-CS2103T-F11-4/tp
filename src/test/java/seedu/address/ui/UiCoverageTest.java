@@ -3,6 +3,7 @@ package seedu.address.ui;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
@@ -55,12 +56,59 @@ public class UiCoverageTest {
     }
 
     @Test
+    public void uiManager_constructors_storeStartupWarning() throws Exception {
+        Path dataFilePath = Path.of("data", "addressbook.json");
+        UiManager uiManagerWithoutWarning = new UiManager(new StubLogic(), dataFilePath);
+        String warning = "The invalid data file was preserved.";
+        UiManager uiManagerWithWarning = new UiManager(new StubLogic(), dataFilePath, warning);
+
+        Field startupWarningField = UiManager.class.getDeclaredField("startupWarning");
+        startupWarningField.setAccessible(true);
+        assertNull(startupWarningField.get(uiManagerWithoutWarning));
+        assertEquals(warning, startupWarningField.get(uiManagerWithWarning));
+    }
+
+    @Test
+    public void uiManager_startWithWarning_displaysWarningDialog() throws Exception {
+        runOnFxThread(() -> {
+            Platform.setImplicitExit(false);
+            Stage stage = new Stage();
+            UiManager uiManager = new UiManager(new StubLogic(), Path.of("data", "addressbook.json"),
+                    "The invalid data file was preserved.");
+            Platform.runLater(() -> Window.getWindows().stream()
+                    .filter(window -> window != stage)
+                    .forEach(Window::hide));
+
+            uiManager.start(stage);
+
+            stage.close();
+        });
+    }
+
+    @Test
     public void personCard_constructor_populatesStudentDetails() throws Exception {
         runOnFxThread(() -> {
             PersonCard personCard = new PersonCard(ALICE, 2);
 
             assertEquals(ALICE, personCard.student);
             assertNotNull(personCard.getRoot());
+        });
+    }
+
+    @Test
+    public void personCard_longParentEmail_wrapsInsteadOfTruncating() throws Exception {
+        Student studentWithLongEmail = new PersonBuilder(ALICE)
+                .withEmail("nurulaisyah.parent.contact.mother@exampletutoringcentre.com.sg").build();
+
+        runOnFxThread(() -> {
+            PersonCard personCard = new PersonCard(studentWithLongEmail, 1);
+
+            Field parentEmailField = PersonCard.class.getDeclaredField("parentEmail");
+            parentEmailField.setAccessible(true);
+            Label parentEmail = (Label) parentEmailField.get(personCard);
+
+            assertTrue(parentEmail.isWrapText());
+            assertEquals("Email: " + studentWithLongEmail.getParentEmail().value, parentEmail.getText());
         });
     }
 

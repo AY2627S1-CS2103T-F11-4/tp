@@ -7,8 +7,10 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_EMAIL;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
+import java.util.List;
 import java.util.Set;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.parser.exceptions.ParseException;
 import seedu.address.model.person.AcademicLevel;
@@ -50,9 +52,12 @@ public class AddCommandParser implements Parser<AddCommand> {
         AcademicLevel level = ParserUtil.parseAcademicLevel(argMultimap.getValue(PREFIX_LEVEL).get());
         Phone parentPhone = ParserUtil.parsePhone(argMultimap.getValue(PREFIX_PARENT_PHONE).get());
         Email parentEmail = ParserUtil.parseEmail(argMultimap.getValue(PREFIX_PARENT_EMAIL).get());
-        Set<Subject> subjects = ParserUtil.parseSubjects(argMultimap.getAllValues(PREFIX_SUBJECT));
+        List<String> subjectValues = argMultimap.getAllValues(PREFIX_SUBJECT);
+        Set<Subject> subjects = ParserUtil.parseSubjects(subjectValues);
+        String duplicateSubjectWarning = Messages.getWarningMessageForDuplicateSubjects(
+                ParserUtil.findDuplicateSubjects(subjectValues));
 
-        return new AddCommand(new Student(name, level, subjects, parentPhone, parentEmail));
+        return new AddCommand(new Student(name, level, subjects, parentPhone, parentEmail), duplicateSubjectWarning);
     }
 
     /**
