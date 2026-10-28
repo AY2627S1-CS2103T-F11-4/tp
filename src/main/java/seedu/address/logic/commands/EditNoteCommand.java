@@ -93,9 +93,18 @@ public class EditNoteCommand extends Command {
         }
 
         LessonNote oldNote = lessonNotes.get(lessonIndex.getZeroBased());
+
+        // Only a new subject is checked, so a note keeps its subject even after the student stops taking it
+        Subject editedSubject = oldNote.getSubject();
+        if (subject.isPresent()) {
+            editedSubject = studentToEdit.findSubject(subject.get())
+                    .orElseThrow(() -> new CommandException(String.format(Messages.MESSAGE_SUBJECT_NOT_TAKEN,
+                            studentToEdit.getName(), subject.get())));
+        }
+
         LessonNote editedNote = new LessonNote(
                 date.orElse(oldNote.getDate()),
-                subject.orElse(oldNote.getSubject()),
+                editedSubject,
                 noteText.orElse(oldNote.getNoteText()));
 
         for (int i = 0; i < lessonNotes.size(); i++) {

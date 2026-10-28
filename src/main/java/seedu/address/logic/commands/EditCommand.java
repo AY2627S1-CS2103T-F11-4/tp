@@ -33,7 +33,8 @@ public class EditCommand extends Command {
             + "[n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]";
     public static final String MESSAGE_EDIT_PERSON_SUCCESS = "Edited student: %1$s";
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
-    public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in the address book.";
+    public static final String MESSAGE_DUPLICATE_PERSON =
+            "Another student (%1$s) already has this name and parent phone number.";
 
     public static final String MESSAGE_SUBJECT_REQUIRED = "A student must have at least one nonblank subject.";
 
@@ -41,6 +42,7 @@ public class EditCommand extends Command {
 
     private final Index index;
     private final EditPersonDescriptor editStudentDescriptor;
+    private final String duplicateSubjectWarning;
 
     /**
      * Creates an edit command for the student at the given index.
@@ -49,10 +51,19 @@ public class EditCommand extends Command {
      * @param editStudentDescriptor fields to update.
      */
     public EditCommand(Index index, EditPersonDescriptor editStudentDescriptor) {
+        this(index, editStudentDescriptor, "");
+    }
+
+    /**
+     * Creates an edit command with an optional warning about duplicate subjects in the input.
+     */
+    public EditCommand(Index index, EditPersonDescriptor editStudentDescriptor, String duplicateSubjectWarning) {
         requireNonNull(index);
         requireNonNull(editStudentDescriptor);
+        requireNonNull(duplicateSubjectWarning);
         this.index = index;
         this.editStudentDescriptor = new EditPersonDescriptor(editStudentDescriptor);
+        this.duplicateSubjectWarning = duplicateSubjectWarning;
     }
 
     @Override
@@ -74,15 +85,23 @@ public class EditCommand extends Command {
         assert editedStudent.getLessonNotes().equals(studentToEdit.getLessonNotes())
                 : "Editing a student profile must preserve lesson notes";
 
-        if (!studentToEdit.isSameStudent(editedStudent) && model.hasStudent(editedStudent)) {
-            logger.fine("Student edit rejected: duplicate student.");
-            throw new CommandException(MESSAGE_DUPLICATE_PERSON);
+        if (!studentToEdit.isSameStudent(editedStudent)) {
+            Optional<Student> clashingStudent = model.getAddressBook().getStudentList().stream()
+                    .filter(editedStudent::isSameStudent)
+                    .findFirst();
+            if (clashingStudent.isPresent()) {
+                logger.fine("Student edit rejected: duplicate student.");
+                throw new CommandException(String.format(MESSAGE_DUPLICATE_PERSON,
+                        clashingStudent.get().getName()));
+            }
         }
 
         model.setStudent(studentToEdit, editedStudent);
         model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
         logger.fine("Student profile updated in the model.");
-        return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent)));
+        String successMessage = String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent));
+        return new CommandResult(duplicateSubjectWarning.isEmpty()
+                ? successMessage : successMessage + "\n" + duplicateSubjectWarning);
     }
 
     /**
@@ -108,7 +127,8 @@ public class EditCommand extends Command {
             return false;
         }
         return index.equals(otherEditCommand.index)
-                && editStudentDescriptor.equals(otherEditCommand.editStudentDescriptor);
+                && editStudentDescriptor.equals(otherEditCommand.editStudentDescriptor)
+                && duplicateSubjectWarning.equals(otherEditCommand.duplicateSubjectWarning);
     }
 
     @Override
