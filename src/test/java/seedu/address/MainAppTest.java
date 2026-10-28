@@ -30,7 +30,7 @@ public class MainAppTest {
         Field warningField = MainApp.class.getDeclaredField("dataLoadingWarning");
         warningField.setAccessible(true);
         assertEquals("The data file could not be loaded and has been preserved at " + backupPath
-                + ". TutorProPro has started with an empty data set.", warningField.get(mainApp));
+                + ". TutorBroPro has started with an empty data set.", warningField.get(mainApp));
     }
 
     @Test
@@ -44,7 +44,7 @@ public class MainAppTest {
         Field warningField = MainApp.class.getDeclaredField("dataLoadingWarning");
         warningField.setAccessible(true);
         assertEquals("The data file at " + dataFilePath + " could not be loaded. "
-                + "TutorProPro has started with an empty data set; the original file was not changed.",
+                + "TutorBroPro has started with an empty data set; the original file was not changed.",
                 warningField.get(mainApp));
     }
 
