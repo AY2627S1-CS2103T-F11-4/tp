@@ -12,7 +12,10 @@ import java.util.Locale;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters, spaces, - and /, and it should not be blank";
+            "Names should only contain alphanumeric characters, spaces, - and /, should not be blank, "
+                    + "and should be at most 60 characters long";
+
+    public static final int MAX_LENGTH = 60;
 
     /*
      * The first character of the name must not be a whitespace,
@@ -38,7 +41,7 @@ public class Name {
      * Returns true if a given string is a valid name.
      */
     public static boolean isValidName(String test) {
-        return test.matches(VALIDATION_REGEX);
+        return test.length() <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
     }
 
 
