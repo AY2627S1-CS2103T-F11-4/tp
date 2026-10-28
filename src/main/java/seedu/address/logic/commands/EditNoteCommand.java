@@ -43,6 +43,9 @@ public class EditNoteCommand extends Command {
 
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
 
+    public static final String MESSAGE_NO_CHANGES =
+            "No changes were made. Provide at least one different lesson note detail.";
+
     public static final String MESSAGE_INVALID_LESSON_NOTE_INDEX =
             "The lesson note index provided is invalid.";
 
@@ -104,6 +107,10 @@ public class EditNoteCommand extends Command {
                 date.orElse(oldNote.getDate()),
                 editedSubject,
                 noteText.orElse(oldNote.getNoteText()));
+
+        if (editedNote.equals(oldNote)) {
+            throw new CommandException(MESSAGE_NO_CHANGES);
+        }
 
         List<LessonNote> updatedLessonNotes = new ArrayList<>(lessonNotes);
         updatedLessonNotes.set(lessonIndex.getZeroBased(), editedNote);

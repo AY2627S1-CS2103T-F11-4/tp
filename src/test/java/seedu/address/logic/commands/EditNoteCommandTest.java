@@ -189,6 +189,29 @@ public class EditNoteCommandTest {
     }
 
     @Test
+    public void execute_sameDetails_throwsCommandException() {
+        seedFirstStudentWith(NEWER_NOTE, OLDER_NOTE);
+        EditNoteCommand command = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.of(NEWER_NOTE.getDate()),
+                Optional.of(NEWER_NOTE.getSubject()),
+                Optional.of(NEWER_NOTE.getNoteText()));
+
+        assertCommandFailure(command, model, EditNoteCommand.MESSAGE_NO_CHANGES);
+    }
+
+    @Test
+    public void execute_sameTextOnly_throwsCommandException() {
+        seedFirstStudentWith(NEWER_NOTE, OLDER_NOTE);
+        EditNoteCommand command = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
+                Optional.empty(), Optional.empty(),
+                Optional.of(NEWER_NOTE.getNoteText()));
+
+        assertCommandFailure(command, model, EditNoteCommand.MESSAGE_NO_CHANGES);
+    }
+
+    @Test
     public void equals() {
         EditNoteCommand standard = new EditNoteCommand(
                 INDEX_FIRST_PERSON, INDEX_FIRST_PERSON,
