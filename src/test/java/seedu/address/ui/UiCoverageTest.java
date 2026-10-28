@@ -2,6 +2,7 @@ package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.testutil.TypicalPersons.ALICE;
 
@@ -25,6 +26,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
@@ -46,6 +48,36 @@ public class UiCoverageTest {
         } catch (IllegalStateException exception) {
             // The toolkit has already been initialized by another test.
         }
+    }
+
+    @Test
+    public void uiManager_constructors_storeStartupWarning() throws Exception {
+        Path dataFilePath = Path.of("data", "addressbook.json");
+        UiManager uiManagerWithoutWarning = new UiManager(new StubLogic(), dataFilePath);
+        String warning = "The invalid data file was preserved.";
+        UiManager uiManagerWithWarning = new UiManager(new StubLogic(), dataFilePath, warning);
+
+        Field startupWarningField = UiManager.class.getDeclaredField("startupWarning");
+        startupWarningField.setAccessible(true);
+        assertNull(startupWarningField.get(uiManagerWithoutWarning));
+        assertEquals(warning, startupWarningField.get(uiManagerWithWarning));
+    }
+
+    @Test
+    public void uiManager_startWithWarning_displaysWarningDialog() throws Exception {
+        runOnFxThread(() -> {
+            Platform.setImplicitExit(false);
+            Stage stage = new Stage();
+            UiManager uiManager = new UiManager(new StubLogic(), Path.of("data", "addressbook.json"),
+                    "The invalid data file was preserved.");
+            Platform.runLater(() -> Window.getWindows().stream()
+                    .filter(window -> window != stage)
+                    .forEach(Window::hide));
+
+            uiManager.start(stage);
+
+            stage.close();
+        });
     }
 
     @Test
