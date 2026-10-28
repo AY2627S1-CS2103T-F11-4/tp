@@ -20,6 +20,7 @@ public class NameTest {
         assertThrows(IllegalArgumentException.class, () -> new Name(invalidName));
         assertThrows(IllegalArgumentException.class, () -> new Name("   "));
         assertThrows(IllegalArgumentException.class, () -> new Name("John@Doe"));
+        assertThrows(IllegalArgumentException.class, () -> new Name("a".repeat(Name.MAX_LENGTH + 1)));
     }
 
     @Test
@@ -46,6 +47,8 @@ public class NameTest {
         assertTrue(Name.isValidName("peter the 2nd")); // alphanumeric characters
         assertTrue(Name.isValidName("Capital Tan")); // with capital letters
         assertTrue(Name.isValidName("David Roger Jackson Ray Jr 2nd")); // long names
+        assertTrue(Name.isValidName("a".repeat(Name.MAX_LENGTH))); // maximum length
+        assertFalse(Name.isValidName("a".repeat(Name.MAX_LENGTH + 1))); // exceeds maximum length
     }
 
     @Test
