@@ -127,6 +127,28 @@ public class ArgumentTokenizerTest {
     }
 
     @Test
+    public void tokenizeWithTerminalPrefix_prefixLikeTextAfterTerminalPrefix_retainedInTerminalValue() {
+        String argsString = "SomePreambleString -t dashT-Value p/terminal -t text p/again";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTerminalPrefix(
+                argsString, pSlash, dashT);
+
+        assertPreamblePresent(argMultimap, "SomePreambleString");
+        assertArgumentPresent(argMultimap, dashT, "dashT-Value");
+        assertArgumentPresent(argMultimap, pSlash, "terminal -t text p/again");
+    }
+
+    @Test
+    public void tokenizeWithTerminalPrefix_terminalPrefixAbsent_otherPrefixesTokenized() {
+        String argsString = "SomePreambleString -t dashT-Value";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenizeWithTerminalPrefix(
+                argsString, pSlash, dashT);
+
+        assertPreamblePresent(argMultimap, "SomePreambleString");
+        assertArgumentPresent(argMultimap, dashT, "dashT-Value");
+        assertArgumentAbsent(argMultimap, pSlash);
+    }
+
+    @Test
     public void tokenize_multipleArgumentsJoined() {
         String argsString = "SomePreambleStringp/ pSlash joined-tjoined -t not joined^Qjoined";
         ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(argsString, pSlash, dashT, hatQ);

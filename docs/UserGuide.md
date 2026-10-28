@@ -164,6 +164,8 @@ Format: `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`
 
 * Adds the lesson note to the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
 * All three of `d/`, `s/` and `note/` are compulsory.
+* `note/` must be the final parameter. Everything after `note/`, including text such as `d/`, `s/`, `ln/`, or
+  another `note/`, is saved as part of `NOTE_TEXT`.
 * `DATE` must be a real calendar date in `YYYY-MM-DD` format and cannot be a future date.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
 * `NOTE_TEXT` cannot be blank, must not exceed 500 characters, and must be on a single line.
@@ -184,6 +186,8 @@ Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
 * `LESSON_INDEX` refers to the number shown next to the note in the output of `history INDEX`.
 * Both indexes **must be positive integers** 1, 2, 3, ...
 * At least one of `d/`, `s/` and `note/` must be provided.
+* If provided, `note/` must be the final parameter. Everything after `note/`, including text such as `d/`, `s/`,
+  `ln/`, or another `note/`, is saved as part of `NOTE_TEXT`.
 * Only the fields you provide are changed; the rest of the note is left as it was.
 * `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
 * Changing the date re-sorts the student's notes, so a note's number may change. Run `history INDEX` again before editing or deleting another note, replacing `INDEX` with the student's current displayed index.
