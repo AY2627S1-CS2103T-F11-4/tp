@@ -46,6 +46,9 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_INVALID_LESSON_NOTE_INDEX =
             "The lesson note index provided is invalid.";
 
+    public static final String MESSAGE_DUPLICATE_NOTE =
+            "Editing this note would duplicate an existing note.";
+
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
 
@@ -95,6 +98,12 @@ public class EditNoteCommand extends Command {
                 date.orElse(oldNote.getDate()),
                 subject.orElse(oldNote.getSubject()),
                 noteText.orElse(oldNote.getNoteText()));
+
+        for (int i = 0; i < lessonNotes.size(); i++) {
+            if (i != lessonIndex.getZeroBased() && editedNote.equals(lessonNotes.get(i))) {
+                throw new CommandException(MESSAGE_DUPLICATE_NOTE);
+            }
+        }
 
         List<LessonNote> updatedLessonNotes = new ArrayList<>(lessonNotes);
         updatedLessonNotes.set(lessonIndex.getZeroBased(), editedNote);
