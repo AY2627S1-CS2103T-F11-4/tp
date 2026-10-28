@@ -112,6 +112,7 @@ public class EditNoteCommand extends Command {
             if (i != lessonIndex.getZeroBased() && editedNote.equals(lessonNotes.get(i))) {
                 throw new CommandException(MESSAGE_DUPLICATE_NOTE);
             }
+        }
         if (editedNote.equals(oldNote)) {
             throw new CommandException(MESSAGE_NO_CHANGES);
         }
