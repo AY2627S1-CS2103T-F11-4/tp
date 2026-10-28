@@ -82,9 +82,9 @@ public class MainApp extends Application {
             Path dataFilePath = storage.getAddressBookFilePath();
             dataLoadingWarning = e.getBackupPath()
                     .map(backupPath -> "The data file could not be loaded and has been preserved at " + backupPath
-                            + ". TutorProPro has started with an empty data set.")
+                            + ". TutorBroPro has started with an empty data set.")
                     .orElse("The data file at " + dataFilePath + " could not be loaded. "
-                            + "TutorProPro has started with an empty data set; the original file was not changed.");
+                            + "TutorBroPro has started with an empty data set; the original file was not changed.");
             logger.warning(dataLoadingWarning);
             initialData = new AddressBook();
         }
