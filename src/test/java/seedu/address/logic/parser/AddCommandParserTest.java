@@ -118,6 +118,16 @@ public class AddCommandParserTest {
     }
 
     @Test
+    public void parse_nameExceedsMaximumLength_failure() {
+        String validInput = NAME_DESC_BOB + LEVEL_DESC_BOB + SUBJECT_DESC_MATH
+                + PARENT_PHONE_DESC_BOB + PARENT_EMAIL_DESC_BOB;
+        String longName = "a".repeat(Name.MAX_LENGTH + 1);
+
+        assertParseFailure(parser, validInput.replace("n/Bob Choo", "n/" + longName),
+                Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_invalidLevel_reportsLevelConstraint() {
         String userInput = " n/Jack lvl/Pri 1 2 s/Physics pn/91234567 pe/test@gmail";
 

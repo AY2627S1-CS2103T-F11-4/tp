@@ -123,6 +123,11 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_nameExceedsMaximumLength_failure() {
+        assertParseFailure(parser, "1 n/" + "a".repeat(Name.MAX_LENGTH + 1), Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
     public void parse_invalidAcademicLevel_failure() {
         assertParseFailure(parser, "1 lvl/Secondary 2", AcademicLevel.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 lvl/", AcademicLevel.MESSAGE_CONSTRAINTS);
