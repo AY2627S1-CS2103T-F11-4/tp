@@ -46,8 +46,7 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_INVALID_LESSON_NOTE_INDEX =
             "The lesson note index provided is invalid.";
 
-    public static final String MESSAGE_DUPLICATE_NOTE =
-            "Editing this note would duplicate an existing note.";
+    public static final String MESSAGE_DUPLICATE_NOTE = AddNoteCommand.MESSAGE_DUPLICATE_NOTE;
 
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
