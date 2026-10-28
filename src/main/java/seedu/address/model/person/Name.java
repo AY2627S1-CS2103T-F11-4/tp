@@ -12,16 +12,17 @@ import java.util.Locale;
 public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters, spaces, - and /, should not be blank, "
-                    + "and should be at most 60 characters long";
+            "Names should only contain alphanumeric characters, spaces, - and /, "
+                    + "and must contain at least one letter or digit.";
 
     public static final int MAX_LENGTH = 60;
 
     /*
-     * The first character of the name must not be a whitespace,
-     * otherwise " " (a blank string) becomes a valid input.
+     * Names must contain at least one alphanumeric character.
+     * The first character must not be a space.
      */
-    public static final String VALIDATION_REGEX = "[\\p{Alnum}/\\-][\\p{Alnum}/\\- ]*";
+    public static final String VALIDATION_REGEX =
+            "(?=.*\\p{Alnum})[\\p{Alnum}/\\-][\\p{Alnum}/\\- ]*";
 
     public final String fullName;
 
