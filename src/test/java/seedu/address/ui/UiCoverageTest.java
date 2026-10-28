@@ -91,6 +91,23 @@ public class UiCoverageTest {
     }
 
     @Test
+    public void personCard_longParentEmail_wrapsInsteadOfTruncating() throws Exception {
+        Student studentWithLongEmail = new PersonBuilder(ALICE)
+                .withEmail("nurulaisyah.parent.contact.mother@exampletutoringcentre.com.sg").build();
+
+        runOnFxThread(() -> {
+            PersonCard personCard = new PersonCard(studentWithLongEmail, 1);
+
+            Field parentEmailField = PersonCard.class.getDeclaredField("parentEmail");
+            parentEmailField.setAccessible(true);
+            Label parentEmail = (Label) parentEmailField.get(personCard);
+
+            assertTrue(parentEmail.isWrapText());
+            assertEquals("Email: " + studentWithLongEmail.getParentEmail().value, parentEmail.getText());
+        });
+    }
+
+    @Test
     public void personCard_studentWithLessonNotes_populatesNotesSection() throws Exception {
         Student studentWithNotes = new PersonBuilder(ALICE)
                 .withLessonNotes(
