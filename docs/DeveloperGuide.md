@@ -893,7 +893,7 @@ testers are expected to do more *exploratory* testing.
    1. Prerequisites: Close the app. Delete `data/addressbook.json` from the folder containing the JAR file.
 
    1. Relaunch the app.<br>
-      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first successful command.
+      Expected: The app starts with the sample students instead of an empty list. The file is recreated after the first successful save (neither `help` nor `exit` attempts a save).
 
 1. Dealing with a corrupted data file
 
@@ -902,9 +902,37 @@ testers are expected to do more *exploratory* testing.
    1. Relaunch the app.<br>
       Expected: The app starts with an **empty** student list rather than sample data, and `addressbook.log.0` records that the data file could not be loaded. The invalid file is left on disk until a command writes new data over it, so back it up first if you want to keep it.
 
-1. Saving after every command
+1. Automatic saving and exiting
 
    1. Prerequisites: The app is running with at least one student.
 
-   1. Run any successful command, such as `addnote`, then close the app without any further action.<br>
-      Expected: `data/addressbook.json` already reflects the latest state; there is no separate save step because `LogicManager` saves after every successful command.
+   1. Run a valid `addnote` command and verify there is no save error, then close the app.<br>
+      Expected: `data/addressbook.json` already reflects the latest state; there is no separate save step because `LogicManager` saves after every successfully executed command except `help` and `exit`.
+
+### Unsaved changes and exit confirmation
+
+`LogicManager` takes an `AddressBook` snapshot of the startup dataset and replaces it only after
+`Storage.saveAddressBook` succeeds. `Logic.hasUnsavedChanges()` compares the complete current student
+list, including lesson notes, with that snapshot. The startup state is the baseline even if loading
+previously fell back to an empty dataset. Storage backup and write-protection behavior is unchanged.
+
+A failed save raises the existing `CommandException`; it does not roll back model changes. A later
+successful save writes the entire current dataset and updates the snapshot. Rejected commands and
+failed saves of unchanged data do not themselves mark data as changed. Returning exactly to the
+baseline also removes the need for a warning.
+
+`help` and `exit` bypass saving. `MainWindow` checks for unsaved changes for CLI `exit`, File → Exit,
+and the main window close request. With unsaved changes, Cancel or dismissing the dialog keeps the
+window open; Exit anyway closes it without saving. Cancelling consumes the originating close event
+so JavaFX cannot close the window afterward.
+
+Manual checks with a test copy of the data:
+
+1. Make saving fail, execute a valid data-changing command, and verify the save error is displayed
+   while the changed data remains visible.
+2. Run `help`: the help window opens without attempting a save.
+3. Try each exit route. Choose Cancel (or dismiss the dialog): the app and data remain available.
+4. Restore saving and run `list`. Restart after exiting: the latest dataset should be restored,
+   and there should be no unsaved-changes confirmation after the successful save.
+5. Repeat the failed-save scenario and choose Exit anyway: the app closes and the unsaved changes
+   are absent on restart.
