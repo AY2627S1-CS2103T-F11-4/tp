@@ -9,8 +9,11 @@ import static seedu.address.logic.parser.CommandParserTestUtil.assertParseFailur
 import static seedu.address.logic.parser.CommandParserTestUtil.assertParseSuccess;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 
+import java.util.List;
+
 import org.junit.jupiter.api.Test;
 
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.model.person.AcademicLevel;
@@ -90,6 +93,13 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_nameWithSonOf_subjectsUnchanged() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder().withName("John s/o Lee").build();
+
+        assertParseSuccess(parser, "1 n/John s/o Lee", new EditCommand(INDEX_FIRST_PERSON, descriptor));
+    }
+
+    @Test
     public void parse_multipleSubjects_success() {
         EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
                 .withSubjects("Math", "Science").build();
@@ -98,9 +108,23 @@ public class EditCommandParserTest {
     }
 
     @Test
+    public void parse_duplicateSubjects_successWithWarning() {
+        EditPersonDescriptor descriptor = new EditPersonDescriptorBuilder()
+                .withSubjects("Math").build();
+
+        assertParseSuccess(parser, "1 s/Math s/math", new EditCommand(INDEX_FIRST_PERSON, descriptor,
+                Messages.getWarningMessageForDuplicateSubjects(List.of("math"))));
+    }
+
+    @Test
     public void parse_invalidName_failure() {
         assertParseFailure(parser, "1 n/!!!", Name.MESSAGE_CONSTRAINTS);
         assertParseFailure(parser, "1 n/", Name.MESSAGE_CONSTRAINTS);
+    }
+
+    @Test
+    public void parse_nameExceedsMaximumLength_failure() {
+        assertParseFailure(parser, "1 n/" + "a".repeat(Name.MAX_LENGTH + 1), Name.MESSAGE_CONSTRAINTS);
     }
 
     @Test
