@@ -156,6 +156,14 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Clear command safeguard
+
+The `clear` command rejects an index or other arguments before any data is removed.
+This is an additional precaution for a destructive command: a tutor intending to delete the student
+at displayed index 2 might confuse `deletestudent 2` with `clear 2`. Rejecting `clear 2` prevents that
+mistake from deleting every student and their lesson notes. The tutor must use `deletestudent 2`
+to delete only that student. Plain `clear` still removes all students without a confirmation prompt.
+
 ### View student feature
 
 The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.

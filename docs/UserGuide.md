@@ -253,7 +253,11 @@ Removes every student, together with all their lesson notes, from the address bo
 
 Format: `clear`
 
-This command does not accept an index or other arguments. Inputs such as `clear 1` are rejected without changing any data.
+This command does not accept an index or other arguments. Inputs such as `clear 2` are rejected without changing any data.
+
+This safeguard helps prevent accidentally deleting all students when confusing `clear` with `deletestudent`.
+For example, to delete only the student at displayed index 2, use `deletestudent 2`.
+Typing `clear 2` by mistake does not delete anything. Typing `clear` alone still removes all students and their lesson notes.
 
 <box type="warning" seamless>
 
