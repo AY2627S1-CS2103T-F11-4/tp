@@ -42,6 +42,7 @@ public class EditCommand extends Command {
 
     private final Index index;
     private final EditPersonDescriptor editStudentDescriptor;
+    private final String duplicateSubjectWarning;
 
     /**
      * Creates an edit command for the student at the given index.
@@ -50,10 +51,19 @@ public class EditCommand extends Command {
      * @param editStudentDescriptor fields to update.
      */
     public EditCommand(Index index, EditPersonDescriptor editStudentDescriptor) {
+        this(index, editStudentDescriptor, "");
+    }
+
+    /**
+     * Creates an edit command with an optional warning about duplicate subjects in the input.
+     */
+    public EditCommand(Index index, EditPersonDescriptor editStudentDescriptor, String duplicateSubjectWarning) {
         requireNonNull(index);
         requireNonNull(editStudentDescriptor);
+        requireNonNull(duplicateSubjectWarning);
         this.index = index;
         this.editStudentDescriptor = new EditPersonDescriptor(editStudentDescriptor);
+        this.duplicateSubjectWarning = duplicateSubjectWarning;
     }
 
     @Override
@@ -89,7 +99,9 @@ public class EditCommand extends Command {
         model.setStudent(studentToEdit, editedStudent);
         model.updateFilteredStudentList(PREDICATE_SHOW_ALL_STUDENTS);
         logger.fine("Student profile updated in the model.");
-        return new CommandResult(String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent)));
+        String successMessage = String.format(MESSAGE_EDIT_PERSON_SUCCESS, Messages.format(editedStudent));
+        return new CommandResult(duplicateSubjectWarning.isEmpty()
+                ? successMessage : successMessage + "\n" + duplicateSubjectWarning);
     }
 
     /**
@@ -115,7 +127,8 @@ public class EditCommand extends Command {
             return false;
         }
         return index.equals(otherEditCommand.index)
-                && editStudentDescriptor.equals(otherEditCommand.editStudentDescriptor);
+                && editStudentDescriptor.equals(otherEditCommand.editStudentDescriptor)
+                && duplicateSubjectWarning.equals(otherEditCommand.duplicateSubjectWarning);
     }
 
     @Override

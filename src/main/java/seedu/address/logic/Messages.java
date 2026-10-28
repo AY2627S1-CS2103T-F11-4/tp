@@ -1,5 +1,6 @@
 package seedu.address.logic;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -18,8 +19,8 @@ public class Messages {
     public static final String MESSAGE_PERSONS_LISTED_OVERVIEW = "%1$d student(s) listed!";
     public static final String MESSAGE_DUPLICATE_FIELDS =
                 "Multiple values specified for the following single-valued field(s): ";
-    public static final String MESSAGE_SUBJECT_NOT_TAKEN =
-            "%1$s does not take %2$s. Add the subject to the student first.";
+    public static final String MESSAGE_DUPLICATE_SUBJECT_WARNING =
+            "Warning: Duplicate subject '%s' was ignored; subjects are case-insensitive.";
 
     /**
      * Returns an error message indicating the duplicate prefixes.
@@ -31,6 +32,15 @@ public class Messages {
                 Stream.of(duplicatePrefixes).map(Prefix::toString).collect(Collectors.toSet());
 
         return MESSAGE_DUPLICATE_FIELDS + String.join(" ", duplicateFields);
+    }
+
+    /**
+     * Returns warnings for subject values that were merged with an earlier subject value.
+     */
+    public static String getWarningMessageForDuplicateSubjects(List<String> duplicateSubjects) {
+        return duplicateSubjects.stream()
+                .map(subject -> String.format(MESSAGE_DUPLICATE_SUBJECT_WARNING, subject))
+                .collect(Collectors.joining("\n"));
     }
 
     /**
