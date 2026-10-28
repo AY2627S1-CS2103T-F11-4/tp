@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_NAME;
+import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import org.junit.jupiter.api.Test;
 
@@ -134,6 +136,41 @@ public class ArgumentTokenizerTest {
         assertArgumentAbsent(argMultimap, pSlash);
         assertArgumentPresent(argMultimap, dashT, "not joined^Qjoined");
         assertArgumentAbsent(argMultimap, hatQ);
+    }
+
+    @Test
+    public void tokenize_sonOfInName_keptAsPartOfName() {
+        // "s/o" followed by whitespace is part of the name
+        String argsString = " n/Ravi s/o Kumar s/Math";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(argsString, PREFIX_NAME, PREFIX_SUBJECT);
+        assertArgumentPresent(argMultimap, PREFIX_NAME, "Ravi s/o Kumar");
+        assertArgumentPresent(argMultimap, PREFIX_SUBJECT, "Math");
+
+        // "s/o" at the end of the arguments string is part of the name
+        argsString = " n/Ravi s/o";
+        argMultimap = ArgumentTokenizer.tokenize(argsString, PREFIX_NAME, PREFIX_SUBJECT);
+        assertArgumentPresent(argMultimap, PREFIX_NAME, "Ravi s/o");
+        assertArgumentAbsent(argMultimap, PREFIX_SUBJECT);
+    }
+
+    @Test
+    public void tokenize_subjectStartingWithO_parsedAsSubject() {
+        // "s/o" not followed by whitespace starts a subject
+        String argsString = " n/Ravi s/oceanography";
+        ArgumentMultimap argMultimap = ArgumentTokenizer.tokenize(argsString, PREFIX_NAME, PREFIX_SUBJECT);
+        assertArgumentPresent(argMultimap, PREFIX_NAME, "Ravi");
+        assertArgumentPresent(argMultimap, PREFIX_SUBJECT, "oceanography");
+
+        // Uppercase "s/O" starts a subject
+        argsString = " n/Ravi s/O Level Math";
+        argMultimap = ArgumentTokenizer.tokenize(argsString, PREFIX_NAME, PREFIX_SUBJECT);
+        assertArgumentPresent(argMultimap, PREFIX_NAME, "Ravi");
+        assertArgumentPresent(argMultimap, PREFIX_SUBJECT, "O Level Math");
+
+        // "p/o" is not the subject prefix, so it is still a prefix
+        argsString = " p/o value";
+        argMultimap = ArgumentTokenizer.tokenize(argsString, pSlash);
+        assertArgumentPresent(argMultimap, pSlash, "o value");
     }
 
     @Test
