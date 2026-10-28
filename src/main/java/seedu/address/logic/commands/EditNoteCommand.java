@@ -49,6 +49,7 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
 
+    /** Success message containing the original index, student name and updated index. */
     public static final String MESSAGE_EDIT_NOTE_MOVED_SUCCESS =
             "Edited lesson note %1$s for %2$s. It is now lesson note %3$s.";
 
@@ -107,6 +108,13 @@ public class EditNoteCommand extends Command {
                 studentToEdit.getSubjects(), studentToEdit.getParentPhone(), studentToEdit.getParentEmail(),
                 updatedLessonNotes);
 
+        /*
+         * Rebuilding the student sorts lesson notes by date, so the edited note
+         * may no longer occupy the index supplied in the command.
+         * Sorting preserves the note objects, allowing identity comparison to
+         * locate this specific note even when another note has equal details.
+         * Convert its zero-based list position to the one-based history index.
+         */
         List<LessonNote> sortedNotes = editedStudent.getLessonNotes();
         int newIndex = -1;
         for (int i = 0; i < sortedNotes.size(); i++) {
@@ -119,6 +127,7 @@ public class EditNoteCommand extends Command {
 
         model.setStudent(studentToEdit, editedStudent);
 
+        // Report both positions only when the edited note moves in the displayed history.
         if (newIndex != lessonIndex.getOneBased()) {
             return new CommandResult(String.format(MESSAGE_EDIT_NOTE_MOVED_SUCCESS,
                     lessonIndex.getOneBased(), studentToEdit.getName(), newIndex));
