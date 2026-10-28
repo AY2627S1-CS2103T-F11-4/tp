@@ -74,7 +74,7 @@ Adds a student profile with the student's name, academic level, subjects, and pa
 Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL`
 
 * `NAME`, `LEVEL`, at least one `SUBJECT`, `PARENT_PHONE`, and `PARENT_EMAIL` are compulsory.
-* `NAME` may contain alphanumeric characters, spaces, `-`, and `/`.
+* `NAME` may contain alphanumeric characters, spaces, `-`, and `/`, and must contain at least one letter or digit. Punctuation-only names such as `---` and `/` are rejected.
 * `LEVEL` must be one of `Pri 1` to `Pri 6`, `Sec 1` to `Sec 5`, or `JC 1` to `JC 2`.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
 * Duplicate subjects are merged case-insensitively. If a duplicate is entered, the application displays a warning naming the ignored subject.
