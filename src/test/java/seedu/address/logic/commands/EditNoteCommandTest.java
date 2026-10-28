@@ -102,6 +102,9 @@ public class EditNoteCommandTest {
                 Optional.of(NEWER_NOTE.getNoteText()));
 
         assertCommandFailure(command, model, EditNoteCommand.MESSAGE_DUPLICATE_NOTE);
+    }
+
+    @Test
     public void execute_editSubjectNotTaken_throwsCommandException() {
         Student seededStudent = seedFirstStudentWith(NEWER_NOTE);
         EditNoteCommand command = new EditNoteCommand(
