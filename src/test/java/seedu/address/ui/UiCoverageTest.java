@@ -1,6 +1,7 @@
 package seedu.address.ui;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -20,6 +21,9 @@ import org.junit.jupiter.api.Test;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.DialogPane;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
@@ -27,6 +31,7 @@ import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.stage.WindowEvent;
 import seedu.address.commons.core.GuiSettings;
 import seedu.address.logic.Logic;
 import seedu.address.logic.commands.CommandResult;
@@ -48,6 +53,7 @@ public class UiCoverageTest {
         } catch (IllegalStateException exception) {
             // The toolkit has already been initialized by another test.
         }
+        Platform.setImplicitExit(false);
     }
 
     @Test
@@ -66,7 +72,6 @@ public class UiCoverageTest {
     @Test
     public void uiManager_startWithWarning_displaysWarningDialog() throws Exception {
         runOnFxThread(() -> {
-            Platform.setImplicitExit(false);
             Stage stage = new Stage();
             UiManager uiManager = new UiManager(new StubLogic(), Path.of("data", "addressbook.json"),
                     "The invalid data file was preserved.");
@@ -221,6 +226,46 @@ public class UiCoverageTest {
         });
     }
 
+    @Test
+    public void mainWindow_unsavedWindowClose_cancelThenConfirm() throws Exception {
+        runOnFxThread(() -> {
+            StubLogic stub = new StubLogic();
+            stub.hasUnsavedChanges = true;
+            Stage stage = new Stage();
+            MainWindow window = new MainWindow(stage, stub, Path.of("data", "addressbook.json"));
+            window.fillInnerParts();
+            stage.show();
+            try {
+                Platform.runLater(() -> clickExitDialogButton(ButtonType.CANCEL.getText()));
+                WindowEvent cancelled = new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST);
+                stage.getOnCloseRequest().handle(cancelled);
+                assertTrue(cancelled.isConsumed());
+                assertTrue(stage.isShowing());
+
+                Platform.runLater(() -> clickExitDialogButton("Exit anyway"));
+                stage.getOnCloseRequest().handle(new WindowEvent(stage, WindowEvent.WINDOW_CLOSE_REQUEST));
+                assertFalse(stage.isShowing());
+            } finally {
+                stage.hide();
+            }
+        });
+    }
+
+    private static void clickExitDialogButton(String text) {
+        for (Window window : Window.getWindows()) {
+            if (window.getScene().getRoot() instanceof DialogPane pane) {
+                for (ButtonType type : pane.getButtonTypes()) {
+                    if (type.getText().equals(text)) {
+                        Button button = (Button) pane.lookupButton(type);
+                        button.fire();
+                        return;
+                    }
+                }
+            }
+        }
+        throw new AssertionError("Exit confirmation button not found: " + text);
+    }
+
     private static void runOnFxThread(FxAction action) throws Exception {
         CountDownLatch latch = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
@@ -246,6 +291,7 @@ public class UiCoverageTest {
     }
 
     private static class StubLogic implements Logic {
+        private boolean hasUnsavedChanges;
         private final GuiSettings guiSettings;
         private final Exception executionFailure;
 
@@ -275,6 +321,11 @@ public class UiCoverageTest {
                 throw parseException;
             }
             return new CommandResult(commandText);
+        }
+
+        @Override
+        public boolean hasUnsavedChanges() {
+            return hasUnsavedChanges;
         }
 
         @Override

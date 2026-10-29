@@ -74,7 +74,7 @@ Adds a student profile with the student's name, academic level, subjects, and pa
 Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL`
 
 * `NAME`, `LEVEL`, at least one `SUBJECT`, `PARENT_PHONE`, and `PARENT_EMAIL` are compulsory.
-* `NAME` may contain alphanumeric characters, spaces, `-`, and `/`.
+* `NAME` may contain alphanumeric characters, spaces, `-`, and `/`, and must contain at least one letter or digit. Punctuation-only names such as `---` and `/` are rejected.
 * `LEVEL` must be one of `Pri 1` to `Pri 6`, `Sec 1` to `Sec 5`, or `JC 1` to `JC 2`.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
 * Duplicate subjects are merged case-insensitively. If a duplicate is entered, the application displays a warning naming the ignored subject.
@@ -147,6 +147,8 @@ Format: `filter [s/SUBJECT]... [lvl/LEVEL]`
 
 * At least one `s/` or `lvl/` criterion must be provided.
 * Subject and academic-level matching is case-insensitive.
+* Repeated spaces between words in subject names are treated as a single space when filtering.
+  For example, `s/Additional  Mathematics` matches `Additional Mathematics`.
 * A student must match the specified academic level, if one is provided.
 * When multiple subjects are specified, a student must take every specified subject.
 * Students may take additional subjects not specified in the command.
@@ -260,6 +262,12 @@ Removes every student, together with all their lesson notes, from the address bo
 
 Format: `clear`
 
+This command does not accept an index or other arguments. Inputs such as `clear 2` are rejected without changing any data.
+
+This safeguard helps prevent accidentally deleting all students when confusing `clear` with `deletestudent`.
+For example, to delete only the student at displayed index 2, use `deletestudent 2`.
+Typing `clear 2` by mistake does not delete anything. Typing `clear` alone still removes all students and their lesson notes.
+
 <box type="warning" seamless>
 
 **Caution:** This cannot be undone, and you are not asked to confirm. The change is saved to the data file immediately.
@@ -267,19 +275,38 @@ Format: `clear`
 
 ### Viewing help: `help`
 
-Opens a window with a link to this user guide.
+Opens a window with a link to this user guide. Help does not save student data and remains available
+even when saving fails.
 
 Format: `help`
 
 ### Exiting the program: `exit`
 
-Exits the application. Your data is already saved, so nothing is lost.
+Exits the application without attempting another save.
+
+If your current student data contains unsaved changes, a confirmation appears:
+
+* **Cancel** keeps the app open and retains the current data in this session.
+* **Exit anyway** closes the app and discards unsaved changes.
+
+Closing the confirmation also cancels exiting. The same protection applies to **File → Exit** and
+closing the main window. If there are no unsaved changes, the app closes immediately.
 
 Format: `exit`
 
 ### Saving the data
 
-TutorBroPro automatically saves data after every command. You do not need to save manually.
+TutorBroPro attempts to save the entire current student dataset after each successfully executed command,
+except `help` and `exit`. There is no separate save command.
+
+If saving fails, an error appears in the command result area. A change may already be visible in the app
+but has not been saved to disk; the app does not undo it automatically. Keep the app open, resolve the
+reported save problem, then run `list` to retry saving. A successful save includes all current students
+and notes, including earlier unsaved changes that you have not since changed or deleted.
+
+For example, if adding a note succeeds in the app but saving fails, a later successful save preserves
+that note. If you delete the note before that save, the saved dataset reflects its deletion.
+`help` and `exit` do not retry saving. Exiting with unsaved changes requires confirmation.
 
 ### Editing the data file
 
@@ -288,7 +315,7 @@ TutorBroPro data is saved automatically as a JSON file `[JAR file location]/data
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, TutorBroPro starts with an empty address book at the next run. The invalid file remains on disk until you run a command (TutorBroPro saves after every command). Still, we recommend backing up the file before editing it.<br>
+If your changes make the data file invalid, TutorBroPro starts with an empty address book at the next run. The invalid file remains on disk until you run a command (commands other than `help` and `exit` attempt to save). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause TutorBroPro to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 

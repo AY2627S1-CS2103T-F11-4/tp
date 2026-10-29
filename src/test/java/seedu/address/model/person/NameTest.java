@@ -52,6 +52,32 @@ public class NameTest {
     }
 
     @Test
+    public void constructor_apostrophesAndAccents_preservesName() {
+        assertEquals("O'Connor", new Name("O'Connor").fullName);
+        assertEquals("Jos\u00e9 O\u2019Connor", new Name("Jos\u00e9 O\u2019Connor").fullName);
+        assertEquals("Jose\u0301 Tan", new Name("Jose\u0301 Tan").fullName);
+    }
+
+    @Test
+    public void isValidName_unsupportedCharacters_returnsFalse() {
+        assertFalse(Name.isValidName("'"));
+        assertFalse(Name.isValidName("\u2019"));
+        assertFalse(Name.isValidName("\u0301"));
+        assertFalse(Name.isValidName("John@Doe"));
+        assertFalse(Name.isValidName("John\ud83d\ude00"));
+    }
+
+    @Test
+    public void equals_accentedNames_ignoresCase() {
+        Name name = new Name("Jos\u00e9 O'Connor");
+        Name sameName = new Name("JOS\u00c9 O'CONNOR");
+
+        assertEquals(name, sameName);
+        assertEquals(name.hashCode(), sameName.hashCode());
+        assertFalse(name.equals(new Name("Jose O'Connor")));
+    }
+
+    @Test
     public void equals() {
         Name name = new Name("Valid Name");
 
@@ -72,5 +98,30 @@ public class NameTest {
         assertFalse(name.equals(new Name("Other Valid Name")));
 
         assertEquals(name.fullName.toLowerCase().hashCode(), name.hashCode());
+    }
+
+    @Test
+    public void isValidName_punctuationOnly_returnsFalse() {
+        assertFalse(Name.isValidName("---"));
+        assertFalse(Name.isValidName("/"));
+        assertFalse(Name.isValidName("- / -"));
+        assertFalse(Name.isValidName("-\u0301/"));
+    }
+
+    @Test
+    public void constructor_punctuationOnly_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Name("---"));
+        assertThrows(IllegalArgumentException.class, () -> new Name("/"));
+        assertThrows(IllegalArgumentException.class, () -> new Name("  - / -  "));
+    }
+
+    @Test
+    public void isValidName_punctuationWithAlphanumeric_returnsTrue() {
+        assertTrue(Name.isValidName("Anne-Marie"));
+        assertTrue(Name.isValidName("Ali s/o Ahmad"));
+        assertTrue(Name.isValidName("-A/"));
+        assertTrue(Name.isValidName("/1-"));
+        assertTrue(Name.isValidName("\u674e"));
+        assertTrue(Name.isValidName("/\u00e9-"));
     }
 }
