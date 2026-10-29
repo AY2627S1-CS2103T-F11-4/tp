@@ -41,13 +41,23 @@ public class AddCommand extends Command {
     public static final String MESSAGE_DUPLICATE_PERSON = "This student already exists in the address book.";
 
     private final Student toAdd;
+    private final String duplicateSubjectWarning;
 
     /**
      * Creates an AddCommand to add the specified {@code Student}
      */
     public AddCommand(Student student) {
+        this(student, "");
+    }
+
+    /**
+     * Creates an AddCommand with an optional warning about duplicate subjects in the input.
+     */
+    public AddCommand(Student student, String duplicateSubjectWarning) {
         requireNonNull(student);
+        requireNonNull(duplicateSubjectWarning);
         toAdd = student;
+        this.duplicateSubjectWarning = duplicateSubjectWarning;
     }
 
     @Override
@@ -59,7 +69,9 @@ public class AddCommand extends Command {
         }
 
         model.addStudent(toAdd);
-        return new CommandResult(String.format(MESSAGE_SUCCESS, Messages.format(toAdd)));
+        String successMessage = String.format(MESSAGE_SUCCESS, Messages.format(toAdd));
+        return new CommandResult(duplicateSubjectWarning.isEmpty()
+                ? successMessage : successMessage + "\n" + duplicateSubjectWarning);
     }
 
     @Override
@@ -73,7 +85,8 @@ public class AddCommand extends Command {
             return false;
         }
 
-        return toAdd.equals(otherAddCommand.toAdd);
+        return toAdd.equals(otherAddCommand.toAdd)
+                && duplicateSubjectWarning.equals(otherAddCommand.duplicateSubjectWarning);
     }
 
     @Override
