@@ -11,22 +11,20 @@ import java.util.Locale;
  */
 public class Name {
 
-    /** Error message shown when a student name fails validation. */
+    /** Error message shown when a student name fail. */
     public static final String MESSAGE_CONSTRAINTS =
-            "Names should only contain alphanumeric characters, spaces, - and /, "
-                    + "and must contain at least one letter or digit.";
+            "Names should only contain letters, accent marks, digits, spaces, apostrophes, - and /, "
+                    + "must contain at least one letter or digit, and should be at most 60 characters long.";
 
     public static final int MAX_LENGTH = 60;
 
     /*
      * The lookahead requires at least one letter or digit anywhere in the name.
-     * It rejects punctuation-only names while allowing hyphens and slashes.
-     * The remaining pattern restricts allowed characters and rejects leading spaces.
-     * Numeric-only names remain valid under the letter-or-digit requirement.
-     * Examples: "Anne-Marie" and "123" are accepted; "---" and "/" are rejected.
+     * Allows Unicode letters, combining accent marks, and straight or curly apostrophes.
+     * The first character must be a letter, an ASCII digit, a slash, or a hyphen.
      */
     public static final String VALIDATION_REGEX =
-            "(?=.*\\p{Alnum})[\\p{Alnum}/\\-][\\p{Alnum}/\\- ]*";
+            "(?=.*[\\p{L}0-9])[\\p{L}0-9/\\-][\\p{L}\\p{M}0-9/\\- '\u2019]*";
 
     public final String fullName;
 
