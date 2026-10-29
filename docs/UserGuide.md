@@ -77,7 +77,7 @@ Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAI
 * `NAME` may contain alphanumeric characters, spaces, `-`, and `/`.
 * `LEVEL` must be one of `Pri 1` to `Pri 6`, `Sec 1` to `Sec 5`, or `JC 1` to `JC 2`.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
-* Duplicate subjects are merged.
+* Duplicate subjects are merged case-insensitively. If a duplicate is entered, the application displays a warning naming the ignored subject.
 * Duplicate students are not allowed. A student is considered a duplicate only when both the name and parent phone number match an existing student.
 * `PARENT_PHONE` must contain exactly 8 digits and start with `8` or `9`.
 * `PARENT_EMAIL` must be a valid email address in the form `example@domain`.
@@ -98,6 +98,7 @@ Format: `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PA
 * An edit cannot create another student with the same name and parent phone number.
 * After a successful edit, the full student list is displayed.
 * When editing subjects, all of the student's existing subjects are replaced; adding subjects is not cumulative. To replace them, list every subject you want the student to keep.
+* Duplicate subjects are merged case-insensitively, and the application warns when a duplicate subject is ignored.
 * The edited student must retain at least one subject. Empty subject entries such as `edit 1 s/` are rejected.
 * Each supplied field follows the same validation rules as `addstudent`.
 * TEditing a student's profile does not change or delete existing lesson notes. Removing a subject from the profile does not remove historical notes recorded for that subject.
@@ -129,7 +130,8 @@ Searches all students by name and displays the matches with new index numbers.
 
 Format: `find KEYWORD [MORE_KEYWORDS]...`
 
-* Matching is case-insensitive and includes students whose names contain any of the keywords as whole words.
+* Matching is case-insensitive and includes students whose name components start with any of the keywords.
+* Partial name searching is supported. For example, `J`, `Ja`, and `JA` all match a student named `Jack Neo`.
 * If there are no matches, an empty student list is displayed.
 * Use `list` to display all students again.
 
@@ -164,6 +166,8 @@ Format: `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`
 
 * Adds the lesson note to the student at the specified `INDEX`. The index refers to the index number shown in the displayed student list. The index **must be a positive integer** 1, 2, 3, ...
 * All three of `d/`, `s/` and `note/` are compulsory.
+* `note/` must be the final parameter. Everything after `note/`, including text such as `d/`, `s/`, `ln/`, or
+  another `note/`, is saved as part of `NOTE_TEXT`.
 * `DATE` must be a real calendar date in `YYYY-MM-DD` format and cannot be a future date.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
 * `NOTE_TEXT` cannot be blank, must not exceed 500 characters, and must be on a single line.
@@ -184,6 +188,8 @@ Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
 * `LESSON_INDEX` refers to the number shown next to the note in the output of `history INDEX`.
 * Both indexes **must be positive integers** 1, 2, 3, ...
 * At least one of `d/`, `s/` and `note/` must be provided.
+* If provided, `note/` must be the final parameter. Everything after `note/`, including text such as `d/`, `s/`,
+  `ln/`, or another `note/`, is saved as part of `NOTE_TEXT`.
 * Only the fields you provide are changed; the rest of the note is left as it was.
 * `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
 * Changing the date re-sorts the student's notes, so a note's number may change. Run `history INDEX` again before editing or deleting another note, replacing `INDEX` with the student's current displayed index.
@@ -315,7 +321,7 @@ Action     | Format, Examples
 **Edit student** | `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]`<br> e.g., `edit 2 n/James Lee pe/jameslee@example.com`
 **View profile** | `view INDEX`<br> e.g., `view 1`
 **List students** | `list`
-**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find James Jake`
+**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find Ja` or `find James Jake`
 **Filter students** | `filter [s/SUBJECT]... [lvl/LEVEL]`<br> e.g., `filter s/Math s/Science lvl/Sec 2`
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **Edit lesson note** | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`<br> e.g., `editnote 1 ln/2 note/Recapped photosynthesis.`

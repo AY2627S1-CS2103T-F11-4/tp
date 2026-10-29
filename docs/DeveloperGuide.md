@@ -241,7 +241,7 @@ A `Student` is immutable, so there is no way to add, edit or remove a note in pl
 The commands differ only in step 3:
 
 * **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
-* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Like `addnote`, it rejects an edit that would duplicate another lesson note for the same student.
 * **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
 
 `deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.
