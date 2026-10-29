@@ -51,6 +51,7 @@
         "storage-component": "Storage component",
         "common-classes": "Common classes",
         "implementation": "Implementation",
+        "clear-command-safeguard": "Clear command safeguard",
         "view-student-feature": "View student feature",
         "editing-a-student-profile": "Editing a student profile",
         "filtering-students": "Filtering students",
