@@ -54,6 +54,10 @@ public class EditNoteCommand extends Command {
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
 
+    /** Success message containing the original index, student name and updated index. */
+    public static final String MESSAGE_EDIT_NOTE_MOVED_SUCCESS =
+            "Edited lesson note %1$s for %2$s. It is now lesson note %3$s.";
+
     private final Index studentIndex;
     private final Index lessonIndex;
     private final Optional<LessonDate> date;
@@ -125,10 +129,42 @@ public class EditNoteCommand extends Command {
                 studentToEdit.getSubjects(), studentToEdit.getParentPhone(), studentToEdit.getParentEmail(),
                 updatedLessonNotes);
 
+        /*
+         * Rebuilding the student sorts lesson notes by date, so the edited note
+         * may no longer occupy the index supplied in the command.
+         * Sorting preserves the note objects, allowing identity comparison to
+         * locate this specific note even when another note has equal details.
+         * Convert its zero-based list position to the one-based history index.
+         */
+        int newIndex = findNoteIndex(editedStudent.getLessonNotes(), editedNote);
+
         model.setStudent(studentToEdit, editedStudent);
+
+        // Report both positions only when the edited note moves in the displayed history.
+        if (newIndex != lessonIndex.getOneBased()) {
+            return new CommandResult(String.format(MESSAGE_EDIT_NOTE_MOVED_SUCCESS,
+                    lessonIndex.getOneBased(), studentToEdit.getName(), newIndex));
+        }
 
         return new CommandResult(String.format(MESSAGE_EDIT_NOTE_SUCCESS,
                 lessonIndex.getOneBased(), studentToEdit.getName()));
+    }
+
+    /**
+     * Returns the one-based position of the exact edited note in the sorted history.
+     * The history must contain the same note instance, not merely an equal note.
+     */
+    static int findNoteIndex(List<LessonNote> sortedNotes, LessonNote editedNote) {
+        int newIndex = -1;
+        for (int i = 0; i < sortedNotes.size(); i++) {
+            // Locate the exact edited object, not another note with equal details.
+            if (sortedNotes.get(i) == editedNote) {
+                newIndex = i + 1;
+            }
+        }
+        assert newIndex > 0 : "Edited note must exist in the updated student's history";
+
+        return newIndex;
     }
 
     @Override
