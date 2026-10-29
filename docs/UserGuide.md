@@ -6,7 +6,7 @@
 
 # TutorBroPro User Guide
 
-TutorBroPro is a **desktop application for tutors to manage student profiles and lesson records**, optimized for use through a Command Line Interface (CLI) while retaining the benefits of a Graphical User Interface (GUI).
+TutorBroPro is a **desktop application for freelance private tutors to manage student profiles and lesson records**, optimized for use through a Command Line Interface (CLI) while retaining the benefits of a Graphical User Interface (GUI). It keeps student details, parent contacts and lesson history in one place so tutors can retrieve and update records quickly without relying on scattered notes.
 
 <!-- * Table of Contents -->
 <page-nav-print />
@@ -22,9 +22,16 @@ TutorBroPro is a **desktop application for tutors to manage student profiles and
 
 1. Copy the file to the folder you want to use as the _home folder_ for your TutorBroPro.
 
+   <box type="warning" seamless>
+
+   Keep the JAR in a folder where you have permission to create and modify files. TutorBroPro saves its data and preferences beside the JAR. Double-clicking the JAR might not work on some systems; use the terminal command below instead.
+   </box>
+
 1. Open a terminal, `cd` to the folder containing the JAR file, and run `java -jar addressbook.jar`.<br>
    A GUI similar to the one below should appear in a few seconds. Note how the app contains some sample data.<br>
-   ![Ui](images/Ui.png)
+   ![TutorBroPro main window showing student cards and lesson history](images/Ui.png)
+
+   Each student card shows up to the three most recent lesson notes. Longer note text is shortened with `...`, and the `+ N more` line indicates additional notes; use `history INDEX` to see the complete notes.
 
 1. Type a command in the command box and press Enter to execute it. For example, type **`help`** and press Enter to open the help window.<br>
    Some example commands you can try:
@@ -58,8 +65,8 @@ TutorBroPro is a **desktop application for tutors to manage student profiles and
 * Words in `UPPER_CASE` are the parameters to be supplied by the user.<br>
   For example, in `addstudent n/NAME`, replace `NAME` with a value such as `John Doe`.
 
-* Items followed by `...` can appear zero or more times.<br>
-  For example, `s/SUBJECT...` may be written as `s/Math` or `s/Math s/Science`.
+* Items followed by `...` can appear multiple times; whether they are optional depends on the command.<br>
+  For example, `s/SUBJECT...` may be written as `s/Math` or `s/Math s/Science`, and `addstudent` requires at least one subject.
 
 * Parameters can be in any order where the command supports multiple prefixed fields.<br>
   For example, `pn/PARENT_PHONE pe/PARENT_EMAIL n/NAME` is also acceptable for `addstudent`.
@@ -74,7 +81,7 @@ Adds a student profile with the student's name, academic level, subjects, and pa
 Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAIL`
 
 * `NAME`, `LEVEL`, at least one `SUBJECT`, `PARENT_PHONE`, and `PARENT_EMAIL` are compulsory.
-* `NAME` may contain alphanumeric characters, spaces, `-`, and `/`, and must contain at least one letter or digit. Punctuation-only names such as `---` and `/` are rejected.
+* `NAME` may contain Unicode letters, accent marks, digits, spaces, apostrophes, `-`, and `/`, must contain at least one letter or digit, and must be at most 60 characters long. Punctuation-only names such as `---` and `/` are rejected.
 * `LEVEL` must be one of `Pri 1` to `Pri 6`, `Sec 1` to `Sec 5`, or `JC 1` to `JC 2`.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
 * Duplicate subjects are merged case-insensitively. If a duplicate is entered, the application displays a warning naming the ignored subject.
@@ -101,7 +108,7 @@ Format: `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PA
 * Duplicate subjects are merged case-insensitively, and the application warns when a duplicate subject is ignored.
 * The edited student must retain at least one subject. Empty subject entries such as `edit 1 s/` are rejected.
 * Each supplied field follows the same validation rules as `addstudent`.
-* TEditing a student's profile does not change or delete existing lesson notes. Removing a subject from the profile does not remove historical notes recorded for that subject.
+* Editing a student's profile does not change or delete existing lesson notes. Removing a subject from the profile does not remove historical notes recorded for that subject.
 
 Examples:
 * `edit 1 pn/91234567 pe/johndoe@example.com` Edits the parent phone and parent email of the 1st student.
@@ -130,8 +137,9 @@ Searches all students by name and displays the matches with new index numbers.
 
 Format: `find KEYWORD [MORE_KEYWORDS]...`
 
-* Matching is case-insensitive and includes students whose name components start with any of the keywords.
+* Matching is case-insensitive. Each keyword matches a name component that starts with that keyword.
 * Partial name searching is supported. For example, `J`, `Ja`, and `JA` all match a student named `Jack Neo`.
+* When multiple keywords are supplied, a student is shown if any name component starts with any of the keywords.
 * If there are no matches, an empty student list is displayed.
 * Use `list` to display all students again.
 
@@ -172,6 +180,7 @@ Format: `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`
   another `note/`, is saved as part of `NOTE_TEXT`.
 * `DATE` must be a real calendar date in `YYYY-MM-DD` format and cannot be a future date.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
+* `SUBJECT` must match one of the student's current subjects, ignoring letter case. The note stores the subject using the spelling shown in the student's profile.
 * `NOTE_TEXT` cannot be blank, must not exceed 500 characters, and must be on a single line.
 * A student cannot have two lesson notes with the same date, subject and note text.
 * Lesson notes are kept sorted from the most recent date to the earliest.
@@ -194,6 +203,8 @@ Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
   `ln/`, or another `note/`, is saved as part of `NOTE_TEXT`.
 * Only the fields you provide are changed; the rest of the note is left as it was.
 * `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
+* If `SUBJECT` is provided, it must match one of the student's current subjects. If it is omitted, the note keeps its existing subject even if that subject has since been removed from the student's profile.
+* The command is rejected if the resulting date, subject and note text are all unchanged.
 * Changing the date re-sorts the student's notes, so a note's number may change. Run `history INDEX` again before editing or deleting another note, replacing `INDEX` with the student's current displayed index.
 
 Examples:
@@ -331,6 +342,7 @@ Furthermore, certain edits can cause TutorBroPro to behave in unexpected ways (e
 
 1. **When using multiple screens**, if you move the application to a secondary screen, and later switch to using only the primary screen, the GUI will open off-screen. The remedy is to delete the `preferences.json` file created by the application before running the application again.
 2. **If you minimize the Help Window** and then run the `help` command (or use the `Help` menu, or the keyboard shortcut `F1`) again, the original Help Window will remain minimized, and no new Help Window will appear. The remedy is to manually restore the minimized Help Window.
+3. **On macOS, using fullscreen mode** while a secondary dialog such as the Help Window is open might cause unexpected behavior. Exit fullscreen mode before opening or using secondary dialogs if this occurs.
 
 --------------------------------------------------------------------------------------------------------------------
 
@@ -342,7 +354,7 @@ Action     | Format, Examples
 **Edit student** | `edit INDEX [n/NAME] [lvl/LEVEL] [s/SUBJECT]... [pn/PARENT_PHONE] [pe/PARENT_EMAIL]`<br> e.g., `edit 2 n/James Lee pe/jameslee@example.com`
 **View profile** | `view INDEX`<br> e.g., `view 1`
 **List students** | `list`
-**Find students** | `find KEYWORD [MORE_KEYWORDS]`<br> e.g., `find Ja` or `find James Jake`
+**Find students** | `find KEYWORD [MORE_KEYWORDS]...`<br> e.g., `find Ja` or `find James Jake`
 **Filter students** | `filter [s/SUBJECT]... [lvl/LEVEL]`<br> e.g., `filter s/Math s/Science lvl/Sec 2`
 **Add lesson note** | `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`<br> e.g., `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations.`
 **Edit lesson note** | `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`<br> e.g., `editnote 1 ln/2 note/Recapped photosynthesis.`
