@@ -42,7 +42,7 @@ The following provides a quick overview of the main components and their interac
 
 **Main components of the architecture**
 
-**`Main`** (consisting of classes [`Main`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
+**`Main`** (consisting of classes [`Main`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/Main.java) and [`MainApp`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/MainApp.java)) is in charge of the app launch and shut down.
 * At app launch, it initializes the other components in the correct sequence, and connects them up with each other.
 * At shutdown, it saves the current user preferences.
 
@@ -74,13 +74,13 @@ The sections below give more details of each component.
 
 ### UI component
 
-The **API** of this component is specified in [`Ui.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/Ui.java)
+The **API** of this component is specified in [`Ui.java`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/ui/Ui.java)
 
 <puml src="diagrams/UiClassDiagram.puml" alt="Structure of the UI Component"/>
 
 The UI consists of a `MainWindow` and its parts, such as `CommandBox`, `ResultDisplay`, `PersonListPanel`, and `StatusBarFooter`. All of these, including `MainWindow`, inherit from the abstract `UiPart` class, which captures common behavior among classes that represent visible GUI parts.
 
-The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/ui/MainWindow.java).
+The `UI` component uses the JavaFX UI framework. The layouts of these UI parts are defined in matching `.fxml` files in `src/main/resources/view`. For example, [`MainWindow.fxml`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/resources/view/MainWindow.fxml) specifies the layout of [`MainWindow`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/ui/MainWindow.java).
 
 The `UI` component,
 
@@ -91,7 +91,7 @@ The `UI` component,
 
 ### Logic component
 
-**API** : [`Logic.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/logic/Logic.java)
+**API** : [`Logic.java`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/logic/Logic.java)
 
 Here's a (partial) class diagram of the `Logic` component:
 
@@ -124,7 +124,7 @@ How the parsing works:
 * All `XYZCommandParser` classes, such as `AddCommandParser` and `DeleteCommandParser`, implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
 ### Model component
-**API** : [`Model.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/model/Model.java)
+**API** : [`Model.java`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/model/Model.java)
 
 <puml src="diagrams/ModelClassDiagram.puml" width="450" />
 
@@ -137,7 +137,7 @@ The `Model` component,
 * does not depend on any of the other three components (as the `Model` represents data entities of the domain, they should make sense on their own without depending on other components)
 ### Storage component
 
-**API** : [`Storage.java`](https://github.com/se-edu/addressbook-level3/tree/master/src/main/java/seedu/address/storage/Storage.java)
+**API** : [`Storage.java`](https://github.com/AY2627S1-CS2103T-F11-4/tp/blob/master/src/main/java/seedu/address/storage/Storage.java)
 
 <puml src="diagrams/StorageClassDiagram.puml" width="550" />
 
@@ -196,7 +196,7 @@ The `filter` command narrows the displayed student list to students who match an
 
 * `FilterCommandParser` collects every `s/` value and at most one `lvl/` value. It rejects the command when neither is supplied, when text appears before the first prefix, or when `lvl/` is repeated.
 * The parsed values become a `StudentMatchesFilterPredicate`, which holds an `Optional<AcademicLevel>` and a `Set<Subject>`. Keeping the criteria in one predicate object means `FilterCommand` does not need to know how matching works, and lets the predicate be compared in tests.
-* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. The subject test is `containsAll`, so a student may take more subjects than were asked for, but not fewer.
+* `StudentMatchesFilterPredicate` matches a student when the level is absent or equal, **and** the student's subjects contain every required subject. Subject names are compared case-insensitively after consecutive spaces are normalized, so a student may take more subjects than were asked for, but not fewer.
 * `FilterCommand` passes the predicate to `Model#updateFilteredStudentList(Predicate)` and then reports how many students matched. When nothing matches it returns `MESSAGE_NO_STUDENTS_FOUND` instead of a count.
 * The predicate stays applied until another command replaces it, so later commands act on the filtered list. `list` clears it.
 * Failure paths are omitted from the diagram for readability: an invalid level or subject produces a parsing error before any `FilterCommand` is created.
@@ -326,6 +326,9 @@ through storage. This persistence step is outside the diagram's scope.
 * **As a tutor, I want to view a student's profile, so that I can quickly retrieve the information needed before a lesson.**
     * Priority: Must have
 
+* **As a tutor, I want to edit a student's profile, so that I can keep their academic and contact information up to date.**
+    * Priority: Must have
+
 * **As a tutor, I want to delete a student profile, so that I can remove outdated or incorrect records.**
     * Priority: Must have
 
@@ -348,12 +351,12 @@ through storage. This persistence step is outside the diagram's scope.
 * **As a tutor, I want to search for a student, so that I can find the correct profile quickly.**
     * Priority: Should have
 
-* **As a tutor, I want to organise students by relevant information, so that I can manage a large number of student profiles more efficiently.**
+* **As a tutor, I want to filter students by academic level and subject, so that I can manage a large number of student profiles more efficiently.**
     * Priority: Should have
 
 * **As a tutor, I want to protect student information, so that private contact and academic details are not exposed unnecessarily.**
     * Priority: Could have
-    * Status: Not implemented in the current release.
+    * Status: Coming soon; not implemented in the current release.
 
 ### Use cases
 
@@ -674,13 +677,11 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 2.  Should be able to hold up to 1000 students without noticeable sluggishness in performance for typical usage.
 3.  A user with above average typing speed for regular English text (i.e. not code, not system admin commands) should be able to accomplish most of the tasks faster using commands than using the mouse.
 4.  The graphical user interface should display its core components without truncation or overlap at resolutions of 1920×1080 and above, and all features should remain accessible at resolutions of 1280×720 and above.
-5.  Names and subjects should use English letters and their permitted punctuation; lesson-note text should be nonblank, contain no line breaks, and be at most 500 characters long.
+5.  Student names should use permitted Unicode letters, accent marks, digits, spaces, apostrophes, hyphens and slashes; subjects should use letters and spaces; lesson-note text should be nonblank, contain no line breaks, and be at most 500 characters long.
 6.  An invalid command should leave all stored student profiles and lesson notes unchanged and should display an error message stating what went wrong, including the correct command format where the command word is recognised.
 7.  Student profiles and lesson notes should be saved after every successful data-modifying command. If the application terminates unexpectedly, the last successfully saved state should remain readable after restarting the application.
 8.  If the data file is invalid after a manual edit, the application should not crash and should inform the user of the problem.
 9.  Student and parent information should remain on the user’s computer and should not be transmitted to external services.
-
-*{More to be added}*
 
 ### Glossary
 
@@ -719,14 +720,14 @@ testers are expected to do more *exploratory* testing.
 
    1. Download the JAR file and copy it into an empty folder.
 
-   1. Double-click the JAR file.<br>
-      Expected: The GUI opens with a set of sample students. The window size may not be optimal.
+   1. From a terminal in the folder containing the JAR, run `java -jar addressbook.jar`.<br>
+      Expected: The GUI opens with a set of sample students. The window size may not be optimal. If double-clicking the JAR is supported on the operating system, it may also be used.
 
 1. Saving window preferences
 
    1. Resize the window to an optimal size. Move the window to a different location. Close the window.
 
-   1. Relaunch the app by double-clicking the JAR file.<br>
+   1. Relaunch the app with `java -jar addressbook.jar`.<br>
        Expected: The most recent window size and location are retained.
 
 ### Adding a student
@@ -805,6 +806,23 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: `deletestudent 1`<br>
       Expected: The student shown in the search results is removed, rather than the original first student. Other students and their notes remain unchanged.
+
+### Clearing all entries
+
+1. Rejecting an accidental indexed clear
+
+   1. Prerequisites: At least two students are displayed.
+
+   1. Test case: `clear 2`<br>
+      Expected: The command is rejected and all students and lesson notes remain unchanged.
+
+1. Clearing the address book
+
+   1. Test case: `clear`<br>
+      Expected: All students and their lesson notes are removed immediately, without a confirmation prompt. The change is saved to `data/addressbook.json`.
+
+   1. Restart the application.<br>
+      Expected: The student list remains empty.
 
 
 ### Viewing a student's profile
