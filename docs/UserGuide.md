@@ -81,6 +81,7 @@ Format: `addstudent n/NAME lvl/LEVEL s/SUBJECT... pn/PARENT_PHONE pe/PARENT_EMAI
 * Duplicate students are not allowed. A student is considered a duplicate only when both the name and parent phone number match an existing student.
 * `PARENT_PHONE` must contain exactly 8 digits and start with `8` or `9`.
 * `PARENT_EMAIL` must be a valid email address in the form `example@domain`.
+* The part before `@` supports apostrophes and consecutive underscores, for example `o'connor@example.com` and `alex__parent@example.com`. It must start and end with a letter or digit. Spaces and consecutive dots are not allowed.
 
 Example:
 * `addstudent n/John Doe lvl/Sec 2 s/Math s/Science pn/91234567 pe/johnd@example.com`
