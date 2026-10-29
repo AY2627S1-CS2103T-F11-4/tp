@@ -116,6 +116,21 @@ public class EditNoteCommandTest {
         assertEquals(editedNote, model.getFilteredStudentList()
                 .get(INDEX_FIRST_PERSON.getZeroBased()).getLessonNotes()
                 .get(INDEX_SECOND_PERSON.getZeroBased()));
+    }
+
+    @Test
+    public void execute_editNoteToExistingNote_throwsCommandException() {
+        seedFirstStudentWith(NEWER_NOTE, OLDER_NOTE);
+        EditNoteCommand command = new EditNoteCommand(
+                INDEX_FIRST_PERSON, INDEX_SECOND_PERSON,
+                Optional.of(NEWER_NOTE.getDate()),
+                Optional.of(NEWER_NOTE.getSubject()),
+                Optional.of(NEWER_NOTE.getNoteText()));
+
+        assertCommandFailure(command, model, EditNoteCommand.MESSAGE_DUPLICATE_NOTE);
+    }
+
+    @Test
     public void execute_editSubjectNotTaken_throwsCommandException() {
         Student seededStudent = seedFirstStudentWith(NEWER_NOTE);
         EditNoteCommand command = new EditNoteCommand(
