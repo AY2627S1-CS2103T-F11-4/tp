@@ -156,6 +156,14 @@ Classes used by multiple components are in the `seedu.address.commons` package.
 
 This section describes some noteworthy details on how certain features are implemented.
 
+### Clear command safeguard
+
+The `clear` command rejects an index or other arguments before any data is removed.
+This is an additional precaution for a destructive command: a tutor intending to delete the student
+at displayed index 2 might confuse `deletestudent 2` with `clear 2`. Rejecting `clear 2` prevents that
+mistake from deleting every student and their lesson notes. The tutor must use `deletestudent 2`
+to delete only that student. Plain `clear` still removes all students without a confirmation prompt.
+
 ### View student feature
 
 The following sequence diagram shows how the `Logic` component handles the `view 2` command to retrieve and display the full profile of the second student in the currently displayed list.
@@ -233,7 +241,7 @@ A `Student` is immutable, so there is no way to add, edit or remove a note in pl
 The commands differ only in step 3:
 
 * **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
-* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Unlike `addnote`, it does not check whether the result duplicates another note.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Like `addnote`, it rejects an edit that would duplicate another lesson note for the same student.
 * **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
 
 `deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.

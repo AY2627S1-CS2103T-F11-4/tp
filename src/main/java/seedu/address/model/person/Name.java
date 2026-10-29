@@ -13,7 +13,9 @@ public class Name {
 
     public static final String MESSAGE_CONSTRAINTS =
             "Names should only contain letters, accent marks, digits, spaces, apostrophes, - and /, "
-                    + "and should not be blank.";
+                    + "should not be blank, and should be at most 60 characters long.";
+
+    public static final int MAX_LENGTH = 60;
 
     /*
      * Allows Unicode letters, combining accent marks, and straight or curly apostrophes.
@@ -40,7 +42,7 @@ public class Name {
      * Returns true if a given string is a valid name.
      */
     public static boolean isValidName(String test) {
-        return test.matches(VALIDATION_REGEX);
+        return test.length() <= MAX_LENGTH && test.matches(VALIDATION_REGEX);
     }
 
 

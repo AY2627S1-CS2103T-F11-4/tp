@@ -9,10 +9,12 @@ import static seedu.address.logic.parser.CliSyntax.PREFIX_PARENT_PHONE;
 import static seedu.address.logic.parser.CliSyntax.PREFIX_SUBJECT;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import seedu.address.commons.core.index.Index;
+import seedu.address.logic.Messages;
 import seedu.address.logic.commands.EditCommand;
 import seedu.address.logic.commands.EditCommand.EditPersonDescriptor;
 import seedu.address.logic.parser.exceptions.ParseException;
@@ -49,12 +51,15 @@ public class EditCommandParser implements Parser<EditCommand> {
         if (argMultimap.getValue(PREFIX_PARENT_EMAIL).isPresent()) {
             descriptor.setParentEmail(ParserUtil.parseEmail(argMultimap.getValue(PREFIX_PARENT_EMAIL).get()));
         }
-        parseSubjectsForEdit(argMultimap.getAllValues(PREFIX_SUBJECT)).ifPresent(descriptor::setSubjects);
+        List<String> subjectValues = argMultimap.getAllValues(PREFIX_SUBJECT);
+        parseSubjectsForEdit(subjectValues).ifPresent(descriptor::setSubjects);
+        String duplicateSubjectWarning = Messages.getWarningMessageForDuplicateSubjects(
+                ParserUtil.findDuplicateSubjects(subjectValues));
 
         if (!descriptor.isAnyFieldEdited()) {
             throw new ParseException(EditCommand.MESSAGE_NOT_EDITED);
         }
-        return new EditCommand(index, descriptor);
+        return new EditCommand(index, descriptor, duplicateSubjectWarning);
     }
 
     private Optional<Set<Subject>> parseSubjectsForEdit(Collection<String> subjects) throws ParseException {
