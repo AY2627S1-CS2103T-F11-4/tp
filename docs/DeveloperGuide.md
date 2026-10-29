@@ -354,10 +354,6 @@ through storage. This persistence step is outside the diagram's scope.
 * **As a tutor, I want to filter students by academic level and subject, so that I can manage a large number of student profiles more efficiently.**
     * Priority: Should have
 
-* **As a tutor, I want to protect student information, so that private contact and academic details are not exposed unnecessarily.**
-    * Priority: Could have
-    * Status: Coming soon; not implemented in the current release.
-
 ### Use cases
 
 (For all use cases below, the **System** is `TutorBroPro` and the **Actor** is the `tutor`, unless specified otherwise.)
