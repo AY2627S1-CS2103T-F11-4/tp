@@ -274,19 +274,38 @@ Typing `clear 2` by mistake does not delete anything. Typing `clear` alone still
 
 ### Viewing help: `help`
 
-Opens a window with a link to this user guide.
+Opens a window with a link to this user guide. Help does not save student data and remains available
+even when saving fails.
 
 Format: `help`
 
 ### Exiting the program: `exit`
 
-Exits the application. Your data is already saved, so nothing is lost.
+Exits the application without attempting another save.
+
+If your current student data contains unsaved changes, a confirmation appears:
+
+* **Cancel** keeps the app open and retains the current data in this session.
+* **Exit anyway** closes the app and discards unsaved changes.
+
+Closing the confirmation also cancels exiting. The same protection applies to **File → Exit** and
+closing the main window. If there are no unsaved changes, the app closes immediately.
 
 Format: `exit`
 
 ### Saving the data
 
-TutorBroPro automatically saves data after every command. You do not need to save manually.
+TutorBroPro attempts to save the entire current student dataset after each successfully executed command,
+except `help` and `exit`. There is no separate save command.
+
+If saving fails, an error appears in the command result area. A change may already be visible in the app
+but has not been saved to disk; the app does not undo it automatically. Keep the app open, resolve the
+reported save problem, then run `list` to retry saving. A successful save includes all current students
+and notes, including earlier unsaved changes that you have not since changed or deleted.
+
+For example, if adding a note succeeds in the app but saving fails, a later successful save preserves
+that note. If you delete the note before that save, the saved dataset reflects its deletion.
+`help` and `exit` do not retry saving. Exiting with unsaved changes requires confirmation.
 
 ### Editing the data file
 
@@ -295,7 +314,7 @@ TutorBroPro data is saved automatically as a JSON file `[JAR file location]/data
 <box type="warning" seamless>
 
 **Caution:**
-If your changes make the data file invalid, TutorBroPro starts with an empty address book at the next run. The invalid file remains on disk until you run a command (TutorBroPro saves after every command). Still, we recommend backing up the file before editing it.<br>
+If your changes make the data file invalid, TutorBroPro starts with an empty address book at the next run. The invalid file remains on disk until you run a command (commands other than `help` and `exit` attempt to save). Still, we recommend backing up the file before editing it.<br>
 Furthermore, certain edits can cause TutorBroPro to behave in unexpected ways (e.g., if a value entered is outside of the acceptable range). Therefore, edit the data file only if you are confident that you can update it correctly.
 </box>
 

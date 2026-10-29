@@ -1,6 +1,8 @@
 package seedu.address.logic;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_COMMAND_FORMAT;
 import static seedu.address.logic.Messages.MESSAGE_INVALID_PERSON_DISPLAYED_INDEX;
 import static seedu.address.logic.Messages.MESSAGE_UNKNOWN_COMMAND;
@@ -17,6 +19,7 @@ import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,9 +28,12 @@ import org.junit.jupiter.api.io.TempDir;
 import seedu.address.logic.commands.AddCommand;
 import seedu.address.logic.commands.ClearCommand;
 import seedu.address.logic.commands.CommandResult;
+import seedu.address.logic.commands.ExitCommand;
+import seedu.address.logic.commands.HelpCommand;
 import seedu.address.logic.commands.ListCommand;
 import seedu.address.logic.commands.exceptions.CommandException;
 import seedu.address.logic.parser.exceptions.ParseException;
+import seedu.address.model.AddressBook;
 import seedu.address.model.Model;
 import seedu.address.model.ModelManager;
 import seedu.address.model.ReadOnlyAddressBook;
@@ -110,6 +116,93 @@ public class LogicManagerTest {
     public void execute_storageThrowsAdException_throwsCommandException() {
         assertCommandFailureForExceptionFromStorage(DUMMY_AD_EXCEPTION, String.format(
                 LogicManager.FILE_OPS_PERMISSION_ERROR_FORMAT, DUMMY_AD_EXCEPTION.getMessage()));
+    }
+
+    @Test
+    public void execute_helpAndExitWithFailingStorage_returnsResultWithoutSaving() throws Exception {
+        model.addStudent(AMY);
+        Model expectedModel = new ModelManager(model.getAddressBook(), new UserPrefs());
+
+        for (IOException failure : List.of(DUMMY_IO_EXCEPTION, DUMMY_AD_EXCEPTION)) {
+            AtomicInteger saveAttempts = new AtomicInteger();
+            JsonAddressBookStorage addressBookStorage =
+                    new JsonAddressBookStorage(temporaryFolder.resolve("blocked.json")) {
+                        @Override
+                        public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+                            saveAttempts.incrementAndGet();
+                            throw failure;
+                        }
+                    };
+            JsonUserPrefsStorage userPrefsStorage =
+                    new JsonUserPrefsStorage(temporaryFolder.resolve("blockedUserPrefs.json"));
+            Logic testLogic = new LogicManager(model, new StorageManager(addressBookStorage, userPrefsStorage));
+
+            assertEquals(new CommandResult(HelpCommand.SHOWING_HELP_MESSAGE, true, false), testLogic.execute("help"));
+            assertEquals(new CommandResult(ExitCommand.MESSAGE_EXIT_ACKNOWLEDGEMENT, false, true),
+                    testLogic.execute("exit"));
+            assertEquals(0, saveAttempts.get());
+            assertEquals(expectedModel, model);
+        }
+    }
+
+    @Test
+    public void hasUnsavedChanges_failedSaveThenRecovery_savesEntireCurrentState() throws Exception {
+        ToggleStorage storage = new ToggleStorage();
+        logic = new LogicManager(model, new StorageManager(storage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("recoveryPrefs.json"))));
+        assertFalse(logic.hasUnsavedChanges());
+        assertThrows(CommandException.class, () -> logic.execute("list"));
+        assertFalse(logic.hasUnsavedChanges());
+
+        String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + LEVEL_DESC_AMY
+                + SUBJECT_DESC_MATH + PARENT_PHONE_DESC_AMY + PARENT_EMAIL_DESC_AMY;
+        assertThrows(CommandException.class, () -> logic.execute(addCommand));
+        assertTrue(logic.hasUnsavedChanges());
+        logic.execute("help");
+        logic.execute("exit");
+        assertTrue(logic.hasUnsavedChanges());
+
+        storage.isFailing = false;
+        logic.execute("list");
+        assertFalse(logic.hasUnsavedChanges());
+        assertEquals(model.getAddressBook(), new AddressBook(storage.readAddressBook().orElseThrow()));
+        assertEquals(1, storage.readAddressBook().orElseThrow().getStudentList().size());
+    }
+
+    @Test
+    public void hasUnsavedChanges_failedAddThenDelete_returnsToBaseline() throws Exception {
+        ToggleStorage storage = new ToggleStorage();
+        logic = new LogicManager(model, new StorageManager(storage,
+                new JsonUserPrefsStorage(temporaryFolder.resolve("undoPrefs.json"))));
+        String addCommand = AddCommand.COMMAND_WORD + NAME_DESC_AMY + LEVEL_DESC_AMY
+                + SUBJECT_DESC_MATH + PARENT_PHONE_DESC_AMY + PARENT_EMAIL_DESC_AMY;
+        assertThrows(CommandException.class, () -> logic.execute(addCommand));
+        assertTrue(logic.hasUnsavedChanges());
+        assertThrows(CommandException.class, () -> logic.execute("deletestudent 1"));
+        assertFalse(logic.hasUnsavedChanges());
+    }
+
+    @Test
+    public void hasUnsavedChanges_rejectedCommand_doesNotChangeBaseline() {
+        assertThrows(ParseException.class, () -> logic.execute("invalid"));
+        assertThrows(CommandException.class, () -> logic.execute("deletestudent 1"));
+        assertFalse(logic.hasUnsavedChanges());
+    }
+
+    private class ToggleStorage extends JsonAddressBookStorage {
+        private boolean isFailing = true;
+
+        ToggleStorage() {
+            super(temporaryFolder.resolve("recovery.json"));
+        }
+
+        @Override
+        public void saveAddressBook(ReadOnlyAddressBook addressBook) throws IOException {
+            if (isFailing) {
+                throw DUMMY_IO_EXCEPTION;
+            }
+            super.saveAddressBook(addressBook);
+        }
     }
 
     @Test
