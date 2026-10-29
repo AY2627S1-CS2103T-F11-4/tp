@@ -240,8 +240,8 @@ A `Student` is immutable, so there is no way to add, edit or remove a note in pl
 
 The commands differ only in step 3:
 
-* **`addnote`** requires all of `d/`, `s/` and `note/`, builds a `LessonNote`, and appends it. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
-* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. Like `addnote`, it rejects an edit that would duplicate another lesson note for the same student.
+* **`addnote`** requires all of `d/`, `s/` and `note/`. It resolves the subject against the student's current subjects, ignoring letter case, so the note stores the spelling used in the student's profile. It then builds and appends a `LessonNote`. It first rejects a note the student already has: `LessonNote#equals` compares date, subject and text, so a repeat of all three is refused while the same date and subject with different text is allowed.
+* **`editnote`** requires `ln/` and at least one of `d/`, `s/` and `note/`. It builds the replacement from the old note using `orElse` for each field, so omitted fields carry over, and replaces the note at that position. A newly supplied subject must match one of the student's current subjects; an omitted subject is retained even if it has since been removed from the profile. Like `addnote`, it rejects an edit that would duplicate another lesson note for the same student. It also rejects an edit whose resulting date, subject and text are all unchanged.
 * **`deletenote`** removes the note at that position. It distinguishes two failures: a student with no notes at all gets `MESSAGE_NO_LESSON_NOTES`, while an out-of-range index on a student who does have notes gets `MESSAGE_INVALID_LESSON_NOTE_INDEX`.
 
 `deletenote` is the only one of the three that rejects a request for two different reasons, so its failure paths are worth showing rather than omitting.
@@ -448,6 +448,12 @@ The following rules apply to these use cases:
 
   Use case resumes from step 1.
 
+* 1c. TutorBroPro detects that the supplied subject is not in the student's current subject list.
+
+  * 1c1. TutorBroPro informs the tutor that the student does not take that subject.
+
+  Use case resumes from step 1.
+
 **Use case: UC04 - View a student's lesson history**
 
 **Preconditions:** A student list is displayed.
@@ -480,7 +486,7 @@ The following rules apply to these use cases:
 **MSS**
 
 1. Tutor requests to find students, providing one or more search keywords.
-2. TutorBroPro searches the full student list and displays students whose names contain any of the keywords as whole words, ignoring letter case.
+2. TutorBroPro searches the full student list and displays students with a name component that starts with any supplied keyword, ignoring letter case.
 
    Use case ends.
 
@@ -626,9 +632,15 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 
   Use case resumes from step 1.
 
-* 1c. TutorBroPro detects an invalid lesson detail, such as an invalid or future date, an invalid subject, or invalid note text.
+* 1c. TutorBroPro detects an invalid lesson detail, such as an invalid or future date, a subject that the student does not currently take, or invalid note text.
 
   * 1c1. TutorBroPro informs the tutor of the invalid detail.
+
+  Use case resumes from step 1.
+
+* 1d. TutorBroPro detects that the resulting date, subject and note text are unchanged.
+
+  * 1d1. TutorBroPro informs the tutor that no changes were made.
 
   Use case resumes from step 1.
 
@@ -685,7 +697,7 @@ Deletion is immediate, without a confirmation prompt or an undo operation.
 * **Lesson history**: The collection of lesson notes associated with a student.
 * **Student index**: The number used to identify a student in the currently displayed list.
 * **Lesson index**: The number used to identify a lesson note within a student’s lesson history.
-* **Search keyword**: A word supplied by the tutor to search student names. Matching ignores letter case and requires a whole-word match; for example, `Alex` matches `Alex Yeoh`, but `Ale` does not.
+* **Search keyword**: A word supplied by the tutor to search student names. Matching ignores letter case and checks whether a name component starts with the keyword; for example, `Ale`, `ale`, and `ALEX` all match `Alex Yeoh`.
 * **Displayed list**: The list of students currently shown by the application, possibly after applying a search filter.
 * **Data file**: The local text file used to store student profiles and lesson notes.
 
@@ -839,7 +851,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Adding and viewing lesson notes
 
-   1. Prerequisites: At least one student exists with no lesson notes.
+   1. Prerequisites: At least one student exists with no lesson notes and has Math in their current subject list.
 
    1. Test case: `addnote 1 d/2026-10-01 s/Math note/Revised simultaneous equations`<br>
       Expected: The note is added, the status message echoes it, and the note appears on the student's card under `Lesson Notes:`.
@@ -852,6 +864,9 @@ testers are expected to do more *exploratory* testing.
 
    1. Test case: repeat an `addnote` command exactly.<br>
       Expected: Rejected. A student cannot have two notes with the same date, subject and text.
+
+   1. Test case: use `addnote` with a valid subject that is not in the student's current subject list.<br>
+      Expected: Rejected with a message stating that the student does not take that subject.
 
    1. Test cases: `addnote 1 d/2099-01-01 s/Math note/Future`, `addnote 1 d/2026-02-30 s/Math note/Not a date`, `addnote 1 d/2026-10-01 s/Math note/`<br>
       Expected: Each is rejected. Dates must be real calendar dates in `YYYY-MM-DD` format and cannot be in the future; note text cannot be blank.
@@ -869,6 +884,9 @@ testers are expected to do more *exploratory* testing.
    1. Test case: `editnote 1 ln/1`<br>
       Expected: Rejected. At least one of `d/`, `s/` or `note/` must be provided.
 
+   1. Test case: supply the existing value of one or more fields without changing any lesson-note detail.<br>
+      Expected: Rejected with a message stating that no changes were made.
+
 1. Deleting a lesson note
 
    1. Prerequisites: The first displayed student has at least two lesson notes.
@@ -884,7 +902,7 @@ testers are expected to do more *exploratory* testing.
 
 1. Lesson notes and the displayed list
 
-   1. Prerequisites: At least three students exist. Use `find` to display only one of them.
+   1. Prerequisites: At least three students exist. Use `find` to display only one student who has Math in their current subject list.
 
    1. Test case: `addnote 1 d/2026-10-01 s/Math note/Filter check`, then `deletenote 1 ln/1`<br>
       Expected: Both commands act on the displayed student, and the filtered list stays on screen afterwards.
