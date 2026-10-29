@@ -6,10 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandFailure;
 import static seedu.address.logic.commands.CommandTestUtil.assertCommandSuccess;
 import static seedu.address.logic.commands.CommandTestUtil.showPersonAtIndex;
+import static seedu.address.testutil.Assert.assertThrows;
 import static seedu.address.testutil.TypicalIndexes.INDEX_FIRST_PERSON;
 import static seedu.address.testutil.TypicalIndexes.INDEX_SECOND_PERSON;
 import static seedu.address.testutil.TypicalPersons.getTypicalAddressBook;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -47,6 +49,31 @@ public class EditNoteCommandTest {
         Model expectedModel = new ModelManager(new AddressBook(model.getAddressBook()), new UserPrefs());
         expectedModel.setStudent(originalStudent, editedStudent);
         return expectedModel;
+    }
+
+    @Test
+    public void findNoteIndex_equalNotes_returnsExactInstanceIndex() {
+        LessonNote equalNote = new LessonNote(
+                NEWER_NOTE.getDate(), NEWER_NOTE.getSubject(), NEWER_NOTE.getNoteText());
+
+        assertEquals(2, EditNoteCommand.findNoteIndex(List.of(equalNote, NEWER_NOTE), NEWER_NOTE));
+    }
+
+    @Test
+    public void findNoteIndex_missingNote_throwsAssertionError() {
+        assertThrows(AssertionError.class, () ->
+                EditNoteCommand.findNoteIndex(List.of(OLDER_NOTE), NEWER_NOTE));
+        assertThrows(AssertionError.class, () ->
+                EditNoteCommand.findNoteIndex(List.of(), NEWER_NOTE));
+    }
+
+    @Test
+    public void findNoteIndex_onlyEqualNote_throwsAssertionError() {
+        LessonNote equalNote = new LessonNote(
+                NEWER_NOTE.getDate(), NEWER_NOTE.getSubject(), NEWER_NOTE.getNoteText());
+
+        assertThrows(AssertionError.class, () ->
+                EditNoteCommand.findNoteIndex(List.of(equalNote), NEWER_NOTE));
     }
 
     @Test

@@ -136,15 +136,7 @@ public class EditNoteCommand extends Command {
          * locate this specific note even when another note has equal details.
          * Convert its zero-based list position to the one-based history index.
          */
-        List<LessonNote> sortedNotes = editedStudent.getLessonNotes();
-        int newIndex = -1;
-        for (int i = 0; i < sortedNotes.size(); i++) {
-            // Locate the exact edited object, not another note with equal details.
-            if (sortedNotes.get(i) == editedNote) {
-                newIndex = i + 1;
-            }
-        }
-        assert newIndex > 0 : "Edited note must exist in the updated student's history";
+        int newIndex = findNoteIndex(editedStudent.getLessonNotes(), editedNote);
 
         model.setStudent(studentToEdit, editedStudent);
 
@@ -156,6 +148,23 @@ public class EditNoteCommand extends Command {
 
         return new CommandResult(String.format(MESSAGE_EDIT_NOTE_SUCCESS,
                 lessonIndex.getOneBased(), studentToEdit.getName()));
+    }
+
+    /**
+     * Returns the one-based position of the exact edited note in the sorted history.
+     * The history must contain the same note instance, not merely an equal note.
+     */
+    static int findNoteIndex(List<LessonNote> sortedNotes, LessonNote editedNote) {
+        int newIndex = -1;
+        for (int i = 0; i < sortedNotes.size(); i++) {
+            // Locate the exact edited object, not another note with equal details.
+            if (sortedNotes.get(i) == editedNote) {
+                newIndex = i + 1;
+            }
+        }
+        assert newIndex > 0 : "Edited note must exist in the updated student's history";
+
+        return newIndex;
     }
 
     @Override
