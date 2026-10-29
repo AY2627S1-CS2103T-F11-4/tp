@@ -131,8 +131,9 @@ Searches all students by name and displays the matches with new index numbers.
 
 Format: `find KEYWORD [MORE_KEYWORDS]...`
 
-* Matching is case-insensitive and includes students whose name components start with any of the keywords.
+* Matching is case-insensitive. Each keyword matches a name component that starts with that keyword.
 * Partial name searching is supported. For example, `J`, `Ja`, and `JA` all match a student named `Jack Neo`.
+* When multiple keywords are supplied, a student is shown if any name component starts with any of the keywords.
 * If there are no matches, an empty student list is displayed.
 * Use `list` to display all students again.
 
@@ -173,6 +174,7 @@ Format: `addnote INDEX d/DATE s/SUBJECT note/NOTE_TEXT`
   another `note/`, is saved as part of `NOTE_TEXT`.
 * `DATE` must be a real calendar date in `YYYY-MM-DD` format and cannot be a future date.
 * `SUBJECT` must contain only letters and spaces and must be 2 to 30 characters long.
+* `SUBJECT` must match one of the student's current subjects, ignoring letter case. The note stores the subject using the spelling shown in the student's profile.
 * `NOTE_TEXT` cannot be blank, must not exceed 500 characters, and must be on a single line.
 * A student cannot have two lesson notes with the same date, subject and note text.
 * Lesson notes are kept sorted from the most recent date to the earliest.
@@ -195,6 +197,8 @@ Format: `editnote INDEX ln/LESSON_INDEX [d/DATE] [s/SUBJECT] [note/NOTE_TEXT]`
   `ln/`, or another `note/`, is saved as part of `NOTE_TEXT`.
 * Only the fields you provide are changed; the rest of the note is left as it was.
 * `DATE`, `SUBJECT` and `NOTE_TEXT` follow the same rules as in `addnote`.
+* If `SUBJECT` is provided, it must match one of the student's current subjects. If it is omitted, the note keeps its existing subject even if that subject has since been removed from the student's profile.
+* The command is rejected if the resulting date, subject and note text are all unchanged.
 * Changing the date re-sorts the student's notes, so a note's number may change. Run `history INDEX` again before editing or deleting another note, replacing `INDEX` with the student's current displayed index.
 
 Examples:

@@ -56,7 +56,7 @@ public class UiManager implements Ui {
             mainWindow.fillInnerParts();
             if (startupWarning != null) {
                 showAlertDialogAndWait(Alert.AlertType.WARNING, "Data file could not be loaded",
-                        "TutorProPro started with an empty data set", startupWarning);
+                        "TutorBroPro started with an empty data set", startupWarning);
             }
 
         } catch (Throwable e) {
