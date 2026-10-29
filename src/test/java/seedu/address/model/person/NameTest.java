@@ -99,4 +99,29 @@ public class NameTest {
 
         assertEquals(name.fullName.toLowerCase().hashCode(), name.hashCode());
     }
+
+    @Test
+    public void isValidName_punctuationOnly_returnsFalse() {
+        assertFalse(Name.isValidName("---"));
+        assertFalse(Name.isValidName("/"));
+        assertFalse(Name.isValidName("- / -"));
+        assertFalse(Name.isValidName("-\u0301/"));
+    }
+
+    @Test
+    public void constructor_punctuationOnly_throwsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Name("---"));
+        assertThrows(IllegalArgumentException.class, () -> new Name("/"));
+        assertThrows(IllegalArgumentException.class, () -> new Name("  - / -  "));
+    }
+
+    @Test
+    public void isValidName_punctuationWithAlphanumeric_returnsTrue() {
+        assertTrue(Name.isValidName("Anne-Marie"));
+        assertTrue(Name.isValidName("Ali s/o Ahmad"));
+        assertTrue(Name.isValidName("-A/"));
+        assertTrue(Name.isValidName("/1-"));
+        assertTrue(Name.isValidName("\u674e"));
+        assertTrue(Name.isValidName("/\u00e9-"));
+    }
 }
