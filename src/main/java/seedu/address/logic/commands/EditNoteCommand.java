@@ -43,8 +43,13 @@ public class EditNoteCommand extends Command {
 
     public static final String MESSAGE_NOT_EDITED = "At least one field to edit must be provided.";
 
+    public static final String MESSAGE_NO_CHANGES =
+            "No changes were made. Provide at least one different lesson note detail.";
+
     public static final String MESSAGE_INVALID_LESSON_NOTE_INDEX =
             "The lesson note index provided is invalid.";
+
+    public static final String MESSAGE_DUPLICATE_NOTE = AddNoteCommand.MESSAGE_DUPLICATE_NOTE;
 
     public static final String MESSAGE_EDIT_NOTE_SUCCESS =
             "Edited lesson note %1$s for %2$s.";
@@ -91,10 +96,26 @@ public class EditNoteCommand extends Command {
         }
 
         LessonNote oldNote = lessonNotes.get(lessonIndex.getZeroBased());
+        // Only a new subject is checked, so a note keeps its subject even after the student stops taking it
+        Subject editedSubject = oldNote.getSubject();
+        if (subject.isPresent()) {
+            editedSubject = studentToEdit.findSubject(subject.get())
+                    .orElseThrow(() -> new CommandException(String.format(Messages.MESSAGE_SUBJECT_NOT_TAKEN,
+                            studentToEdit.getName(), subject.get())));
+        }
         LessonNote editedNote = new LessonNote(
                 date.orElse(oldNote.getDate()),
-                subject.orElse(oldNote.getSubject()),
+                editedSubject,
                 noteText.orElse(oldNote.getNoteText()));
+
+        for (int i = 0; i < lessonNotes.size(); i++) {
+            if (i != lessonIndex.getZeroBased() && editedNote.equals(lessonNotes.get(i))) {
+                throw new CommandException(MESSAGE_DUPLICATE_NOTE);
+            }
+        }
+        if (editedNote.equals(oldNote)) {
+            throw new CommandException(MESSAGE_NO_CHANGES);
+        }
 
         List<LessonNote> updatedLessonNotes = new ArrayList<>(lessonNotes);
         updatedLessonNotes.set(lessonIndex.getZeroBased(), editedNote);
