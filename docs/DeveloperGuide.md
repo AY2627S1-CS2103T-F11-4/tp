@@ -138,11 +138,7 @@ How the `Logic` component works:
 1. The deletion success message includes the student's name and the number of associated lesson notes removed. The diagram shows the successful path; invalid indices are rejected before deletion.
 1. The result of the command execution is encapsulated as a `CommandResult` object which is returned from `Logic`.
 
-Here are the other classes in `Logic` (omitted from the class diagram above) that are used for parsing a user command:
-
-<puml src="diagrams/ParserClasses.puml" width="600"/>
-
-How the parsing works:
+How parsing a user command works:
 * When called upon to parse a user command, the `AddressBookParser` class creates the corresponding concrete parser, such as `AddCommandParser` or `DeleteCommandParser`. The parser uses the other classes shown above to parse the user command and create the matching command object. The `AddressBookParser` returns that object as a `Command` object.
 * The command-specific parsers implement the `Parser` interface so they can be treated similarly where appropriate, for example during testing.
 
